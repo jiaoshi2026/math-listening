@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>四年级数学听算作业 - 核心素养训练 | 播放控制+答题纸空间</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f9ff;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+        /* 左侧听算交互区 */
+        .audio-panel {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+            padding: 1.8rem;
+            transition: all 0.2s;
+        }
+        /* 右侧作业纸 - 大幅增加答题空间 */
+        .worksheet-panel {
+            flex: 3;
+            min-width: 360px;
+            background: #fffef7;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+            padding: 2rem 1.8rem;
+            border: 1px solid #e9e5d5;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #0f3b5f;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 0.8rem;
+            background: #e2f0fa;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: normal;
+            color: #1e6f5c;
+        }
+        .badge {
+            background: #d9eff7;
+            color: #0369a1;
+            padding: 6px 12px;
+            border-radius: 32px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .question-card {
+            background: #f8fafc;
+            border-radius: 1.5rem;
+            padding: 1.4rem;
+            margin: 1.2rem 0;
+            border-left: 6px solid #2c7da0;
+            transition: 0.1s;
+        }
+        .q-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        .q-text {
+            font-size: 1rem;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 1rem;
+            margin: 10px 0;
+            color: #0c4a6e;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+        .answer-area {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .answer-area input {
+            flex: 2;
+            min-width: 130px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 40px;
+            font-weight: 500;
+            background: white;
+        }
+        .answer-area input:focus {
+            border-color: #2c7da0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+        .check-btn {
+            background: #2c7da0;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .check-btn:hover {
+            background: #1f5e7a;
+            transform: scale(0.97);
+        }
+        .feedback {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            padding-left: 8px;
+            font-weight: 500;
+        }
+        .correct {
+            color: #15803d;
+            background: #e0f2e9;
+            border-radius: 30px;
+            padding: 4px 14px;
+            display: inline-block;
+        }
+        .incorrect {
+            color: #b91c1c;
+            background: #ffe6e6;
+            border-radius: 30px;
+            padding: 4px 14px;
+            display: inline-block;
+        }
+        .control-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0 15px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .playback-panel {
+            background: #eef2ff;
+            border-radius: 60px;
+            padding: 6px 12px;
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .playback-btn {
+            background: white;
+            border: none;
+            font-size: 1.2rem;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .playback-btn:hover {
+            background: #e0e7ff;
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: #0f3b5f;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1f5e8c;
+        }
+        .btn-secondary {
+            background: #e9ecef;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #2c3e50;
+        }
+        .speaker-icon {
+            background: #d4eaf5;
+            padding: 7px 14px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        .voice-status {
+            font-size: 0.75rem;
+            color: #1e6f5c;
+            background: #e6f4ea;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        hr {
+            margin: 20px 0;
+            border-color: #e2e8f0;
+        }
+        /* 作业纸大幅提升答题空间: 更大的书写区域和明确做题区域 */
+        .worksheet-header {
+            text-align: center;
+            margin-bottom: 24px;
+            border-bottom: 2px dashed #cbd5a0;
+            padding-bottom: 16px;
+        }
+        .worksheet-header h2 {
+            margin: 0;
+            color: #3b5249;
+        }
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .worksheet-item {
+            background: #fefcf0;
+            border-radius: 28px;
+            padding: 20px 20px;
+            border: 1px solid #f0e6c5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .worksheet-question {
+            font-size: 1.05rem;
+            font-weight: 600;
+            background: #fff7e0;
+            padding: 16px 18px;
+            border-radius: 24px;
+            margin-bottom: 18px;
+            line-height: 1.45;
+            color: #2c3e2f;
+        }
+        .write-area {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .write-line {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: #fffdf5;
+            padding: 12px 14px;
+            border-radius: 28px;
+        }
+        .write-line strong {
+            min-width: 70px;
+            font-size: 0.95rem;
+        }
+        .paper-answer-input {
+            flex: 2;
+            min-width: 150px;
+            border: 2px solid #cfcbb4;
+            border-radius: 60px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            background: white;
+            font-family: monospace;
+            font-weight: 500;
+        }
+        .paper-answer-input:focus {
+            border-color: #2c7da0;
+            outline: none;
+        }
+        .calculation-space {
+            margin-top: 12px;
+            background: #faf8ef;
+            border-radius: 24px;
+            padding: 14px 18px;
+            border-left: 4px solid #b9c48b;
+        }
+        .calculation-space textarea {
+            width: 100%;
+            border: 1px solid #d9d2ae;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            font-size: 0.9rem;
+            background: #fffff2;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .calculation-space label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #5f5b3a;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        .print-tip {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #6c757d;
+            background: #f1f3e9;
+            padding: 8px;
+            border-radius: 40px;
+        }
+        button:active {
+            transform: scale(0.97);
+        }
+        @media (max-width: 780px) {
+            .container { flex-direction: column; }
+            .audio-panel, .worksheet-panel { width: 100%; }
+        }
+        .global-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 80px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 左侧听算区: 增加全局播放/暂停及题目标配 -->
+    <div class="audio-panel">
+        <h1>🎧 数学听算训练 <small>核心素养 · 模型意识</small></h1>
+        <!-- 全局控制栏：播放/暂停/停止，语速显示 -->
+        <div class="control-bar">
+            <div class="global-controls">
+                <button id="globalPlayBtn" class="playback-btn">▶ 全局播放(3题)</button>
+                <button id="globalPauseBtn" class="playback-btn">⏸ 暂停</button>
+                <button id="globalStopBtn" class="playback-btn">⏹ 停止</button>
+                <span class="voice-status">🔊 语速0.6 | 每题3遍·间隔2秒</span>
+            </div>
+            <button id="refreshBtn" class="btn-secondary">✨ 随机新题组</button>
+        </div>
+        <div id="questionsContainer">
+            <!-- 动态渲染3道题，每题带单独播放按钮 -->
+        </div>
+        <div class="progress-note" style="background:#fff3bf; padding:10px 14px; border-radius:28px; margin-top:10px;">
+            💡 听算策略：先听清条件和问题，理清数量关系再列式。培养数感、量感与推理意识。
+        </div>
+    </div>
+
+    <!-- 右侧：配套作业纸 (大幅扩充答题空间：独立算式区+草稿文本框) -->
+    <div class="worksheet-panel">
+        <div class="worksheet-header">
+            <h2>📄 数学听算作业纸 · 详细解题区</h2>
+            <p style="font-size:0.85rem">班级：__________ 姓名：__________ 日期：_______</p>
+            <p style="font-size:0.75rem;color:#5f6c37;">✦ 根据音频条件列式计算，将最终答案填入「答案框」，并写出思考过程 ✦</p>
+        </div>
+        <div id="worksheetList" class="question-list">
+            <!-- 作业纸题目动态生成：包含题目、答案输入框、大面积演算区 -->
+        </div>
+        <div class="print-tip">
+            🖨️ 可打印使用，算式过程可写在演算区域。独立完成后再对照左侧核对答案。
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 题库（符合新课标，体现四基四能，区分度明显）----------
+    const questionBank = [
+        // 简单题（基础运算、生活常识）
+        { text: "学校图书馆有32本童话书，又买进28本，现在图书馆一共有多少本童话书？", answer: 60, difficulty: "easy", hint: "加法运算：32+28=60" },
+        { text: "一箱牛奶有24盒，喝掉了9盒，还剩多少盒？", answer: 15, difficulty: "easy", hint: "减法：24-9=15" },
+        { text: "一只青蛙每分钟捉5只害虫，那么它8分钟能捉多少只害虫？", answer: 40, difficulty: "easy", hint: "乘法：5×8=40" },
+        { text: "妈妈买了3袋苹果，每袋有12个，一共有多少个苹果？", answer: 36, difficulty: "easy", hint: "3×12=36" },
+        { text: "停车场原来有45辆车，开走了17辆，现在停车场有多少辆车？", answer: 28, difficulty: "easy", hint: "45−17=28" },
+        // 中等题（两步运算，比较/倍数/单位换算）
+        { text: "果园里有桃树124棵，梨树比桃树少36棵，梨树有多少棵？桃树和梨树一共有多少棵？", answer: 212, difficulty: "medium", hint: "梨树124-36=88，一共124+88=212" },
+        { text: "一套故事书原价84元，促销降价15元，买3套这样的故事书一共需要多少钱？", answer: 207, difficulty: "medium", hint: "现价69元，69×3=207元" },
+        { text: "小明每分钟走65米，他走了12分钟，还差240米就到学校，他家离学校多少米？", answer: 1020, difficulty: "medium", hint: "65×12=780，780+240=1020米" },
+        { text: "工人修一条路，已经修了450米，剩下的是已修的2倍少80米，这条路全长多少米？", answer: 1270, difficulty: "medium", hint: "剩下450×2−80=820，全长1270米" },
+        { text: "一辆卡车载重5吨，已经装了3500千克货物，还能装多少千克？", answer: 1500, difficulty: "medium", hint: "5吨=5000千克，5000-3500=1500千克" },
+        // 挑战题（多步骤，代数思维/盈亏/推理）
+        { text: "三年级同学去植树，如果每人植4棵，还多6棵树苗；如果每人植5棵，则少8棵树苗。请问有多少名同学？", answer: 14, difficulty: "hard", hint: "盈亏问题：(8+6)÷(5-4)=14人" },
+        { text: "王阿姨去买水果，买3千克苹果和2千克梨需要34元，买1千克苹果和2千克梨需要18元，请问苹果每千克多少元？", answer: 8, difficulty: "hard", hint: "苹果单价：(34-18)÷(3-1)=8元" },
+        { text: "一个长方形草坪，长是宽的2倍，周长是96米，这个长方形草坪的面积是多少平方米？", answer: 512, difficulty: "hard", hint: "宽=96÷2÷3=16米，长32米，面积512平方米" },
+        { text: "李老师给同学们分糖果，如果每人分4颗，多18颗；如果每人分6颗，少12颗，请问有多少名同学？", answer: 15, difficulty: "hard", hint: "盈亏公式：(18+12)÷(6-4)=15人" },
+        { text: "一条道路一旁从头到尾每隔8米种一棵树，共种了21棵，这条道路长多少米？", answer: 160, difficulty: "hard", hint: "间隔数20，20×8=160米" }
+    ];
+
+    // 分层随机抽题（简单+中等+挑战）
+    function getRandomQuestionsByDifficulty() {
+        const easyPool = questionBank.filter(q => q.difficulty === "easy");
+        const mediumPool = questionBank.filter(q => q.difficulty === "medium");
+        const hardPool = questionBank.filter(q => q.difficulty === "hard");
+        const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
+        return [getRandom(easyPool), getRandom(mediumPool), getRandom(hardPool)];
+    }
+
+    let currentQuestions = [];      // 当前三道题对象
+    let userAnswers = [];           // 用户答案（字符串/数字原始）
+    let answerStatus = [];          // 是否正确标记
+
+    // 语音控制全局变量
+    let currentSpeechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+    let isPaused = false;
+    let globalPlayingActive = false;     // 是否正在全局播放序列中
+    let currentPlayIndex = 0;            // 当前播放到第几题
+    let playQueueTimeout = null;
+
+    // 停止所有语音并清除排队
+    function cancelSpeech() {
+        if (currentSpeechSynthesis) {
+            currentSpeechSynthesis.cancel();
+        }
+        if (playQueueTimeout) {
+            clearTimeout(playQueueTimeout);
+            playQueueTimeout = null;
+        }
+        isPaused = false;
+        globalPlayingActive = false;
+        currentPlayIndex = 0;
+    }
+
+    // 播放单题完整三遍 (返回Promise，支持暂停时中断)
+    function speakSingleQuestionFull(text, repeatTimes = 3, intervalSec = 2, rateVal = 0.6) {
+        return new Promise((resolve, reject) => {
+            let repeatCount = 0;
+            let timeoutId = null;
+            let isCancelled = false;
+
+            const speakOnce = () => {
+                return new Promise((res) => {
+                    // 如果已经取消或全局停止
+                    if (isCancelled) {
+                        res(false);
+                        return;
+                    }
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = rateVal;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1;
+                    utterance.onend = () => res(true);
+                    utterance.onerror = () => res(false);
+                    currentUtterance = utterance;
+                    currentSpeechSynthesis.cancel(); // 避免堆积
+                    currentSpeechSynthesis.speak(utterance);
+                });
+            };
+
+            const loop = async () => {
+                if (isCancelled) {
+                    resolve(false);
+                    return;
+                }
+                if (repeatCount >= repeatTimes) {
+                    resolve(true);
+                    return;
+                }
+                const spoken = await speakOnce();
+                if (!spoken || isCancelled) {
+                    resolve(false);
+                    return;
+                }
+                repeatCount++;
+                if (repeatCount < repeatTimes && !isCancelled) {
+                    timeoutId = setTimeout(() => loop(), intervalSec * 1000);
+                    playQueueTimeout = timeoutId;
+                } else {
+                    resolve(true);
+                }
+            };
+            loop();
+            // 提供取消方法
+            this.cancel = () => {
+                isCancelled = true;
+                if (timeoutId) clearTimeout(timeoutId);
+                currentSpeechSynthesis.cancel();
+                resolve(false);
+            };
+        });
+    }
+
+    // 全局播放: 按顺序播放三道题 (每题三遍，间隔2s)
+    async function globalPlayAll() {
+        cancelSpeech();
+        if (!currentQuestions.length) return;
+        globalPlayingActive = true;
+        isPaused = false;
+        for (let i = 0; i < currentQuestions.length; i++) {
+            if (!globalPlayingActive || isPaused) {
+                // 如果被暂停或停止则中断
+                if (isPaused) {
+                    // 暂停时保留当前索引，等待恢复
+                    currentPlayIndex = i;
+                    return;
+                }
+                break;
+            }
+            currentPlayIndex = i;
+            const qText = currentQuestions[i].text;
+            // 播放当前题三遍，支持外部暂停/停止中断
+            let speakerHandler = null;
+            const playPromise = new Promise((resolve) => {
+                speakerHandler = new speakSingleQuestionFull(qText, 3, 2, 0.6);
+                speakerHandler.then(resolve);
+            });
+            await playPromise;
+            if (!globalPlayingActive || isPaused) break;
+            // 题与题之间额外稍留半秒缓冲
+            await new Promise(r => setTimeout(r, 400));
+        }
+        globalPlayingActive = false;
+        currentPlayIndex = 0;
+    }
+
+    function pausePlayback() {
+        if (globalPlayingActive && !isPaused) {
+            isPaused = true;
+            if (currentUtterance) {
+                currentSpeechSynthesis.cancel();
+            }
+            if (playQueueTimeout) clearTimeout(playQueueTimeout);
+            // 标记暂停，保留currentPlayIndex
+            globalPlayingActive = false; // 实际上活动状态停止，等待恢复重新启动
+        } else if (!globalPlayingActive && currentUtterance && !isPaused) {
+            // 单独播放时暂停处理
+            currentSpeechSynthesis.cancel();
+            isPaused = true;
+        } else {
+            // 如果已暂停就忽略
+        }
+    }
+
+    function resumePlayback() {
+        if (isPaused) {
+            isPaused = false;
+            if (currentPlayIndex < currentQuestions.length && currentQuestions.length) {
+                // 恢复播放当前索引的题目
+                globalPlayingActive = true;
+                const resumePlay = async () => {
+                    for (let i = currentPlayIndex; i < currentQuestions.length; i++) {
+                        if (!globalPlayingActive || isPaused) break;
+                        const qText = currentQuestions[i].text;
+                        const handler = new speakSingleQuestionFull(qText, 3, 2, 0.6);
+                        await handler;
+                        if (!globalPlayingActive || isPaused) break;
+                        await new Promise(r => setTimeout(r, 400));
+                    }
+                    globalPlayingActive = false;
+                    if (!isPaused) currentPlayIndex = 0;
+                };
+                resumePlay();
+            } else {
+                globalPlayingActive = false;
+                currentPlayIndex = 0;
+            }
+        }
+    }
+
+    function stopPlayback() {
+        cancelSpeech();
+        isPaused = false;
+        globalPlayingActive = false;
+        currentPlayIndex = 0;
+        if (currentUtterance) {
+            currentSpeechSynthesis.cancel();
+            currentUtterance = null;
+        }
+    }
+
+    // 单独播放某题（不干扰全局队列, 但会停止当前任何播放）
+    function playSingleQuestionOnly(index) {
+        if (!currentQuestions[index]) return;
+        cancelSpeech();        // 停止当前任何正在播放的
+        globalPlayingActive = false;
+        isPaused = false;
+        const qText = currentQuestions[index].text;
+        const speaker = new speakSingleQuestionFull(qText, 3, 2, 0.6);
+        speaker.catch(e=>console.log);
+    }
+
+    // 渲染全部UI（左侧+右侧作业纸大大扩展）
+    function renderAll() {
+        // 渲染左侧
+        let leftHtml = '';
+        currentQuestions.forEach((q, idx) => {
+            const statusText = answerStatus[idx] !== undefined ? (answerStatus[idx] ? '✓ 正确' : '✗ 错误') : '未作答';
+            const statusClass = answerStatus[idx] === true ? 'correct' : (answerStatus[idx] === false ? 'incorrect' : '');
+            leftHtml += `
+                <div class="question-card" data-idx="${idx}">
+                    <div class="q-title">
+                        <span>📢 第${idx+1}题 · ${q.difficulty === 'easy' ? '🌟基础' : (q.difficulty === 'medium' ? '✨提升' : '🚀挑战')}</span>
+                        <button class="speaker-icon" id="singlePlay_${idx}" style="background:#eef2ff;border:none;">🔊 单独听题(3遍)</button>
+                    </div>
+                    <div class="q-text">📖 ${q.text}</div>
+                    <div class="answer-area">
+                        <input type="number" step="any" id="answerInput_${idx}" placeholder="输入答案" value="${userAnswers[idx] !== undefined ? userAnswers[idx] : ''}">
+                        <button class="check-btn" data-check="${idx}">✔️ 核对答案</button>
+                    </div>
+                    <div class="feedback">
+                        <span class="${statusClass}">${statusText}</span>
+                        ${answerStatus[idx] === false ? `<span style="margin-left:12px;">💡 提示: ${q.hint}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        questionsContainer.innerHTML = leftHtml;
+
+        // 绑定左侧事件
+        currentQuestions.forEach((_, idx) => {
+            const singleBtn = document.getElementById(`singlePlay_${idx}`);
+            if (singleBtn) singleBtn.addEventListener('click', () => playSingleQuestionOnly(idx));
+            const checkBtn = document.querySelector(`.check-btn[data-check="${idx}"]`);
+            if (checkBtn) {
+                checkBtn.addEventListener('click', () => {
+                    const inputVal = document.getElementById(`answerInput_${idx}`).value.trim();
+                    const numVal = parseFloat(inputVal);
+                    const correctAns = currentQuestions[idx].answer;
+                    let isCorrect = false;
+                    if (!isNaN(numVal)) {
+                        if (Number.isInteger(correctAns) && Number.isInteger(numVal)) isCorrect = (numVal === correctAns);
+                        else isCorrect = Math.abs(numVal - correctAns) < 0.01;
+                    }
+                    answerStatus[idx] = isCorrect;
+                    userAnswers[idx] = inputVal;
+                    // 同步作业纸答案输入框
+                    const paperAns = document.getElementById(`paperAnswer_${idx}`);
+                    if (paperAns) paperAns.value = inputVal;
+                    renderAll();
+                });
+            }
+            const leftInput = document.getElementById(`answerInput_${idx}`);
+            if (leftInput) {
+                leftInput.addEventListener('input', (e) => {
+                    userAnswers[idx] = e.target.value;
+                    const paperSync = document.getElementById(`paperAnswer_${idx}`);
+                    if (paperSync) paperSync.value = e.target.value;
+                    answerStatus[idx] = undefined;
+                    renderAll();
+                });
+            }
+        });
+
+        // 右侧作业纸：大空间设计，独立演算框
+        let worksheetHtml = '';
+        currentQuestions.forEach((q, idx) => {
+            const userAnsVal = (userAnswers[idx] !== undefined) ? userAnswers[idx] : '';
+            worksheetHtml += `
+                <div class="worksheet-item">
+                    <div class="worksheet-question">
+                        <strong>${idx+1}.</strong> ${q.text}<br>
+                        <span style="font-size:0.7rem; background:#e9e3c9; padding:2px 8px; border-radius:20px;">${q.difficulty === 'easy' ? '基础巩固' : (q.difficulty === 'medium' ? '能力提升' : '思维挑战')}</span>
+                    </div>
+                    <div class="write-area">
+                        <div class="write-line">
+                            <strong>📌 最终答案：</strong>
+                            <input type="text" id="paperAnswer_${idx}" class="paper-answer-input" placeholder="填写计算后的答案" value="${userAnsVal}">
+                            <span style="font-size:0.7rem;">(数字/小数)</span>
+                        </div>
+                        <div class="calculation-space">
+                            <label>📝 我的解题过程与数量关系式：</label>
+                            <textarea rows="3" id="calcProcess_${idx}" placeholder="例：先求…再求… 列出算式&#10;如：32+28=60（本）" style="width:100%;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        worksheetListDiv.innerHTML = worksheetHtml;
+        // 绑定作业纸答案输入同步
+        currentQuestions.forEach((_, idx) => {
+            const paperInput = document.getElementById(`paperAnswer_${idx}`);
+            if (paperInput) {
+                paperInput.addEventListener('input', (e) => {
+                    userAnswers[idx] = e.target.value;
+                    const leftSync = document.getElementById(`answerInput_${idx}`);
+                    if (leftSync) leftSync.value = e.target.value;
+                    answerStatus[idx] = undefined;
+                    renderAll();
+                });
+            }
+        });
+    }
+
+    function loadNewQuestions() {
+        stopPlayback();
+        currentQuestions = getRandomQuestionsByDifficulty();
+        userAnswers = new Array(3).fill('');
+        answerStatus = new Array(3).fill(undefined);
+        renderAll();
+        // 可选自动友好提示但不自动播放全部（用户可点全局播放）
+    }
+
+    // 绑定全局按钮
+    document.getElementById('globalPlayBtn').addEventListener('click', () => {
+        if (globalPlayingActive) {
+            stopPlayback();
+        }
+        stopPlayback();
+        globalPlayAll();
+    });
+    document.getElementById('globalPauseBtn').addEventListener('click', pausePlayback);
+    document.getElementById('globalStopBtn').addEventListener('click', stopPlayback);
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        stopPlayback();
+        loadNewQuestions();
+    });
+
+    // 初始化
+    loadNewQuestions();
+    window.onbeforeunload = () => { if (window.speechSynthesis) window.speechSynthesis.cancel(); };
+</script>
+</body>
+</html>
