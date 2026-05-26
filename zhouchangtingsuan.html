@@ -1,0 +1,638 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>长方形和正方形周长听算</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Roboto', '微软雅黑', system-ui, sans-serif;
+            background: #f6f9e6;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .app-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #ffffffdd;
+            backdrop-filter: blur(4px);
+            background: #fff9f0;
+            box-shadow: 0 20px 40px rgba(0, 40, 20, 0.08);
+            border-radius: 48px;
+            padding: 28px 30px 35px;
+            border: 1px solid #e2dccd;
+        }
+
+        h1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 2.1rem;
+            color: #2b5e3b;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+            border-bottom: 3px dashed #b0c8a8;
+            padding-bottom: 15px;
+        }
+        h1 span {
+            background: #d9e6cf;
+            padding: 0 16px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #1e4620;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .listen-area {
+            flex: 1;
+            min-width: 320px;
+        }
+        .status-card {
+            background: #e5f0dc;
+            border-radius: 28px;
+            padding: 22px 25px;
+            box-shadow: inset 0 1px 4px #ffffff, 0 6px 12px rgba(90, 110, 70, 0.08);
+            border: 1px solid #c8dbb8;
+        }
+        .question-badge {
+            display: inline-block;
+            background: #2e6b3e;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+        .current-quote {
+            background: #fefcf0;
+            padding: 18px 22px;
+            border-radius: 24px;
+            font-size: 1.4rem;
+            line-height: 1.4;
+            font-weight: 500;
+            color: #1e3a2a;
+            border-left: 10px solid #6f9e7c;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            min-height: 130px;
+            word-break: break-word;
+        }
+        .progress-indicator {
+            margin: 16px 0 10px;
+            font-size: 1.2rem;
+            color: #3b5e3b;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0 10px;
+        }
+        .btn {
+            background: #f4faea;
+            border: 2px solid #7fa07f;
+            color: #1c411c;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #5e7a5e;
+            transition: all 0.1s ease;
+            border: none;
+            border-bottom: 4px solid #4f6e4f;
+            flex: 0 1 auto;
+            min-width: 115px;
+            letter-spacing: 1px;
+            background: #d9e8d0;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #4f6e4f;
+            background: #e2f0d9;
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4f6e4f;
+        }
+        .btn.outline {
+            background: #fff6e5;
+            border-bottom: 4px solid #b29870;
+            color: #4e3e28;
+        }
+        .speed-hint {
+            margin-top: 12px;
+            color: #3d533d;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .pill {
+            background: #b7cfaa;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #1b3b1b;
+            font-weight: 500;
+        }
+
+        .worksheet {
+            flex: 1.3;
+            min-width: 500px;
+            background: #fdfaec;
+            border-radius: 28px;
+            padding: 22px 20px;
+            border: 2px solid #cfbba1;
+            box-shadow: 0 10px 0 #b7a68e, 0 8px 18px rgba(70, 50, 20, 0.05);
+        }
+        .worksheet h2 {
+            margin: 0 0 15px 0;
+            font-weight: 500;
+            font-size: 1.9rem;
+            color: #624c37;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .worksheet h2 small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            background: #e6dccb;
+            padding: 2px 16px;
+            border-radius: 30px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 2px solid #c4b49c;
+        }
+        .answer-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fffdf5;
+            font-size: 1rem;
+        }
+        .answer-table th {
+            background: #8fa67a;
+            color: white;
+            font-weight: 600;
+            padding: 12px 5px;
+            text-align: center;
+            border: 1px solid #6b8460;
+            font-size: 1rem;
+        }
+        .answer-table td {
+            border: 1.5px solid #b8a68b;
+            padding: 10px 5px;
+            text-align: center;
+            vertical-align: middle;
+            background: #fefcf6;
+            height: 50px;
+        }
+        .answer-table td:first-child {
+            font-weight: 500;
+            background: #f5f0e3;
+        }
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .btn-small {
+            background: #d4c3ad;
+            border: none;
+            border-bottom: 3px solid #8f7a63;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #2c241a;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-small:hover {
+            background: #e0d1be;
+        }
+        .placeholder-note {
+            color: #948670;
+            font-style: italic;
+            margin: 5px 0 0 10px;
+        }
+        .type-badge {
+            display: inline-block;
+            background: #d4a76a;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <h1>长方形和正方形周长听算<span></span></h1>
+    <div class="main-panel">
+        <div class="listen-area">
+            <div class="status-card">
+                <div class="question-badge" id="roundDisplay">第1/5题</div>
+                <div class="current-quote" id="questionText">
+                    点击"开始朗读"
+                </div>
+                <div class="progress-indicator" id="repeatInfo">⏵ 准备就绪</div>
+                <div class="btn-group">
+                    <button class="btn" id="startBtn">▶ 开始朗读</button>
+                    <button class="btn outline" id="pauseBtn">⏸️ 暂停</button>
+                    <button class="btn outline" id="answerBtn">🔍 查看答案</button>
+                </div>
+                <div class="speed-hint">
+                    <span class="pill"></span>
+                    <span></span>
+                </div>
+                <p style="margin:18px 0 0; color:#4f5e3f; font-size:0.95rem;">
+  </p>
+            </div>
+        </div>
+        <div class="worksheet">
+            <h2>📋 周长练习纸 <small>学生记录表</small></h2>
+            <div class="table-wrapper">
+                <table class="answer-table" id="answerTable">
+                    <thead>
+                        <tr>
+                            <th>形状</th>
+                            <th>长</th>
+                            <th>宽</th>
+                            <th>边长</th>
+                            <th>周长</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="table-footer">
+                <span class="placeholder-note" id="tableHint">📝 听题时在对应行填写，点击"查看答案"核对</span>
+                <button class="btn-small" id="clearAnswersBtn">🗑️ 清空表格</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 扩充题库：包含基础周长、一面靠墙、已知周长求边/宽 ----------
+        const questionBank = [
+            // 基础周长
+            { type: 'basic', shape: '长方形', length: 5, width: 3, unit: '米', text: '一个长方形菜地，长为5米，宽为3米，要给这个长方形菜地四周围上篱笆，篱笆长多少米？' },
+            { type: 'basic', shape: '正方形', side: 4, unit: '米', text: '一个正方形花坛，边长是4米，在花坛四周装上护栏，护栏长多少米？' },
+            { type: 'basic', shape: '长方形', length: 8, width: 6, unit: '米', text: '教室里的长方形黑板，长8米，宽6米，给黑板四周贴上装饰条，需要多少米装饰条？' },
+            { type: 'basic', shape: '正方形', side: 7, unit: '米', text: '一个正方形游泳池，边长7米，沿池边贴防滑条，防滑条一共长多少米？' },
+            
+            // 一面靠墙（长方形）
+            { type: 'oneSideWall', shape: '长方形', length: 10, width: 4, unit: '米', wallSide: '长', text: '一个长方形菜地，长10米，宽4米，一面靠墙（长边靠墙），其他三面围篱笆，篱笆长多少米？' },
+            { type: 'oneSideWall', shape: '长方形', length: 8, width: 5, unit: '米', wallSide: '宽', text: '李叔叔用篱笆围一个长方形鸡舍，长8米，宽5米，一面靠墙（宽边靠墙），需要多少米篱笆？' },
+            { type: 'oneSideWall', shape: '长方形', length: 12, width: 6, unit: '米', wallSide: '长', text: '一块长方形草地，长12米，宽6米，如果长边靠墙，其余三边围上栅栏，栅栏长多少米？' },
+            { type: 'oneSideWall', shape: '正方形', side: 5, unit: '米', wallSide: '一边', text: '一个正方形花园，边长5米，一面靠墙，其余三边围篱笆，篱笆长多少米？' },
+            
+            // 已知周长和长，求宽
+            { type: 'findWidth', shape: '长方形', perimeter: 24, length: 8, unit: '米', text: '一个长方形花坛，周长是24米，长是8米，宽是多少米？' },
+            { type: 'findWidth', shape: '长方形', perimeter: 30, length: 9, unit: '米', text: '用一根30米长的绳子围成一个长方形，长是9米，宽是多少米？' },
+            { type: 'findWidth', shape: '长方形', perimeter: 18, length: 6, unit: '分米', text: '一个长方形相框，周长是18分米，长是6分米，宽是多少分米？' },
+            
+            // 已知周长，求边长（正方形）
+            { type: 'findSide', shape: '正方形', perimeter: 20, unit: '米', text: '一根铁丝正好围成一个正方形，铁丝长20米，这个正方形的边长是多少米？' },
+            { type: 'findSide', shape: '正方形', perimeter: 32, unit: '厘米', text: '用一条32厘米长的彩带围成一个正方形，正方形的边长是多少厘米？' },
+            { type: 'findSide', shape: '正方形', perimeter: 28, unit: '米', text: '一个正方形果园的周长是28米，它的边长是多少米？' },
+            
+            // 一面靠墙 + 已知三边和求边（进阶）
+            { type: 'oneSideWallReverse', shape: '长方形', fenceLength: 18, length: 8, unit: '米', wallSide: '长', text: '用18米长的篱笆围一个长方形菜地，长边靠墙，已知长是8米，宽是多少米？' },
+            { type: 'oneSideWallReverse', shape: '正方形', fenceLength: 15, unit: '米', wallSide: '一边', text: '用15米长的篱笆围一个正方形花园，一面靠墙，这个正方形的边长是多少米？' },
+        ];
+
+        // DOM 元素
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const answerBtn = document.getElementById('answerBtn');
+        const clearAnswersBtn = document.getElementById('clearAnswersBtn');
+        const questionTextDiv = document.getElementById('questionText');
+        const roundDisplay = document.getElementById('roundDisplay');
+        const repeatInfo = document.getElementById('repeatInfo');
+        const tableBody = document.getElementById('tableBody');
+        const tableHint = document.getElementById('tableHint');
+
+        let selectedQuestions = [];
+        let currentIndex = 0;
+        let currentRepeat = 0;
+        let isPaused = false;
+        let isSpeaking = false;
+        let utterance = null;
+        let activeTimers = [];
+        let answersRevealed = false;
+
+        const synth = window.speechSynthesis;
+        const RATE = 0.6;
+        const REPEAT_INTERVAL = 2000;
+        const QUESTION_GAP = 3000;
+
+        function clearAllTimers() {
+            activeTimers.forEach(timer => clearTimeout(timer));
+            activeTimers = [];
+        }
+
+        function stopSpeaking() {
+            if (synth.speaking || synth.pending) {
+                synth.cancel();
+            }
+            isSpeaking = false;
+        }
+
+        // 计算答案并返回显示用的数据
+        function calculateAnswer(q) {
+            let shape = q.shape;
+            let lengthVal = '', widthVal = '', sideVal = '', perimeterVal = '';
+            let unit = q.unit || '米';
+            
+            if (q.type === 'basic') {
+                if (shape === '长方形') {
+                    lengthVal = `${q.length}${unit}`;
+                    widthVal = `${q.width}${unit}`;
+                    sideVal = '—';
+                    perimeterVal = `${(q.length + q.width) * 2}${unit}`;
+                } else {
+                    lengthVal = '—';
+                    widthVal = '—';
+                    sideVal = `${q.side}${unit}`;
+                    perimeterVal = `${q.side * 4}${unit}`;
+                }
+            } else if (q.type === 'oneSideWall') {
+                if (shape === '长方形') {
+                    lengthVal = `${q.length}${unit}`;
+                    widthVal = `${q.width}${unit}`;
+                    sideVal = '—';
+                    let fence = (q.wallSide === '长') ? q.length + q.width * 2 : q.length * 2 + q.width;
+                    perimeterVal = `${fence}${unit} (${q.wallSide}边靠墙)`;
+                } else { // 正方形一面靠墙
+                    lengthVal = '—';
+                    widthVal = '—';
+                    sideVal = `${q.side}${unit}`;
+                    perimeterVal = `${q.side * 3}${unit} (一边靠墙)`;
+                }
+            } else if (q.type === 'findWidth') {
+                lengthVal = `${q.length}${unit}`;
+                let width = (q.perimeter - q.length * 2) / 2;
+                widthVal = `${width}${unit}`;
+                sideVal = '—';
+                perimeterVal = `${q.perimeter}${unit}`;
+            } else if (q.type === 'findSide') {
+                lengthVal = '—';
+                widthVal = '—';
+                sideVal = `${q.perimeter / 4}${unit}`;
+                perimeterVal = `${q.perimeter}${unit}`;
+            } else if (q.type === 'oneSideWallReverse') {
+                if (shape === '长方形') {
+                    lengthVal = `${q.length}${unit}`;
+                    let width = (q.wallSide === '长') ? (q.fenceLength - q.length) / 2 : (q.fenceLength - q.width * 2);
+                    // 修正：已知篱笆长18，长8，长靠墙 => 宽 = (18-8)/2 =5
+                    let w = (q.fenceLength - q.length) / 2;
+                    widthVal = `${w}${unit}`;
+                    sideVal = '—';
+                    perimeterVal = `篱笆${q.fenceLength}${unit}`;
+                } else {
+                    lengthVal = '—';
+                    widthVal = '—';
+                    sideVal = `${q.fenceLength / 3}${unit}`;
+                    perimeterVal = `篱笆${q.fenceLength}${unit}`;
+                }
+            }
+            return { lengthVal, widthVal, sideVal, perimeterVal, shape };
+        }
+
+        function renderEmptyTable() {
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+                html += `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
+            }
+            tableBody.innerHTML = html;
+            tableHint.textContent = '📝 听题时在对应行填写，点击"查看答案"核对';
+        }
+
+        function fillTableWithAnswers() {
+            if (!selectedQuestions.length) return;
+            let html = '';
+            selectedQuestions.forEach((q) => {
+                const ans = calculateAnswer(q);
+                html += `<tr>
+                    <td><strong>${ans.shape}</strong></td>
+                    <td>${ans.lengthVal}</td>
+                    <td>${ans.widthVal}</td>
+                    <td>${ans.sideVal}</td>
+                    <td><strong>${ans.perimeterVal}</strong></td>
+                </tr>`;
+            });
+            tableBody.innerHTML = html;
+            tableHint.textContent = '✅ 答案已显示，可与你的记录对照';
+        }
+
+        function updateDisplayForCurrent() {
+            if (!selectedQuestions.length || currentIndex >= selectedQuestions.length) {
+                questionTextDiv.textContent = '🎉 练习完成！';
+                roundDisplay.textContent = `5/5 完成`;
+                repeatInfo.textContent = '✅ 所有题目已朗读完毕';
+                return;
+            }
+            const q = selectedQuestions[currentIndex];
+            questionTextDiv.textContent = q.text;
+            roundDisplay.textContent = `第${currentIndex+1}/${selectedQuestions.length}题`;
+            if (currentRepeat === 0) {
+                repeatInfo.textContent = `🔊 准备朗读 · 共3遍`;
+            } else {
+                repeatInfo.textContent = `🔁 已读 ${currentRepeat}/3 遍 · 下遍间隔2秒`;
+            }
+        }
+
+        function speakText(text) {
+            return new Promise((resolve) => {
+                if (isPaused) { resolve(); return; }
+                stopSpeaking();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = RATE;
+                u.pitch = 1.0;
+                utterance = u;
+                u.onstart = () => { isSpeaking = true; };
+                u.onend = () => { isSpeaking = false; utterance = null; resolve(); };
+                u.onerror = () => { isSpeaking = false; utterance = null; resolve(); };
+                synth.speak(u);
+            });
+        }
+
+        async function speakCurrentQuestionWithRepeats() {
+            if (isPaused) return;
+            if (currentIndex >= selectedQuestions.length) {
+                questionTextDiv.textContent = '🎉 太棒了！所有题目听完了。';
+                roundDisplay.textContent = `5/5 完成`;
+                repeatInfo.textContent = '✅ 点击「查看答案」核对';
+                return;
+            }
+
+            updateDisplayForCurrent();
+
+            for (let rep = currentRepeat; rep < 3; rep++) {
+                if (isPaused) return;
+                currentRepeat = rep;
+                updateDisplayForCurrent();
+                await speakText(selectedQuestions[currentIndex].text);
+                if (isPaused) return;
+                if (rep < 2) {
+                    await new Promise(resolve => {
+                        const timer = setTimeout(resolve, REPEAT_INTERVAL);
+                        activeTimers.push(timer);
+                    });
+                    if (isPaused) return;
+                }
+            }
+
+            if (!isPaused && currentIndex < selectedQuestions.length) {
+                currentRepeat = 0;
+                await new Promise(resolve => {
+                    const timer = setTimeout(resolve, QUESTION_GAP);
+                    activeTimers.push(timer);
+                });
+                if (isPaused) return;
+                currentIndex++;
+                if (currentIndex < selectedQuestions.length) {
+                    await speakCurrentQuestionWithRepeats();
+                } else {
+                    questionTextDiv.textContent = '🎉 练习完成！';
+                    roundDisplay.textContent = `5/5 完成`;
+                    repeatInfo.textContent = '✅ 所有题目朗读结束';
+                    stopSpeaking();
+                }
+            }
+        }
+
+        async function startListeningSession() {
+            clearAllTimers();
+            stopSpeaking();
+            isPaused = false;
+            
+            const shuffled = [...questionBank].sort(() => Math.random() - 0.5);
+            selectedQuestions = shuffled.slice(0, 5);
+            currentIndex = 0;
+            currentRepeat = 0;
+            answersRevealed = false;
+            
+            renderEmptyTable();
+            updateDisplayForCurrent();
+            await speakCurrentQuestionWithRepeats();
+        }
+
+        function pauseSession() {
+            if (isPaused) return;
+            isPaused = true;
+            clearAllTimers();
+            stopSpeaking();
+            repeatInfo.textContent = '⏸️ 已暂停 · 点击"开始朗读"继续';
+        }
+
+        async function resumeSession() {
+            if (!isPaused) return;
+            if (currentIndex >= selectedQuestions.length) {
+                await startListeningSession();
+                return;
+            }
+            isPaused = false;
+            clearAllTimers();
+            stopSpeaking();
+            if (currentRepeat >= 3) {
+                currentRepeat = 0;
+                await new Promise(resolve => {
+                    const timer = setTimeout(resolve, QUESTION_GAP);
+                    activeTimers.push(timer);
+                });
+                if (isPaused) return;
+                currentIndex++;
+                if (currentIndex < selectedQuestions.length) {
+                    await speakCurrentQuestionWithRepeats();
+                } else {
+                    questionTextDiv.textContent = '🎉 练习完成！';
+                    roundDisplay.textContent = `5/5 完成`;
+                }
+            } else {
+                await speakCurrentQuestionWithRepeats();
+            }
+        }
+
+        function revealAnswers() {
+            if (!selectedQuestions.length) {
+                alert('还没有题目，请先开始朗读');
+                return;
+            }
+            answersRevealed = true;
+            fillTableWithAnswers();
+        }
+
+        function clearTable() {
+            answersRevealed = false;
+            renderEmptyTable();
+        }
+
+        function init() {
+            renderEmptyTable();
+            startBtn.addEventListener('click', async () => {
+                if (selectedQuestions.length === 0) {
+                    await startListeningSession();
+                } else {
+                    if (isPaused) {
+                        await resumeSession();
+                    } else {
+                        if (currentIndex >= selectedQuestions.length || !isSpeaking) {
+                            clearAllTimers();
+                            stopSpeaking();
+                            await startListeningSession();
+                        }
+                    }
+                }
+            });
+
+            pauseBtn.addEventListener('click', () => {
+                if (!isPaused && selectedQuestions.length && currentIndex < selectedQuestions.length) {
+                    pauseSession();
+                } else if (isPaused) {
+                    if (selectedQuestions.length && currentIndex < selectedQuestions.length) {
+                        resumeSession();
+                    } else if (currentIndex >= selectedQuestions.length) {
+                        alert('练习已完成，可以重新开始');
+                    }
+                } else {
+                    alert('请先开始朗读');
+                }
+            });
+
+            answerBtn.addEventListener('click', revealAnswers);
+            clearAnswersBtn.addEventListener('click', clearTable);
+            window.addEventListener('beforeunload', stopSpeaking);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
