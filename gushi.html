@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>数学听故事·提问题 | 核心素养作业纸</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f7f0;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 24px 20px;
+            color: #1e2f2c;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 12px;
+            background: #eef2e6;
+            padding: 6px 18px;
+            border-radius: 50px;
+        }
+
+        .voice-btn {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .refresh-btn {
+            background: #2c6e4f;
+            color: white;
+            border: none;
+            padding: 8px 28px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* 左右双栏布局 */
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        /* 左侧故事区 */
+        .story-panel {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .story-panel h2 {
+            margin-top: 0;
+            color: #2c6e4f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sub {
+            border-left: 5px solid #8fc1a5;
+            padding-left: 16px;
+            color: #48635b;
+            margin: 12px 0 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .story-card {
+            background: #fefcf0;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-left: 8px solid #f4a261;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .story-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .story-text {
+            background: #fff9e8;
+            padding: 16px 20px;
+            border-radius: 1.2rem;
+            line-height: 1.5;
+            font-size: 1rem;
+            color: #2c3a2b;
+            margin: 12px 0;
+        }
+
+        .play-story-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 32px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.1s;
+        }
+
+        .question-area {
+            margin-top: 16px;
+            background: #f2f6ea;
+            border-radius: 28px;
+            padding: 12px 18px;
+        }
+
+        .question-area label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .your-question {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #cad2b5;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .your-answer {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #cad2b5;
+            font-size: 0.9rem;
+        }
+
+        .submit-question-btn {
+            background: #4f7a5b;
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .feedback-badge {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            padding: 6px 12px;
+            border-radius: 28px;
+            background: #e9ecef;
+            display: inline-block;
+        }
+
+        /* 右侧作业纸 (大幅提问+解答空间) */
+        .worksheet-panel {
+            flex: 3;
+            min-width: 380px;
+            background: #fffef7;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            border: 1px solid #e0d6b0;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .worksheet-panel h2 {
+            color: #5a7247;
+            border-bottom: 3px dotted #c0cf9a;
+            padding-bottom: 12px;
+        }
+
+        .worksheet-item {
+            background: #fefae6;
+            border-radius: 1.5rem;
+            margin-bottom: 36px;
+            padding: 20px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            border: 1px solid #e9dfb2;
+        }
+
+        .story-summary {
+            font-weight: 600;
+            background: #fff3cf;
+            padding: 12px 16px;
+            border-radius: 24px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+        }
+
+        .question-prompt {
+            font-size: 0.85rem;
+            color: #5f6c3a;
+            margin: 10px 0 6px;
+        }
+
+        .worksheet-question-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 28px;
+            border: 2px solid #d6cd9a;
+            background: #fffff2;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        .worksheet-answer-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 28px;
+            border: 2px solid #cbd5a0;
+            background: white;
+            font-family: monospace;
+            margin-bottom: 12px;
+        }
+
+        .calc-area {
+            background: #f8f5e3;
+            border-radius: 20px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .calc-area textarea {
+            width: 100%;
+            border: 1px solid #ddd0a4;
+            border-radius: 20px;
+            padding: 12px;
+            font-family: monospace;
+            background: #fffff5;
+        }
+
+        @media print {
+            .toolbar, .story-panel, .play-story-btn, .submit-question-btn, .voice-controls, .refresh-btn, .feedback-badge {
+                display: none !important;
+            }
+            .worksheet-panel {
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+            .worksheet-item {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        button {
+            transition: 0.1s ease;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <!-- 顶栏：控制播放和随机换题 -->
+    <div class="toolbar">
+        <div style="font-weight: bold; font-size: 1.2rem;">🎧 听故事 · 提问题 · 会解决</div>
+        <div class="voice-controls">
+            <button id="globalPlayBtn" class="voice-btn">▶ 全部播放(3故事)</button>
+            <button id="globalPauseBtn" class="voice-btn">⏸ 暂停</button>
+            <button id="globalStopBtn" class="voice-btn">⏹ 停止</button>
+            <span style="font-size:0.75rem;">🔊 语速0.6 | 每个故事读3遍·间隔2秒</span>
+        </div>
+        <button id="refreshBtn" class="refresh-btn">✨ 随机换题组</button>
+    </div>
+
+    <div class="split-layout">
+        <!-- 左侧：故事+自主提问交互区 -->
+        <div class="story-panel">
+            <h2>📖 数学故事会</h2>
+            <div class="sub">🎯 核心素养：倾听→发现数学信息→提出合理问题→分析并解答。培养“四能”与创新意识。</div>
+            <div id="storiesContainer">
+                <!-- 动态渲染3个故事块 -->
+            </div>
+            <div style="background:#e5f0e5; border-radius: 20px; padding: 12px; font-size:0.7rem; margin-top: 12px;">
+                💡 小提示：认真听故事，挖掘数量关系，提出有意义的数学问题（如“一共花了多少钱？”“优惠了多少？”等）。
+            </div>
+        </div>
+
+        <!-- 右侧：配套作业纸 (专用提问+解答空间) -->
+        <div class="worksheet-panel">
+            <h2>📝 数学故事·问题学习单</h2>
+            <p style="font-size:0.8rem;">班级______ 姓名______ 日期______ &nbsp;&nbsp; ✏️ 听完故事，提出一个数学问题，再列式解答。</p>
+            <div id="worksheetContainer">
+                <!-- 动态生成每道题的故事梗概 + 提问框 + 解答框 + 演算区 -->
+            </div>
+            <div style="text-align: center; margin-top: 20px; font-size:0.7rem; color:#7c6e42;">🖨️ 支持打印，右侧作业纸可直接手写/打印使用</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 题库：数学故事（三年级～六年级混合，但难度有区分，随机抽题时实现难度分层）
+    // 每个故事对象：{text: "故事文本", difficulty:"easy/medium/hard", gradeRange:"3-6", hintQuestion: "示例问题方向"}
+    // 为了体现不同年级深度，难度区分度: 简单故事问题浅显，中等需要两步，挑战蕴含隐藏条件
+    // --------------------------------------------------------------
+    const storyBank = [
+        // 简单难度 (基础加减乘除，直接条件)
+        { text: "周末，妈妈带乐乐去超市。超市正在搞促销，每买三瓶酸奶送一瓶。酸奶每瓶五元。妈妈买了六瓶。", difficulty: "easy", hintQuestion: "例如：妈妈买6瓶实际得到多少瓶？一共花了多少钱？" },
+        { text: "操场上有35个同学在跳绳，又来了17人，然后有9人离开去踢足球。现在操场上有多少人？", difficulty: "easy", hintQuestion: "请提出一个关于人数变化的问题。" },
+        { text: "一支钢笔8元，一个笔记本4元。小华买了3支钢笔和2个笔记本，一共花了多少元？", difficulty: "easy", hintQuestion: "可以提出总价问题。" },
+        // 中等难度 (两步计算，比多比少，隐含条件)
+        { text: "学校图书馆新买来一批图书，其中故事书有120本，科技书比故事书少35本，童话书是科技书的2倍。", difficulty: "medium", hintQuestion: "你可以提出一个关于童话书本数或总数的问题。" },
+        { text: "李叔叔开车从甲地到乙地，前一半路程每小时行60千米，后一半路程每小时行80千米，全程240千米。", difficulty: "medium", hintQuestion: "比如：平均速度？或者各行多少时间？注意一半路程。" },
+        { text: "水果店运来苹果和梨共320千克，苹果的重量是梨的3倍。", difficulty: "medium", hintQuestion: "提出一个求苹果或梨各多少千克的问题。" },
+        // 挑战难度 (多条件、最优方案、盈亏或工程问题)
+        { text: "某工程队修一条公路，计划每天修80米，实际每天比计划多修20米，结果提前5天完成任务。这条公路全长多少米？", difficulty: "hard", hintQuestion: "你可以提出一个关于全长或实际天数的数学问题。" },
+        { text: "甲、乙两人一起去购物，甲带的钱是乙的1.8倍。甲用去80元，乙用去20元后，两人剩下的钱相等。甲、乙原来各带了多少钱？", difficulty: "hard", hintQuestion: "这是一个等量关系问题，请提出问题并解答。" },
+        { text: "公园门票方案：单人票20元，团体票（10人及以上）每人15元。四年级有8名同学和2位老师，怎样买票最省钱？最少要花多少元？", difficulty: "hard", hintQuestion: "提出最优化购票问题。" }
+    ];
+
+    // 辅助: 按难度随机抽取 (保证简单、中等、挑战各一个)
+    function getRandomStoriesByDifficulty() {
+        const easyPool = storyBank.filter(s => s.difficulty === "easy");
+        const mediumPool = storyBank.filter(s => s.difficulty === "medium");
+        const hardPool = storyBank.filter(s => s.difficulty === "hard");
+        const getRand = (arr) => arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+        let q1 = getRand(easyPool) || getRand(storyBank);
+        let q2 = getRand(mediumPool) || getRand(storyBank.filter(s => s !== q1));
+        let q3 = getRand(hardPool) || getRand(storyBank.filter(s => s !== q1 && s !== q2));
+        let result = [];
+        if (q1) result.push(q1);
+        if (q2) result.push(q2);
+        if (q3) result.push(q3);
+        while (result.length < 3) result.push(storyBank[0]);
+        return result.slice(0, 3);
+    }
+
+    let currentStories = [];        // 当前3个故事对象
+    let userQuestion = [];           // 每道题学生提出的问题 (文字)
+    let userAnswer = [];             // 每道题学生列式解答 (文字)
+    let userChecked = [];            // 自评标记 (可选)
+
+    // ----- 语音合成 + 全局播放控制 -----
+    let speech = window.speechSynthesis;
+    let currentUtter = null;
+    let isPlayingSeq = false;
+    let isPausedSeq = false;
+    let playingIdx = 0;
+    let timeoutId = null;
+
+    function cancelSpeechAll() {
+        if (speech) speech.cancel();
+        if (timeoutId) clearTimeout(timeoutId);
+        isPlayingSeq = false;
+        isPausedSeq = false;
+    }
+
+    // 播放单个故事 (repeat 3遍, 间隔2秒, 语速0.6)
+    function speakStory(text, repeatTimes = 3, intervalSec = 2, rate = 0.6) {
+        return new Promise((resolve, reject) => {
+            let repeatCount = 0;
+            let cancelled = false;
+            let timer = null;
+            const speakOnce = () => {
+                return new Promise((res) => {
+                    if (cancelled) { res(false); return; }
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = rate;
+                    utterance.pitch = 1.0;
+                    utterance.onend = () => res(true);
+                    utterance.onerror = () => res(false);
+                    currentUtter = utterance;
+                    speech.cancel();
+                    speech.speak(utterance);
+                });
+            };
+            const loop = async () => {
+                if (cancelled) { resolve(false); return; }
+                if (repeatCount >= repeatTimes) { resolve(true); return; }
+                const ok = await speakOnce();
+                if (!ok || cancelled) { resolve(false); return; }
+                repeatCount++;
+                if (repeatCount < repeatTimes && !cancelled) {
+                    timer = setTimeout(loop, intervalSec * 1000);
+                    timeoutId = timer;
+                } else {
+                    resolve(true);
+                }
+            };
+            loop();
+            this.cancel = () => { cancelled = true; if (timer) clearTimeout(timer); speech.cancel(); resolve(false); };
+        });
+    }
+
+    // 全局顺序播放
+    async function playAllStories() {
+        cancelSpeechAll();
+        if (!currentStories.length) return;
+        isPlayingSeq = true;
+        isPausedSeq = false;
+        for (let i = 0; i < currentStories.length; i++) {
+            if (!isPlayingSeq || isPausedSeq) {
+                if (isPausedSeq) { playingIdx = i; return; }
+                break;
+            }
+            playingIdx = i;
+            const storyText = currentStories[i].text;
+            const speaker = new speakStory(storyText, 3, 2, 0.6);
+            await speaker;
+            if (!isPlayingSeq || isPausedSeq) break;
+            await new Promise(r => setTimeout(r, 400));
+        }
+        isPlayingSeq = false;
+        playingIdx = 0;
+    }
+
+    function pausePlayback() {
+        if (isPlayingSeq && !isPausedSeq) {
+            isPausedSeq = true;
+            speech.cancel();
+            if (timeoutId) clearTimeout(timeoutId);
+        } else if (!isPlayingSeq && currentUtter) {
+            speech.cancel();
+            isPausedSeq = true;
+        }
+    }
+
+    function resumePlayback() {
+        if (isPausedSeq && currentStories.length) {
+            isPausedSeq = false;
+            isPlayingSeq = true;
+            const startIdx = playingIdx;
+            const continuePlay = async () => {
+                for (let i = startIdx; i < currentStories.length; i++) {
+                    if (!isPlayingSeq || isPausedSeq) break;
+                    const st = currentStories[i].text;
+                    const sp = new speakStory(st, 3, 2, 0.6);
+                    await sp;
+                    if (!isPlayingSeq || isPausedSeq) break;
+                    await new Promise(r => setTimeout(r, 400));
+                }
+                isPlayingSeq = false;
+            };
+            continuePlay();
+        }
+    }
+
+    function stopPlayback() {
+        cancelSpeechAll();
+        isPlayingSeq = false;
+        isPausedSeq = false;
+        playingIdx = 0;
+    }
+
+    // 单独播放某一个故事
+    function playSingleStory(index) {
+        if (!currentStories[index]) return;
+        cancelSpeechAll();
+        isPlayingSeq = false;
+        isPausedSeq = false;
+        const speaker = new speakStory(currentStories[index].text, 3, 2, 0.6);
+        speaker.catch(e => console.log);
+    }
+
+    // 渲染全部：左侧故事+右侧作业纸 (学生可以填写问题与解答)
+    function renderFull() {
+        // 左侧渲染
+        let leftHtml = '';
+        currentStories.forEach((story, idx) => {
+            const diffLabel = story.difficulty === 'easy' ? '🌟基础' : (story.difficulty === 'medium' ? '✨进阶' : '🔥挑战');
+            leftHtml += `
+                <div class="story-card" data-story-idx="${idx}">
+                    <div class="story-header">
+                        <span>📖 故事 ${idx+1} · ${diffLabel}</span>
+                        <button class="play-story-btn" data-playidx="${idx}">🔊 听故事(3遍)</button>
+                    </div>
+                    <div class="story-text">${story.text}</div>
+                    <div class="question-area">
+                        <label>🧠 请你提出一个数学问题：</label>
+                        <input type="text" id="leftQuestion_${idx}" class="your-question" placeholder="例：一共花了多少钱？" value="${userQuestion[idx] || ''}">
+                        <label>📐 列式解答：</label>
+                        <input type="text" id="leftAnswer_${idx}" class="your-answer" placeholder="例：6×5=30元，送2瓶实得8瓶..." value="${userAnswer[idx] || ''}">
+                        <button class="submit-question-btn" data-saveidx="${idx}">💾 保存到作业纸</button>
+                        <div class="feedback-badge" id="leftFeedback_${idx}">✨ 可自拟问题，培养创新意识</div>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('storiesContainer').innerHTML = leftHtml;
+
+        // 绑定左侧事件：播放，保存，同步右侧
+        currentStories.forEach((_, idx) => {
+            const playBtn = document.querySelector(`.play-story-btn[data-playidx="${idx}"]`);
+            if (playBtn) playBtn.addEventListener('click', () => playSingleStory(idx));
+
+            const saveBtn = document.querySelector(`.submit-question-btn[data-saveidx="${idx}"]`);
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    const qInput = document.getElementById(`leftQuestion_${idx}`);
+                    const aInput = document.getElementById(`leftAnswer_${idx}`);
+                    userQuestion[idx] = qInput ? qInput.value : '';
+                    userAnswer[idx] = aInput ? aInput.value : '';
+                    // 同步到右侧作业纸
+                    syncWorksheetValues();
+                    const fbDiv = document.getElementById(`leftFeedback_${idx}`);
+                    if (fbDiv) {
+                        fbDiv.innerHTML = '✅ 已保存至右侧学习单！';
+                        setTimeout(() => { if(fbDiv) fbDiv.innerHTML = '✨ 可自拟问题，培养创新意识'; }, 1800);
+                    }
+                });
+            }
+            // 实时改变时同步存储（为了方便，但不强制）
+            const qInput = document.getElementById(`leftQuestion_${idx}`);
+            const aInput = document.getElementById(`leftAnswer_${idx}`);
+            if (qInput) qInput.addEventListener('input', (e) => { userQuestion[idx] = e.target.value; syncWorksheetValues(); });
+            if (aInput) aInput.addEventListener('input', (e) => { userAnswer[idx] = e.target.value; syncWorksheetValues(); });
+        });
+
+        // 右侧作业纸渲染 (大空间提问+解答+演算)
+        let rightHtml = '';
+        currentStories.forEach((story, idx) => {
+            rightHtml += `
+                <div class="worksheet-item">
+                    <div class="story-summary">
+                        🎧 故事 ${idx+1}：${story.text.substring(0, 100)}${story.text.length>100?'…':''}
+                        <div style="font-size:0.7rem; color:#7c6f41;">难度：${story.difficulty==='easy'?'基础巩固':(story.difficulty==='medium'?'能力提升':'思维挑战')}</div>
+                    </div>
+                    <div class="question-prompt">✏️ 我提出的数学问题：</div>
+                    <textarea id="worksheetQuestion_${idx}" class="worksheet-question-input" rows="2" placeholder="根据故事，写一个数学问题……">${userQuestion[idx] || ''}</textarea>
+                    <div class="question-prompt">📝 我的解答（列式+答案）：</div>
+                    <textarea id="worksheetAnswer_${idx}" class="worksheet-answer-input" rows="2" placeholder="写算式和答案，例如：6×5=30（元），因为买6瓶送2瓶，共8瓶……">${userAnswer[idx] || ''}</textarea>
+                    <div class="calc-area">
+                        <label>🧮 草稿 / 数量关系分析：</label>
+                        <textarea rows="3" id="worksheetDraft_${idx}" placeholder="可以写一写你的思考过程，或者画图分析……"></textarea>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('worksheetContainer').innerHTML = rightHtml;
+
+        // 绑定右侧作业纸的事件：同步到左侧user数组
+        currentStories.forEach((_, idx) => {
+            const rightQ = document.getElementById(`worksheetQuestion_${idx}`);
+            const rightA = document.getElementById(`worksheetAnswer_${idx}`);
+            const draft = document.getElementById(`worksheetDraft_${idx}`);
+            if (rightQ) {
+                rightQ.addEventListener('input', (e) => {
+                    userQuestion[idx] = e.target.value;
+                    const leftQ = document.getElementById(`leftQuestion_${idx}`);
+                    if (leftQ) leftQ.value = userQuestion[idx];
+                });
+            }
+            if (rightA) {
+                rightA.addEventListener('input', (e) => {
+                    userAnswer[idx] = e.target.value;
+                    const leftA = document.getElementById(`leftAnswer_${idx}`);
+                    if (leftA) leftA.value = userAnswer[idx];
+                });
+            }
+            // 草稿内容不强制同步，仅作记录
+        });
+    }
+
+    function syncWorksheetValues() {
+        // 仅同步左右输入框的值（简洁）
+        currentStories.forEach((_, idx) => {
+            const rightQ = document.getElementById(`worksheetQuestion_${idx}`);
+            const rightA = document.getElementById(`worksheetAnswer_${idx}`);
+            if (rightQ) rightQ.value = userQuestion[idx] || '';
+            if (rightA) rightA.value = userAnswer[idx] || '';
+            const leftQ = document.getElementById(`leftQuestion_${idx}`);
+            const leftA = document.getElementById(`leftAnswer_${idx}`);
+            if (leftQ) leftQ.value = userQuestion[idx] || '';
+            if (leftA) leftA.value = userAnswer[idx] || '';
+        });
+    }
+
+    // 刷新整个题目组
+    function refreshStories() {
+        stopPlayback();
+        currentStories = getRandomStoriesByDifficulty();
+        userQuestion = new Array(3).fill('');
+        userAnswer = new Array(3).fill('');
+        renderFull();
+    }
+
+    // 初始化年级? 由于故事本身分难度，不分年级(三年级到六年级都能适用，通过区分度覆盖)
+    // 首次加载
+    refreshStories();
+
+    // 绑定全局按钮
+    document.getElementById('globalPlayBtn').addEventListener('click', () => { stopPlayback(); playAllStories(); });
+    document.getElementById('globalPauseBtn').addEventListener('click', pausePlayback);
+    document.getElementById('globalStopBtn').addEventListener('click', stopPlayback);
+    document.getElementById('refreshBtn').addEventListener('click', refreshStories);
+
+    // 打印友好辅助
+    window.onbeforeunload = () => { if (speech) speech.cancel(); };
+</script>
+</body>
+</html>

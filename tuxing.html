@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>数学听觉画图作业 | 几何与方位 | 核心素养训练</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5f7fb;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 24px 20px;
+            color: #1e2a3e;
+        }
+        .main-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* 顶部控制区 */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 28px;
+        }
+        .grade-selector {
+            display: flex;
+            gap: 12px;
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 48px;
+        }
+        .grade-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #2c3e66;
+        }
+        .grade-btn.active {
+            background: #2c7da0;
+            color: white;
+            box-shadow: 0 4px 8px rgba(44,125,160,0.3);
+        }
+        .voice-controls {
+            display: flex;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 6px 16px;
+            border-radius: 60px;
+        }
+        .voice-btn {
+            background: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .refresh-btn {
+            background: #0f3b5f;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+        /* 左侧听算 + 描述区 */
+        .audio-card {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+        /* 右侧作业纸 (画图专用) */
+        .drawing-paper {
+            flex: 3;
+            min-width: 380px;
+            background: #fffef5;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            border: 1px solid #f0e6c5;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #1f4e6e;
+        }
+        .sub {
+            color: #52796f;
+            border-left: 4px solid #8fc1b0;
+            padding-left: 12px;
+            margin: 10px 0 20px;
+        }
+        .question-block {
+            background: #f9fafc;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin: 1.2rem 0;
+            border-left: 6px solid #3b8db0;
+        }
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .desc-text {
+            background: #eef3fa;
+            padding: 14px 18px;
+            border-radius: 1.2rem;
+            font-size: 1rem;
+            line-height: 1.4;
+            margin: 12px 0;
+            color: #0b3b4f;
+        }
+        .play-single {
+            background: #d9e8f2;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 32px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .check-area {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .check-btn {
+            background: #3b8db0;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 32px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .feedback {
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .correct-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 14px;
+            border-radius: 32px;
+            display: inline-block;
+        }
+        .wrong-badge {
+            background: #ffe4e4;
+            color: #b91c1c;
+            padding: 4px 14px;
+            border-radius: 32px;
+        }
+        /* 作业纸画图区域 */
+        .drawing-item {
+            background: #fef9ef;
+            border-radius: 1.5rem;
+            margin-bottom: 32px;
+            padding: 18px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            border: 1px solid #e3d7b5;
+        }
+        .drawing-question {
+            font-weight: 600;
+            background: #fff3df;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .canvas-area {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 12px;
+            border: 2px dashed #c0cfa3;
+            margin: 12px 0;
+        }
+        .drawing-canvas {
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: inset 0 0 0 1px #e2e0d0, 0 2px 6px rgba(0,0,0,0.02);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #ffffff;
+            border-radius: 16px;
+            cursor: crosshair;
+        }
+        .canvas-tools {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tool-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .remark {
+            font-size: 0.7rem;
+            color: #6f6a4b;
+            margin-top: 6px;
+        }
+        @media print {
+            .toolbar, .audio-card, .play-single, .check-btn, .canvas-tools, .voice-controls, .refresh-btn, .grade-selector {
+                display: none !important;
+            }
+            .drawing-paper {
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+            }
+            canvas {
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <!-- 控制栏 -->
+    <div class="toolbar">
+        <div class="grade-selector" id="gradeSelector">
+            <button data-grade="3" class="grade-btn">三年级</button>
+            <button data-grade="4" class="grade-btn">四年级</button>
+            <button data-grade="5" class="grade-btn active">五年级</button>
+            <button data-grade="6" class="grade-btn">六年级</button>
+        </div>
+        <div class="voice-controls">
+            <button id="globalPlayBtn" class="voice-btn">▶ 全部播放(3题)</button>
+            <button id="globalPauseBtn" class="voice-btn">⏸ 暂停</button>
+            <button id="globalStopBtn" class="voice-btn">⏹ 停止</button>
+            <span style="font-size:0.75rem;">🔊 语速0.6 | 每题3遍·间隔2s</span>
+        </div>
+        <button id="refreshBtn" class="refresh-btn">🎲 随机换题</button>
+    </div>
+
+    <div class="split-layout">
+        <!-- 左侧: 听描述区 -->
+        <div class="audio-card">
+            <h2>🎧 听觉画图 · 几何与方位</h2>
+            <div class="sub">👂 仔细听描述，理解形状、位置、大小，然后在右侧作业纸上画出来。</div>
+            <div id="questionsAuditContainer">
+                <!-- 动态渲染3道题描述 -->
+            </div>
+            <div style="background:#eef1e6; border-radius:28px; padding:12px; margin-top:16px; font-size:0.75rem;">
+                💡 核心素养：空间观念、几何直观、量感。根据语言描述构建图形，发展推理意识。
+            </div>
+        </div>
+
+        <!-- 右侧: 画图作业纸 (每道题配独立画板) -->
+        <div class="drawing-paper">
+            <h2>📐 几何画图作业纸</h2>
+            <p style="font-size:0.8rem;">班级______ 姓名______ 日期______ &nbsp;&nbsp; ✏️ 根据听到的描述，在下方方格/区域内画出对应的图形或方位图</p>
+            <div id="drawingWorksheet">
+                <!-- 动态生成每个题的画板区域 -->
+            </div>
+            <div style="text-align:center; margin-top:16px; font-size:0.7rem; color:#7e6b3e;">🖨️ 支持打印，使用铅笔/彩笔手绘，也可鼠标/触屏绘制(电子版)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------- 题库 (按年级，体现核心素养，有区分度) ---------------------------------
+    // 每个题目: { grade:3|4|5|6, text: "语音描述文本", answerHint: "预期关键特征", difficulty: "easy/medium/hard", checkIdea: "验证思路" }
+    // 对于画图题，我们不强求AI自动识别图形，采用“自我核对+参考答案提示”方式，体现反思素养。
+    const questionBank = [
+        // 三年级: 位置与方向，长方形正方形基础
+        { grade:3, text: "请你画一个长4厘米、宽2厘米的长方形，并标明长和宽。", difficulty:"easy", core:"长方形特征", hintValidate:"图形应为长方形，对边相等，长边约短边两倍。" },
+        { grade:3, text: "画一个边长为3厘米的正方形，在内部画一条对角线。", difficulty:"medium", core:"正方形与对角线", hintValidate:"四条边相等，有对角线。" },
+        { grade:3, text: "根据描述画方向标: 学校在家的东偏北30°方向200米处，请画出示意图（比例自定）。", difficulty:"hard", core:"方位角", hintValidate:"有十字方向标，角度大约30°，标注学校位置。" },
+        { grade:3, text: "画一个半径为2厘米的圆，并标出圆心O。", difficulty:"medium", core:"圆的认识", hintValidate:"圆规痕迹或手绘圆，有圆心标记。" },
+        // 四年级: 平行四边形、垂线、三角形
+        { grade:4, text: "画一个底边为5厘米、高为3厘米的平行四边形。", difficulty:"easy", core:"平行四边形", hintValidate:"对边平行且相等，高垂直。" },
+        { grade:4, text: "画一个等腰三角形，顶角为40°，底边长度自定，并标出相等的边。", difficulty:"medium", core:"等腰三角形", hintValidate:"两边相等，两个底角相等。" },
+        { grade:4, text: "小明从起点出发，先向正北走4格，再向正东走3格，最后向南走2格。请画出路线图（每个格子代表1cm）。", difficulty:"medium", core:"位置与路线", hintValidate:"折线路径，起点与终点距离合理。" },
+        { grade:4, text: "画一个直角梯形，上底2cm，下底5cm，高3cm。", difficulty:"hard", core:"梯形特征", hintValidate:"一组对边平行，有一个直角。" },
+        // 五年级: 轴对称、多边形、组合图形
+        { grade:5, text: "画一个轴对称图形，对称轴为一条竖直线，图形自选（如爱心、房子等简单形状）。", difficulty:"easy", core:"轴对称", hintValidate:"沿中线对折两边重合。" },
+        { grade:5, text: "画一个底为6厘米、高为4厘米的三角形，并画出它的一条高。", difficulty:"medium", core:"三角形高", hintValidate:"高线从顶点垂直底边。" },
+        { grade:5, text: "画一个组合图形：一个长方形上面加一个半圆（像房顶），并标出各部分尺寸（自定合理数值）。", difficulty:"hard", core:"组合图形", hintValidate:"长方形+半圆，有明显组合结构。" },
+        { grade:5, text: "根据描述画一个正五边形（可借助圆形辅助线）。", difficulty:"hard", core:"正多边形", hintValidate:"五条边相等，五个角相等。" },
+        // 六年级: 圆与扇形、比例尺、立体视图
+        { grade:6, text: "画一个半径为2.5厘米的圆，并画出它的一条直径和一条半径。", difficulty:"easy", core:"圆的直径半径", hintValidate:"有圆心，直径通过圆心。" },
+        { grade:6, text: "画一个圆心角为90°的扇形，并涂上阴影，半径自定。", difficulty:"medium", core:"扇形", hintValidate:"扇形是圆的四分之一。" },
+        { grade:6, text: "按给定的比例尺1:200，画一个长8米、宽5米的长方形平面图（先计算图上距离）。", difficulty:"hard", core:"比例尺", hintValidate:"图上长4cm，宽2.5cm。" },
+        { grade:6, text: "画一个圆柱的展开图（包括两个圆和一个侧面），并标注底面半径和高（数值自定）。", difficulty:"hard", core:"立体展开", hintValidate:"矩形+两个圆形。" }
+    ];
+
+    // 抽取题目: 根据当前年级 + 随机难度区分(简单/中等/挑战比例)
+    function getRandomQuestionsByGrade(gradeLevel) {
+        let pool = questionBank.filter(q => q.grade == gradeLevel);
+        if(pool.length === 0) pool = questionBank.filter(q => q.grade == 5); // fallback
+        // 按难度分层尽量抽取: 简单、中等、挑战各一个，若某难度不足则随机补足
+        const easy = pool.filter(q => q.difficulty === "easy");
+        const medium = pool.filter(q => q.difficulty === "medium");
+        const hard = pool.filter(q => q.difficulty === "hard");
+        const getRand = (arr) => arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+        let selected = [];
+        let q1 = getRand(easy) || getRand(pool);
+        let q2 = getRand(medium) || getRand(pool.filter(p => p !== q1));
+        let q3 = getRand(hard) || getRand(pool.filter(p => p !== q1 && p !== q2));
+        if(q1) selected.push(q1);
+        if(q2) selected.push(q2);
+        if(q3) selected.push(q3);
+        // 如果不足3道 则用pool补全
+        while(selected.length < 3){
+            let extra = getRand(pool);
+            if(!selected.includes(extra)) selected.push(extra);
+            else selected.push(pool[0]);
+        }
+        return selected.slice(0,3);
+    }
+
+    let currentGrade = 5;      // 当前年级
+    let currentQuestions = [];  // 存储题目对象
+    let userConfirmStatus = []; // 每道题是否自我核对“已画好并核对”
+    let canvasInstances = [];    // 存储canvas dom引用和上下文
+
+    // 语音全局控制
+    let speechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+    let isPlayingSequence = false;
+    let isPausedSeq = false;
+    let currentPlayingIndex = 0;
+    let timeoutHandler = null;
+
+    function cancelSpeech() {
+        if (speechSynthesis) speechSynthesis.cancel();
+        if (timeoutHandler) clearTimeout(timeoutHandler);
+        isPlayingSequence = false;
+        isPausedSeq = false;
+    }
+
+    // 播放单题描述 (text, 重复3遍间隔2s, 语速0.6)
+    function speakText(text, repeatTimes = 3, intervalSec = 2, rate = 0.6) {
+        return new Promise((resolve, reject) => {
+            let repeatCount = 0;
+            let cancelled = false;
+            let timer = null;
+            const speakOnce = () => {
+                return new Promise((res) => {
+                    if (cancelled) { res(false); return; }
+                    const utter = new SpeechSynthesisUtterance(text);
+                    utter.lang = 'zh-CN';
+                    utter.rate = rate;
+                    utter.pitch = 1.0;
+                    utter.onend = () => res(true);
+                    utter.onerror = () => res(false);
+                    currentUtterance = utter;
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utter);
+                });
+            };
+            const loop = async () => {
+                if (cancelled) { resolve(false); return; }
+                if (repeatCount >= repeatTimes) { resolve(true); return; }
+                const ok = await speakOnce();
+                if (!ok || cancelled) { resolve(false); return; }
+                repeatCount++;
+                if (repeatCount < repeatTimes && !cancelled) {
+                    timer = setTimeout(loop, intervalSec * 1000);
+                    timeoutHandler = timer;
+                } else {
+                    resolve(true);
+                }
+            };
+            loop();
+            this.cancel = () => { cancelled = true; if(timer) clearTimeout(timer); speechSynthesis.cancel(); resolve(false); };
+        });
+    }
+
+    // 全局播放全部3题
+    async function playAllSequential() {
+        cancelSpeech();
+        if (!currentQuestions.length) return;
+        isPlayingSequence = true;
+        isPausedSeq = false;
+        for (let i = 0; i < currentQuestions.length; i++) {
+            if (!isPlayingSequence || isPausedSeq) {
+                if (isPausedSeq) { currentPlayingIndex = i; return; }
+                break;
+            }
+            currentPlayingIndex = i;
+            const qText = currentQuestions[i].text;
+            const speaker = new speakText(qText, 3, 2, 0.6);
+            await speaker;
+            if (!isPlayingSequence || isPausedSeq) break;
+            await new Promise(r => setTimeout(r, 400));
+        }
+        isPlayingSequence = false;
+        currentPlayingIndex = 0;
+    }
+
+    function pausePlay() {
+        if (isPlayingSequence && !isPausedSeq) {
+            isPausedSeq = true;
+            speechSynthesis.cancel();
+            if (timeoutHandler) clearTimeout(timeoutHandler);
+        }
+    }
+    function resumePlay() {
+        if (isPausedSeq && currentQuestions.length) {
+            isPausedSeq = false;
+            isPlayingSequence = true;
+            const resumeFrom = currentPlayingIndex;
+            const continuePlay = async () => {
+                for (let i = resumeFrom; i < currentQuestions.length; i++) {
+                    if (!isPlayingSequence || isPausedSeq) break;
+                    const qTxt = currentQuestions[i].text;
+                    const spk = new speakText(qTxt, 3, 2, 0.6);
+                    await spk;
+                    if (!isPlayingSequence || isPausedSeq) break;
+                    await new Promise(r => setTimeout(r, 400));
+                }
+                isPlayingSequence = false;
+            };
+            continuePlay();
+        }
+    }
+    function stopPlay() {
+        cancelSpeech();
+        isPlayingSequence = false;
+        isPausedSeq = false;
+        currentPlayingIndex = 0;
+    }
+
+    // 单独播放某题
+    function playSingle(index) {
+        if (!currentQuestions[index]) return;
+        cancelSpeech();
+        isPlayingSequence = false;
+        isPausedSeq = false;
+        const speaker = new speakText(currentQuestions[index].text, 3, 2, 0.6);
+        speaker.catch(e=>console.log);
+    }
+
+    // 渲染左侧描述 + 右侧每个题画板 (每个题独立canvas)
+    function renderAll() {
+        // 左侧
+        let leftHtml = '';
+        currentQuestions.forEach((q, idx) => {
+            const status = userConfirmStatus[idx] ? '已核对✓' : '待自评';
+            const statusClass = userConfirmStatus[idx] ? 'correct-badge' : 'wrong-badge';
+            leftHtml += `
+                <div class="question-block">
+                    <div class="q-header">
+                        <span>📐 第${idx+1}题 · ${q.difficulty==='easy'?'🌟基础':(q.difficulty==='medium'?'✨进阶':'⚡挑战')}</span>
+                        <button class="play-single" data-playidx="${idx}">🔊 听描述(3遍)</button>
+                    </div>
+                    <div class="desc-text">📖 ${q.text}</div>
+                    <div class="check-area">
+                        <button class="check-btn" data-checkidx="${idx}">✅ 自评核对(我已画好)</button>
+                        <span class="${statusClass}" style="margin-left:8px;">${status}</span>
+                    </div>
+                    <div class="feedback" id="feedback_${idx}">💡 核对标准: ${q.hintValidate}</div>
+                </div>
+            `;
+        });
+        document.getElementById('questionsAuditContainer').innerHTML = leftHtml;
+        // 绑定左侧事件
+        currentQuestions.forEach((_, idx) => {
+            const playBtn = document.querySelector(`.play-single[data-playidx="${idx}"]`);
+            if(playBtn) playBtn.addEventListener('click', () => playSingle(idx));
+            const checkBtn = document.querySelector(`.check-btn[data-checkidx="${idx}"]`);
+            if(checkBtn) {
+                checkBtn.addEventListener('click', () => {
+                    userConfirmStatus[idx] = true;
+                    renderAll();
+                });
+            }
+        });
+
+        // 右侧作业纸：生成每个题的画板 (Canvas)
+        let rightHtml = '';
+        currentQuestions.forEach((q, idx) => {
+            rightHtml += `
+                <div class="drawing-item" data-drawid="${idx}">
+                    <div class="drawing-question">
+                        <strong>✏️ 第${idx+1}题 绘图区</strong> — ${q.text.substring(0, 60)}...
+                    </div>
+                    <div class="canvas-area">
+                        <canvas id="drawCanvas_${idx}" width="500" height="300" style="width:100%; height:auto; max-width:500px; border:1px solid #ddd; background:#fff;" class="drawing-canvas"></canvas>
+                        <div class="canvas-tools">
+                            <button class="tool-btn" data-clearidx="${idx}">🗑 清空重画</button>
+                            <button class="tool-btn" data-exportidx="${idx}">📸 保存为图片(参考)</button>
+                            <span style="font-size:12px;">✏️ 鼠标/触屏绘图</span>
+                        </div>
+                        <div class="remark">💡 根据描述绘制图形(可用铅笔/圆规思路，电子画板自由绘制)</div>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('drawingWorksheet').innerHTML = rightHtml;
+
+        // 初始化每个canvas绘图功能
+        currentQuestions.forEach((_, idx) => {
+            const canvas = document.getElementById(`drawCanvas_${idx}`);
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            // 设置实际像素尺寸 500x300
+            canvas.width = 500;
+            canvas.height = 300;
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            let drawing = false;
+            const startDraw = (e) => { drawing = true; getCoord(e, (x,y)=>{ ctx.beginPath(); ctx.moveTo(x,y); }); };
+            const drawMove = (e) => { if(!drawing) return; getCoord(e, (x,y)=>{ ctx.lineTo(x,y); ctx.strokeStyle = '#1f3b4c'; ctx.lineWidth = 2; ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); }); };
+            const stopDraw = () => { drawing = false; ctx.beginPath(); };
+            const getCoord = (e, callback) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                let clientX, clientY;
+                if(e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; e.preventDefault();}
+                else { clientX = e.clientX; clientY = e.clientY; }
+                let x = (clientX - rect.left) * scaleX;
+                let y = (clientY - rect.top) * scaleY;
+                x = Math.min(Math.max(0,x), canvas.width);
+                y = Math.min(Math.max(0,y), canvas.height);
+                callback(x,y);
+            };
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', drawMove);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchmove', drawMove);
+            canvas.addEventListener('touchend', stopDraw);
+            // 清空功能
+            const clearBtn = document.querySelector(`.tool-btn[data-clearidx="${idx}"]`);
+            if(clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.fillStyle = "#fff";
+                    ctx.fillRect(0,0,canvas.width,canvas.height);
+                });
+            }
+            const exportBtn = document.querySelector(`.tool-btn[data-exportidx="${idx}"]`);
+            if(exportBtn){
+                exportBtn.addEventListener('click',()=>{
+                    const link = document.createElement('a');
+                    link.download = `drawing_grade${currentGrade}_q${idx+1}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
+            }
+        });
+    }
+
+    // 刷新题目 (保持当前年级)
+    function refreshQuestions() {
+        stopPlay();
+        currentQuestions = getRandomQuestionsByGrade(currentGrade);
+        userConfirmStatus = new Array(3).fill(false);
+        renderAll();
+    }
+
+    // 切换年级
+    function setGrade(grade) {
+        currentGrade = grade;
+        stopPlay();
+        refreshQuestions();
+        // 更新按钮样式
+        document.querySelectorAll('.grade-btn').forEach(btn => {
+            if(btn.dataset.grade == grade) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    // 事件绑定
+    document.getElementById('globalPlayBtn').addEventListener('click', () => { stopPlay(); playAllSequential(); });
+    document.getElementById('globalPauseBtn').addEventListener('click', pausePlay);
+    document.getElementById('globalStopBtn').addEventListener('click', stopPlay);
+    document.getElementById('refreshBtn').addEventListener('click', refreshQuestions);
+    document.querySelectorAll('.grade-btn').forEach(btn => {
+        btn.addEventListener('click', () => setGrade(parseInt(btn.dataset.grade)));
+    });
+
+    // 初始加载五年级题目
+    currentGrade = 5;
+    refreshQuestions();
+</script>
+</body>
+</html>
