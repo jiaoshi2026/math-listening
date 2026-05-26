@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>几倍多（少）几的数量关系练习·听题版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background-color: white;
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 100, 200, 0.2);
+            padding: 20px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c6fb7;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .description {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .grade-selection {
+            margin: 8px 0 15px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .grade-option {
+            display: inline-block;
+            margin: 0 12px;
+        }
+        
+        .grade-option label {
+            font-size: 1.2rem;
+            color: #444;
+            cursor: pointer;
+            padding-left: 4px;
+        }
+        
+        .grade-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .problem-area {
+            background-color: #e6f2ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 12px 0 20px 0;
+            border: 3px dashed #4d94ff;
+        }
+        
+        .problem-line {
+            font-size: 1.9rem;
+            margin: 8px 0;
+            color: #1a53a0;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+        
+        .number {
+            display: inline;
+            padding: 0 2px;
+            color: #cc6600;
+            font-weight: bold;
+        }
+        
+        .fraction {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: bold;
+            color: #cc6600;
+            margin: 0 1px;
+        }
+        
+        .fraction .numerator {
+            display: block;
+            border-bottom: 1px solid #cc6600;
+            padding: 0 4px;
+            line-height: 1.1;
+        }
+        
+        .fraction .denominator {
+            display: block;
+            padding: 0 4px;
+            line-height: 1.1;
+        }
+        
+        .operation {
+            display: inline;
+            padding: 0 2px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .character {
+            display: inline;
+            padding: 0 2px;
+            color: #6a1b9a;
+            font-weight: bold;
+        }
+        
+        .timer {
+            font-size: 1.4rem;
+            color: #ff6600;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+        
+        .button-container {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .new-problem-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .new-problem-btn:hover {
+            background-color: #3d8b40;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
+        }
+        
+        .new-problem-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .show-answer-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .show-answer-btn:hover {
+            background-color: #0b7dda;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.6);
+        }
+        
+        /* 朗读按钮样式 */
+        .speak-btn {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        
+        .speak-btn:hover {
+            background-color: #e68900;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.6);
+        }
+        
+        .speak-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .speak-btn:disabled {
+            background-color: #ffb35c;
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .answer-area {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 12px;
+            display: none;
+        }
+        
+        .answer {
+            font-size: 1.5rem;
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .counter {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 12px;
+        }
+        
+        /* 朗读状态提示 */
+        .speak-status {
+            font-size: 1rem;
+            color: #ff6d00;
+            margin-top: 10px;
+            min-height: 1.8rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+                margin-bottom: 6px;
+            }
+            
+            .description {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+            
+            .problem-line {
+                font-size: 1.5rem;
+                line-height: 1.4;
+            }
+            
+            .fraction .numerator, .fraction .denominator {
+                padding: 0 3px;
+            }
+            
+            .new-problem-btn, .show-answer-btn, .speak-btn {
+                padding: 14px 25px;
+                font-size: 1.1rem;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .grade-selection {
+                padding: 8px;
+                margin: 6px 0 12px 0;
+            }
+            
+            .grade-option {
+                display: block;
+                margin: 6px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>几倍多（少）几的数量关系练习</h1>
+        <p class="description">延大附小数学团队设计 · 听题版（分数读法已修复）</p>
+        
+        <div class="grade-selection">
+            <div class="grade-option">
+                <input type="radio" id="mid-grade" name="grade" value="mid" checked>
+                <label for="mid-grade">中年级</label>
+            </div>
+            <div class="grade-option">
+                <input type="radio" id="high-grade" name="grade" value="high">
+                <label for="high-grade">高年级</label>
+            </div>
+        </div>
+        
+        <div class="problem-area">
+            <div class="problem-line" id="problem-text">
+                加载题目中...
+            </div>
+            <div id="answer-container" class="answer-area">
+                <div class="answer">答案：<span id="answer">?</span></div>
+            </div>
+        </div>
+        
+        <div class="timer">题目已显示：<span id="time">0</span> 秒</div>
+        
+        <!-- 按钮区：新增朗读按钮，出题后朗读题目 -->
+        <div class="button-container">
+            <button id="new-problem" class="new-problem-btn">出 题</button>
+            <button id="speak-problem" class="speak-btn">🔊 开始朗读</button>
+            <button id="show-answer" class="show-answer-btn">显示答案</button>
+        </div>
+        <div id="speakStatus" class="speak-status"></div>
+        
+        <div class="counter">已出题数：<span id="problem-count">0</span></div>
+        
+        <div class="hint">提示：先算出倍数，然后加上或减去变化的数</div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const timeElement = document.getElementById('time');
+        const newProblemButton = document.getElementById('new-problem');
+        const showAnswerButton = document.getElementById('show-answer');
+        const speakButton = document.getElementById('speak-problem');
+        const answerElement = document.getElementById('answer');
+        const problemCountElement = document.getElementById('problem-count');
+        const answerContainer = document.getElementById('answer-container');
+        const problemTextElement = document.getElementById('problem-text');
+        const speakStatus = document.getElementById('speakStatus');
+        const midGradeRadio = document.getElementById('mid-grade');
+        const highGradeRadio = document.getElementById('high-grade');
+        
+        // 扩展的名词选择库
+        const characterCategories = {
+            "水果": ["苹果", "香蕉", "橙子", "草莓", "葡萄", "西瓜", "桃子", "梨子", "菠萝", "芒果"],
+            "动物": ["小猫", "小狗", "小兔", "小鸟", "小猴", "小熊", "小羊", "小马", "小象", "小鹿"],
+            "文具": ["铅笔", "橡皮", "尺子", "书本", "书包", "彩笔", "胶水", "剪刀", "卷笔刀", "笔记本"],
+            "食物": ["面包", "饼干", "蛋糕", "糖果", "巧克力", "牛奶", "果汁", "冰淇淋", "薯片", "汉堡"],
+            "玩具": ["积木", "皮球", "娃娃", "小汽车", "拼图", "跳绳", "风筝", "滑板", "毽子", "魔方"]
+        };
+        
+        // 初始化变量
+        let timer = 0;
+        let timerInterval = null;
+        let currentBaseNumber = 0;
+        let currentMultiplier = 0;
+        let currentChangeNumber = 0;
+        let currentOperation = '多';
+        let problemCount = 0;
+        let currentGrade = 'mid';
+        let currentChar1 = '';
+        let currentChar2 = '';
+        
+        // 预定义一组适合三四年级学生的一倍数
+        const baseNumbers = [8, 10, 12, 15, 16, 20, 24, 25, 30, 32, 36, 40];
+        
+        // 中年级倍数（一位至两位较好算的整数）
+        const midGradeMultipliers = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20];
+        
+        // 高年级分数（确保计算结果是整数的分数）
+        const highGradeFractions = [
+            {numerator: 1, denominator: 2},  // 1/2
+            {numerator: 1, denominator: 3},  // 1/3
+            {numerator: 2, denominator: 3},  // 2/3
+            {numerator: 1, denominator: 4},  // 1/4
+            {numerator: 3, denominator: 4},  // 3/4
+            {numerator: 1, denominator: 5},  // 1/5
+            {numerator: 2, denominator: 5},  // 2/5
+            {numerator: 3, denominator: 5},  // 3/5
+            {numerator: 4, denominator: 5},  // 4/5
+            {numerator: 1, denominator: 6},  // 1/6
+            {numerator: 5, denominator: 6},  // 5/6
+            {numerator: 1, denominator: 8},  // 1/8
+            {numerator: 3, denominator: 8},  // 3/8
+            {numerator: 5, denominator: 8},  // 5/8
+            {numerator: 7, denominator: 8}   // 7/8
+        ];
+        
+        // 获取当前年级
+        function getCurrentGrade() {
+            if (midGradeRadio.checked) return 'mid';
+            if (highGradeRadio.checked) return 'high';
+            return 'mid';
+        }
+        
+        // 获取随机类别
+        function getRandomCategory() {
+            const categories = Object.keys(characterCategories);
+            return categories[Math.floor(Math.random() * categories.length)];
+        }
+        
+        // 获取随机名词
+        function getRandomCharacter(category, exclude = "") {
+            const chars = characterCategories[category];
+            if (!exclude) {
+                return chars[Math.floor(Math.random() * chars.length)];
+            }
+            
+            const availableChars = chars.filter(char => char !== exclude);
+            if (availableChars.length === 0) {
+                return chars[Math.floor(Math.random() * chars.length)];
+            }
+            return availableChars[Math.floor(Math.random() * availableChars.length)];
+        }
+        
+        // 创建分数HTML
+        function createFractionHTML(numerator, denominator) {
+            return `<span class="fraction"><span class="numerator">${numerator}</span><span class="denominator">${denominator}</span></span>`;
+        }
+        
+        // 生成题目文本 (带HTML)
+        function generateProblemText(char1, char2, baseNumber, multiplier, operation, changeNumber) {
+            const grade = getCurrentGrade();
+            const shouldSwap = Math.random() > 0.5; // 50%的概率交换前两句
+            
+            let multiplierHTML;
+            if (grade === 'mid') {
+                multiplierHTML = `<span class="number">${multiplier}</span>`;
+            } else {
+                // 高年级显示分数
+                multiplierHTML = createFractionHTML(multiplier.numerator, multiplier.denominator);
+            }
+            
+            // 构建前两句的内容
+            const sentence1 = `<span class="character">${char1}</span>是<span class="number">${baseNumber}</span>`;
+            const sentence2 = `<span class="character">${char2}</span>比<span class="character">${char1}</span>的${multiplierHTML}倍<span class="operation">${operation}</span><span class="number">${changeNumber}</span>`;
+            
+            // 构建完整的题目文本
+            if (shouldSwap) {
+                // 交换前两句：先显示比较关系，再显示基础值
+                return `${sentence2}，${sentence1}，<span class="character">${char2}</span>是多少？`;
+            } else {
+                // 正常顺序：先显示基础值，再显示比较关系
+                return `${sentence1}，${sentence2}，<span class="character">${char2}</span>是多少？`;
+            }
+        }
+        
+        // 生成新题目
+        function generateNewProblem() {
+            // 停止之前的计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // 重置计时器
+            timer = 0;
+            timeElement.textContent = timer;
+            
+            // 开始新计时
+            timerInterval = setInterval(() => {
+                timer++;
+                timeElement.textContent = timer;
+            }, 1000);
+            
+            // 获取当前年级
+            currentGrade = getCurrentGrade();
+            
+            // 随机选择类别
+            const category = getRandomCategory();
+            
+            // 获取名词
+            currentChar1 = getRandomCharacter(category);
+            currentChar2 = getRandomCharacter(category, currentChar1);
+            
+            // 根据年级选择合适的倍数
+            if (currentGrade === 'mid') {
+                // 中年级：一位至两位较好算的整数
+                currentMultiplier = midGradeMultipliers[Math.floor(Math.random() * midGradeMultipliers.length)];
+                
+                // 随机选择一倍数
+                currentBaseNumber = baseNumbers[Math.floor(Math.random() * baseNumbers.length)];
+            } else {
+                // 高年级：选择一个分数
+                const fraction = highGradeFractions[Math.floor(Math.random() * highGradeFractions.length)];
+                currentMultiplier = fraction;
+                
+                // 确保结果是整数：选择一倍数时，确保它可以被分母整除
+                const suitableBaseNumbers = baseNumbers.filter(num => num % fraction.denominator === 0);
+                if (suitableBaseNumbers.length > 0) {
+                    currentBaseNumber = suitableBaseNumbers[Math.floor(Math.random() * suitableBaseNumbers.length)];
+                } else {
+                    // 如果没有合适的数，使用默认值
+                    currentBaseNumber = fraction.denominator * 2;
+                }
+            }
+            
+            // 随机选择多或少
+            currentOperation = Math.random() > 0.5 ? '多' : '少';
+            
+            // 随机生成变化数，不超过一倍数，且比较好算
+            const maxChange = Math.min(currentBaseNumber, 10);
+            currentChangeNumber = Math.floor(Math.random() * maxChange) + 1;
+            
+            // 生成并显示题目文本 (HTML格式)
+            const problemText = generateProblemText(
+                currentChar1, 
+                currentChar2, 
+                currentBaseNumber, 
+                currentMultiplier, 
+                currentOperation, 
+                currentChangeNumber
+            );
+            
+            problemTextElement.innerHTML = problemText;
+            
+            // 计算答案
+            calculateAnswer();
+            
+            // 隐藏答案
+            answerContainer.style.display = 'none';
+            showAnswerButton.textContent = '显示答案';
+            
+            // 增加题目计数
+            problemCount++;
+            problemCountElement.textContent = problemCount;
+            
+            // 清空朗读状态
+            speakStatus.innerText = '';
+            // 启用朗读按钮（因为新题目出来了）
+            speakButton.disabled = false;
+        }
+        
+        // 计算答案
+        function calculateAnswer() {
+            let result;
+            
+            if (currentGrade === 'mid') {
+                // 中年级：整数倍数
+                if (currentOperation === '多') {
+                    result = currentBaseNumber * currentMultiplier + currentChangeNumber;
+                } else {
+                    result = currentBaseNumber * currentMultiplier - currentChangeNumber;
+                }
+            } else {
+                // 高年级：分数倍数
+                const fractionValue = currentMultiplier.numerator / currentMultiplier.denominator;
+                if (currentOperation === '多') {
+                    result = currentBaseNumber * fractionValue + currentChangeNumber;
+                } else {
+                    result = currentBaseNumber * fractionValue - currentChangeNumber;
+                }
+            }
+            
+            // 确保结果是整数
+            result = Math.round(result);
+            
+            // 显示答案
+            answerElement.textContent = result;
+        }
+        
+        // 切换答案显示/隐藏
+        function toggleAnswer() {
+            if (answerContainer.style.display === 'none' || !answerContainer.style.display) {
+                answerContainer.style.display = 'block';
+                showAnswerButton.textContent = '隐藏答案';
+            } else {
+                answerContainer.style.display = 'none';
+                showAnswerButton.textContent = '显示答案';
+            }
+        }
+        
+        /**
+         * 将分数HTML片段转换为标准中文读法（例如 "7/8" -> "八分之七"）
+         * 注意：此函数处理形如 '<span class="fraction">...<span class="numerator">7</span>...<span class="denominator">8</span>...</span>' 的片段
+         */
+        function fractionToChinese(htmlFragment) {
+            // 使用临时DOM解析
+            const temp = document.createElement('div');
+            temp.innerHTML = htmlFragment;
+            
+            const numeratorSpan = temp.querySelector('.numerator');
+            const denominatorSpan = temp.querySelector('.denominator');
+            
+            if (numeratorSpan && denominatorSpan) {
+                const numerator = numeratorSpan.textContent.trim();
+                const denominator = denominatorSpan.textContent.trim();
+                // 中文分数读法：分母 + "分之" + 分子
+                return `${denominator}分之${numerator}`;
+            }
+            
+            // 如果没有找到预期的结构，返回原文本（避免出错）
+            return temp.textContent || temp.innerText || '';
+        }
+        
+        // 朗读当前题目 (语速0.6，分数正确读法)
+        function speakCurrentProblem() {
+            // 如果正在朗读，先取消
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            
+            // 获取当前题目的HTML内容
+            const problemHTML = problemTextElement.innerHTML;
+            
+            // 手动解析HTML并构建正确的朗读文本，尤其处理分数
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = problemHTML;
+            
+            // 复制节点进行处理，避免影响原显示
+            const cloneDiv = tempDiv.cloneNode(true);
+            
+            // 查找所有分数元素(.fraction)，将其替换为中文读法
+            const fractions = cloneDiv.querySelectorAll('.fraction');
+            fractions.forEach(fraction => {
+                const numeratorSpan = fraction.querySelector('.numerator');
+                const denominatorSpan = fraction.querySelector('.denominator');
+                if (numeratorSpan && denominatorSpan) {
+                    const numerator = numeratorSpan.textContent.trim();
+                    const denominator = denominatorSpan.textContent.trim();
+                    // 创建文本节点 "分母分之分子"
+                    const chineseFraction = document.createTextNode(`${denominator}分之${numerator}`);
+                    // 替换整个分数span
+                    fraction.parentNode.replaceChild(chineseFraction, fraction);
+                }
+            });
+            
+            // 获取纯文本（此时分数已被替换为中文读法）
+            let plainText = cloneDiv.textContent || cloneDiv.innerText || '';
+            
+            // 清理多余空白（但保留必要标点）
+            plainText = plainText.replace(/\s+/g, ' ').trim();
+            
+            // 如果文本为空（理论上不会），用备用
+            if (!plainText.trim()) {
+                // 后备方案：手动构建朗读文本（但这种情况很少出现）
+                if (currentGrade === 'mid') {
+                    plainText = `${currentChar1}是${currentBaseNumber}，${currentChar2}比${currentChar1}的${currentMultiplier}倍${currentOperation}${currentChangeNumber}，${currentChar2}是多少？`;
+                } else {
+                    plainText = `${currentChar1}是${currentBaseNumber}，${currentChar2}比${currentChar1}的${currentMultiplier.denominator}分之${currentMultiplier.numerator}倍${currentOperation}${currentChangeNumber}，${currentChar2}是多少？`;
+                }
+            }
+            
+            // 创建语音对象，语速0.6
+            const utterance = new SpeechSynthesisUtterance(plainText);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.6;  // 指定语速0.6
+            
+            // 可选：选择中文语音
+            utterance.onstart = () => {
+                speakStatus.innerText = '🔊 正在朗读题目...';
+                speakButton.disabled = true;
+            };
+            
+            utterance.onend = () => {
+                speakStatus.innerText = '✅ 朗读完成';
+                speakButton.disabled = false;
+            };
+            
+            utterance.onerror = (event) => {
+                speakStatus.innerText = '❌ 朗读出错，请重试';
+                speakButton.disabled = false;
+                console.error('语音错误:', event);
+            };
+            
+            // 开始朗读
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // 事件监听
+        newProblemButton.addEventListener('click', generateNewProblem);
+        showAnswerButton.addEventListener('click', toggleAnswer);
+        speakButton.addEventListener('click', speakCurrentProblem);
+        
+        // 页面加载时生成第一个题目
+        window.addEventListener('load', generateNewProblem);
+        
+        // 页面关闭前取消朗读
+        window.addEventListener('beforeunload', () => {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+        });
+    </script>
+</body>
+</html>

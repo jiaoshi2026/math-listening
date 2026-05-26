@@ -1,0 +1,546 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二年级数学听算练习</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 95%;
+            max-width: 500px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #speedControl {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #ecf0f1;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin: 10px 0;
+        }
+        #speedValue {
+            font-weight: bold;
+            color: #3498db;
+            min-width: 40px;
+            text-align: center;
+        }
+        .status {
+            background: #e8f4fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+        .problem-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+        }
+        .repeat-count {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .progress-item {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .progress-item.active {
+            background: #3498db;
+            color: white;
+        }
+        .progress-item.completed {
+            background: #2ecc71;
+            color: white;
+        }
+        .answers-container {
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            display: none;
+        }
+        .answers-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .answer-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px dashed #ddd;
+        }
+        .answer-problem {
+            font-weight: bold;
+        }
+        .answer-result {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .instructions {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        .instructions ul {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 15px;
+                width: 100%;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            button {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>二年级数学听算练习</h1>
+        
+        <div class="control-panel">
+            <button id="startBtn">开始听算练习</button>
+            <button id="pauseBtn" disabled>暂停</button>
+            <button id="showAnswersBtn">显示答案</button>
+            
+            <div id="speedControl">
+                <span>语速:</span>
+                <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.6">
+                <span id="speedValue">0.6</span>
+            </div>
+        </div>
+        
+        <div class="status" id="status">
+            点击"开始听算练习"按钮开始
+        </div>
+        
+        <div class="repeat-count" id="repeatCount"></div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+        
+        <div class="progress" id="progressContainer">
+            <!-- 进度指示器将在这里动态生成 -->
+        </div>
+        
+        <div class="answers-container" id="answersContainer">
+            <div class="answers-title">答案列表</div>
+            <div id="answersList"></div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ul>
+                <li>点击"开始听算练习"按钮开始听算</li>
+                <li>每道题目会自动朗读三遍</li>
+                <li>学生需要在纸上写下题目并计算答案</li>
+                <li>老师可以使用暂停按钮控制播放</li>
+                <li>完成10道题目后会自动停止</li>
+                <li>点击"显示答案"按钮查看所有题目的答案</li>
+                <li>括号的读法示例：(8-6)×7 读作"括号 八减六 括号 乘 七"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 所有算式数组及其答案
+        const allProblems = [
+            { problem: "72÷9+18", answer: 26 },
+            { problem: "32÷4−24÷4", answer: 2 },
+            { problem: "25÷5×9", answer: 45 },
+            { problem: "564−138−62", answer: 364 },
+            { problem: "(32−24)÷4", answer: 2 },
+            { problem: "4×9÷6", answer: 6 },
+            { problem: "6×(103−98)", answer: 30 },
+            { problem: "6×3+6×4", answer: 42 },
+            { problem: "356−(238+42)", answer: 76 },
+            { problem: "(45+18)÷9", answer: 7 },
+            { problem: "6×(3+4)", answer: 42 },
+            { problem: "284−69−31", answer: 184 },
+            { problem: "9÷3÷3", answer: 1 },
+            { problem: "6×8−6×6", answer: 12 },
+            { problem: "284−(69+31)", answer: 184 },
+            { problem: "9÷(3×3)", answer: 1 },
+            { problem: "6×(8−6)", answer: 12 },
+            { problem: "7×5−9", answer: 26 },
+            { problem: "8×(45÷9)", answer: 40 },
+            { problem: "128−28÷4", answer: 121 },
+            { problem: "200−35−65", answer: 100 },
+            { problem: "27÷3÷3", answer: 3 },
+            { problem: "149−49÷7", answer: 142 },
+            { problem: "200−(35+65)", answer: 100 },
+            { problem: "27÷(3×3)", answer: 3 },
+            { problem: "(272−264)×7", answer: 56 },
+            { problem: "(27+54)÷9", answer: 9 },
+            { problem: "5×(24÷4)", answer: 30 },
+            { problem: "164−32−32", answer: 100 },
+            { problem: "72÷(14−5)", answer: 8 },
+            { problem: "140+6×2", answer: 152 },
+            { problem: "3×5+125", answer: 140 },
+            { problem: "32÷8×4", answer: 16 },
+            { problem: "136−45÷9", answer: 131 },
+            { problem: "16÷(2×4)", answer: 2 },
+            { problem: "693−(129+271)", answer: 293 },
+            { problem: "32÷4÷2", answer: 4 },
+            { problem: "14÷(135−128)", answer: 2 },
+            { problem: "804−259−141", answer: 404 },
+            { problem: "141−(36+64)", answer: 41 },
+            { problem: "18÷(6÷2)", answer: 6 },
+            { problem: "8×(7−2)", answer: 40 },
+            { problem: "81÷9+145", answer: 154 },
+            { problem: "150−19+81", answer: 212 },
+            { problem: "18÷6×2", answer: 6 },
+            { problem: "8×7−8×2", answer: 40 },
+            { problem: "64÷8+12", answer: 20 },
+            { problem: "5×(172−164)", answer: 40 },
+            { problem: "56÷7+5×9", answer: 53 },
+            { problem: "100−29−51", answer: 20 },
+            { problem: "(51−16)÷7", answer: 5 },
+            { problem: "32÷(4×2)", answer: 4 },
+            { problem: "36÷9+27÷9", answer: 7 },
+            { problem: "24÷4×8", answer: 48 },
+            { problem: "54÷(3×2)", answer: 9 },
+            { problem: "382−(64+136)", answer: 182 },
+            { problem: "270−8×6", answer: 222 },
+            { problem: "45÷(124−115)", answer: 5 },
+            { problem: "4×(72÷8)", answer: 36 },
+            { problem: "(30+34)÷8", answer: 8 }
+        ];
+
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const showAnswersBtn = document.getElementById('showAnswersBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const status = document.getElementById('status');
+        const repeatCount = document.getElementById('repeatCount');
+        const problemDisplay = document.getElementById('problemDisplay');
+        const progressContainer = document.getElementById('progressContainer');
+        const answersContainer = document.getElementById('answersContainer');
+        const answersList = document.getElementById('answersList');
+        
+        // 语音合成设置
+        let speech = new SpeechSynthesisUtterance();
+        speech.lang = 'zh-CN';
+        speech.rate = parseFloat(speedSlider.value);
+        
+        // 状态变量
+        let isPlaying = false;
+        let currentProblems = [];
+        let currentProblemIndex = 0;
+        let repeatTimes = 0;
+        let progressItems = [];
+        let answersVisible = false;
+        
+        // 更新语速显示
+        speedSlider.addEventListener('input', () => {
+            speech.rate = parseFloat(speedSlider.value);
+            speedValue.textContent = speedSlider.value;
+        });
+        
+        // 初始化进度指示器
+        function initProgressItems() {
+            progressContainer.innerHTML = '';
+            progressItems = [];
+            
+            for (let i = 0; i < 10; i++) {
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.textContent = i + 1;
+                progressContainer.appendChild(progressItem);
+                progressItems.push(progressItem);
+            }
+        }
+        
+        // 开始听算练习
+        function startListeningPractice() {
+            if (isPlaying) return;
+            
+            // 随机选择10道题目
+            currentProblems = getRandomProblems(10);
+            currentProblemIndex = 0;
+            isPlaying = true;
+            
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            status.textContent = '听算练习进行中...';
+            status.style.background = '#e8f4fc';
+            
+            // 初始化进度指示器
+            initProgressItems();
+            
+            // 隐藏答案
+            hideAnswers();
+            
+            // 开始朗读第一道题
+            speakNextProblem();
+        }
+        
+        // 暂停/继续听算练习
+        function togglePause() {
+            if (!isPlaying) return;
+            
+            if (speechSynthesis.speaking) {
+                if (pauseBtn.textContent === '暂停') {
+                    speechSynthesis.pause();
+                    pauseBtn.textContent = '继续';
+                    status.textContent = '已暂停';
+                    status.style.background = '#ffecb3';
+                } else {
+                    speechSynthesis.resume();
+                    pauseBtn.textContent = '暂停';
+                    status.textContent = '听算练习进行中...';
+                    status.style.background = '#e8f4fc';
+                }
+            }
+        }
+        
+        // 显示/隐藏答案
+        function toggleAnswers() {
+            if (answersVisible) {
+                hideAnswers();
+            } else {
+                showAnswers();
+            }
+        }
+        
+        // 显示答案
+        function showAnswers() {
+            if (currentProblems.length === 0) return;
+            
+            answersList.innerHTML = '';
+            
+            currentProblems.forEach((item, index) => {
+                const answerItem = document.createElement('div');
+                answerItem.className = 'answer-item';
+                answerItem.innerHTML = `
+                    <span class="answer-problem">${index + 1}. ${item.problem} = </span>
+                    <span class="answer-result">${item.answer}</span>
+                `;
+                answersList.appendChild(answerItem);
+            });
+            
+            answersContainer.style.display = 'block';
+            showAnswersBtn.textContent = '隐藏答案';
+            answersVisible = true;
+        }
+        
+        // 隐藏答案
+        function hideAnswers() {
+            answersContainer.style.display = 'none';
+            showAnswersBtn.textContent = '显示答案';
+            answersVisible = false;
+        }
+        
+        // 获取随机题目
+        function getRandomProblems(count) {
+            const shuffled = [...allProblems].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        // 朗读下一道题
+        function speakNextProblem() {
+            if (currentProblemIndex >= currentProblems.length) {
+                // 所有题目已完成
+                completePractice();
+                return;
+            }
+            
+            // 更新进度指示器
+            progressItems.forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                if (index < currentProblemIndex) {
+                    item.classList.add('completed');
+                } else if (index === currentProblemIndex) {
+                    item.classList.add('active');
+                }
+            });
+            
+            const problem = currentProblems[currentProblemIndex].problem;
+            problemDisplay.textContent = problem;
+            repeatTimes = 0;
+            
+            // 开始朗读当前题目（第一遍）
+            speakProblem(problem);
+        }
+        
+        // 朗读题目
+        function speakProblem(problem) {
+            // 格式化朗读文本
+            let text = problem
+                .replace(/×/g, '乘')
+                .replace(/÷/g, '除以')
+                .replace(/−/g, '减')
+                .replace(/\(/g, '括号 ')
+                .replace(/\)/g, ' 括号')
+                .replace(/\+/g, '加');
+            
+            // 针对小学生的特殊处理
+            text = text.replace(/\b10\b/g, '十')
+                      .replace(/\b20\b/g, '二十')
+                      .replace(/\b30\b/g, '三十')
+                      .replace(/\b40\b/g, '四十')
+                      .replace(/\b50\b/g, '五十')
+                      .replace(/\b60\b/g, '六十')
+                      .replace(/\b70\b/g, '七十')
+                      .replace(/\b80\b/g, '八十')
+                      .replace(/\b90\b/g, '九十');
+            
+            // 两位数特殊读法
+            text = text.replace(/\b11\b/g, '十一')
+                      .replace(/\b12\b/g, '十二')
+                      .replace(/\b13\b/g, '十三')
+                      .replace(/\b14\b/g, '十四')
+                      .replace(/\b15\b/g, '十五')
+                      .replace(/\b16\b/g, '十六')
+                      .replace(/\b17\b/g, '十七')
+                      .replace(/\b18\b/g, '十八')
+                      .replace(/\b19\b/g, '十九');
+            
+            speech.text = text;
+            
+            // 更新重复次数显示
+            repeatTimes++;
+            repeatCount.textContent = `第 ${repeatTimes} 遍朗读`;
+            
+            // 开始朗读
+            window.speechSynthesis.cancel(); // 取消之前的朗读
+            window.speechSynthesis.speak(speech);
+            
+            // 监听朗读结束事件
+            speech.onend = function() {
+                // 每道题朗读三遍
+                if (repeatTimes < 3) {
+                    // 继续朗读同一题
+                    setTimeout(() => speakProblem(problem), 1000);
+                } else {
+                    // 当前题目朗读完成，准备下一题
+                    currentProblemIndex++;
+                    setTimeout(speakNextProblem, 2000); // 2秒后开始下一题
+                }
+            };
+        }
+        
+        // 完成练习
+        function completePractice() {
+            isPlaying = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = '暂停';
+            
+            status.textContent = '听算练习已完成！';
+            status.style.background = '#d4edda';
+            
+            problemDisplay.textContent = '';
+            repeatCount.textContent = '';
+            
+            // 将所有进度指示器标记为完成
+            progressItems.forEach(item => {
+                item.classList.add('completed');
+                item.classList.remove('active');
+            });
+            
+            // 自动显示答案
+            showAnswers();
+        }
+        
+        // 事件监听
+        startBtn.addEventListener('click', startListeningPractice);
+        pauseBtn.addEventListener('click', togglePause);
+        showAnswersBtn.addEventListener('click', toggleAnswers);
+        
+        // 初始化
+        initProgressItems();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1085 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>长度与质量单位综合练习</title>
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			font-family: 'Microsoft YaHei', sans-serif;
+		}
+		body {
+			background-color: #f0f8ff;
+			padding: 20px;
+			line-height: 1.6;
+		}
+		.container {
+			max-width: 900px;
+			margin: 0 auto;
+			background-color: white;
+			border-radius: 15px;
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			padding: 25px;
+		}
+		h1 {
+			color: #2c3e50;
+			text-align: center;
+			margin-bottom: 20px;
+			font-size: 28px;
+		}
+		.description {
+			background-color: #e8f4fd;
+			padding: 15px;
+			border-radius: 10px;
+			margin-bottom: 25px;
+			color: #2c3e50;
+			font-size: 16px;
+		}
+		.mode-selector {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 15px;
+			margin-bottom: 25px;
+		}
+		.mode-btn {
+			background-color: #4a90e2;
+			color: white;
+			border: none;
+			padding: 15px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 16px;
+			transition: all 0.3s;
+		}
+		.mode-btn:hover {
+			background-color: #3a7bc8;
+			transform: translateY(-2px);
+		}
+		.mode-btn.active {
+			background-color: #2c3e50;
+		}
+		.control-panel {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-bottom: 25px;
+			justify-content: center;
+		}
+		button {
+			background-color: #4a90e2;
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 16px;
+			transition: all 0.3s;
+		}
+		button:hover {
+			background-color: #3a7bc8;
+			transform: translateY(-2px);
+		}
+		button:disabled {
+			background-color: #cccccc;
+			cursor: not-allowed;
+			transform: none;
+		}
+		.current-question {
+			background-color: #f9f9f9;
+			padding: 20px;
+			border-radius: 10px;
+			margin-bottom: 20px;
+			text-align: center;
+			min-height: 120px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+		.question-text {
+			font-size: 20px;
+			color: #2c3e50;
+			margin-bottom: 15px;
+		}
+		.question-number {
+			color: #7f8c8d;
+			font-size: 14px;
+			margin-bottom: 10px;
+		}
+		.answer-section {
+			background-color: #e8f7f0;
+			padding: 15px;
+			border-radius: 10px;
+			margin-top: 15px;
+			display: none;
+		}
+		.answer-text {
+			font-size: 18px;
+			color: #27ae60;
+		}
+		.progress-bar {
+			height: 8px;
+			background-color: #e0e0e0;
+			border-radius: 4px;
+			margin: 20px 0;
+			overflow: hidden;
+		}
+		.progress {
+			height: 100%;
+			background-color: #4a90e2;
+			width: 0%;
+			transition: width 0.3s;
+		}
+		.question-list {
+			margin-top: 30px;
+			max-height: 300px;
+			overflow-y: auto;
+			border: 1px solid #e0e0e0;
+			border-radius: 8px;
+		}
+		.question-item {
+			padding: 10px;
+			border-bottom: 1px solid #eee;
+			cursor: pointer;
+			transition: background-color 0.2s;
+		}
+		.question-item:hover {
+			background-color: #f5f9ff;
+		}
+		.question-item.active {
+			background-color: #e8f4fd;
+			font-weight: bold;
+		}
+		.status {
+			text-align: center;
+			margin: 15px 0;
+			color: #7f8c8d;
+			font-style: italic;
+		}
+		.instructions {
+			margin-top: 25px;
+			font-size: 14px;
+			color: #7f8c8d;
+			text-align: center;
+		}
+		.play-count {
+			margin-top: 10px;
+			font-size: 14px;
+			color: #7f8c8d;
+		}
+		.auto-controls {
+			display: flex;
+			justify-content: center;
+			gap: 10px;
+			margin-top: 15px;
+		}
+		.question-hidden {
+			color: #7f8c8d;
+			font-style: italic;
+		}
+		.unit-type {
+			display: inline-block;
+			padding: 3px 8px;
+			border-radius: 4px;
+			font-size: 12px;
+			margin-left: 10px;
+			background-color: #e8f4fd;
+			color: #4a90e2;
+		}
+		.length-unit {
+			background-color: #e8f4fd;
+			color: #4a90e2;
+		}
+		.weight-unit {
+			background-color: #f0e8fd;
+			color: #8a4ae2;
+		}
+		.sorting-options {
+			display: flex;
+			justify-content: center;
+			gap: 10px;
+			margin-bottom: 15px;
+		}
+		.sort-btn {
+			background-color: #8a4ae2;
+		}
+		.sort-btn.active {
+			background-color: #2c3e50;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>长度与质量单位综合练习</h1>
+		
+		<div class="description">
+			<p>本练习包含长度单位（毫米、厘米、分米、米）和质量单位（克、千克、吨）的加减运算和排序练习。</p>
+		</div>
+		
+		<div class="mode-selector">
+			<button class="mode-btn" data-mode="length-add">长度单位加减运算</button>
+			<button class="mode-btn" data-mode="weight-add">质量单位加减运算</button>
+			<button class="mode-btn" data-mode="length-sort">长度单位排序</button>
+			<button class="mode-btn" data-mode="weight-sort">质量单位排序</button>
+		</div>
+		
+		<div class="sorting-options" id="sortingOptions" style="display: none;">
+			<button class="sort-btn" data-order="asc">从小到大排列</button>
+			<button class="sort-btn" data-order="desc">从大到小排列</button>
+		</div>
+		
+		<div class="control-panel">
+			<button id="prevBtn">上一题</button>
+			<button id="playBtn">播放题目</button>
+			<button id="answerBtn">显示答案</button>
+			<button id="nextBtn">下一题</button>
+			<button id="repeatBtn">重复播放</button>
+			<button id="newSetBtn">新题目组</button>
+			<button id="toggleQuestionBtn">显示题目</button>
+		</div>
+		
+		<div class="auto-controls">
+			<button id="autoPlayBtn">开始自动播放</button>
+			<button id="stopAutoBtn" disabled>停止自动播放</button>
+		</div>
+		
+		<div class="progress-bar">
+			<div class="progress" id="progress"></div>
+		</div>
+		
+		<div class="current-question">
+			<div class="question-number">题目 <span id="currentIndex">1</span> / <span id="totalQuestions">10</span></div>
+			<div class="question-text question-hidden" id="questionText">请选择练习模式开始练习</div>
+			<div class="play-count" id="playCount">已播放: 0/3 遍</div>
+			<div class="answer-section" id="answerSection">
+				<div class="answer-text" id="answerText"></div>
+			</div>
+		</div>
+		
+		<div class="status" id="status">准备就绪</div>
+		
+		<div class="question-list" id="questionList">
+			<!-- 题目列表将通过JavaScript动态生成 -->
+		</div>
+		
+		<div class="instructions">
+			<p>提示：使用"自动播放"功能可以让系统自动朗读每道题三遍，间隔3秒后进入下一题。</p>
+		</div>
+	</div>
+
+	<script>
+		// 题目数据
+		const questionPool = {
+			// 长度单位加减运算
+			"length-add": [
+				{ text: "3米 + 2分米 = （ ）米（ ）分米", speech: "3米加2分米等于多少米多少分米", answer: "3米 + 2分米 = 3米2分米", type: "length" },
+				{ text: "5分米 + 30厘米 = （ ）分米", speech: "5分米加30厘米等于多少分米", answer: "5分米 + 30厘米 = 8分米", type: "length" },
+				{ text: "2米 - 5分米 = （ ）米（ ）分米", speech: "2米减5分米等于多少米多少分米", answer: "2米 - 5分米 = 1米5分米", type: "length" },
+				{ text: "80厘米 + 2分米 = （ ）厘米", speech: "80厘米加2分米等于多少厘米", answer: "80厘米 + 2分米 = 100厘米", type: "length" },
+				{ text: "1米5分米 + 3分米 = （ ）米（ ）分米", speech: "1米5分米加3分米等于多少米多少分米", answer: "1米5分米 + 3分米 = 1米8分米", type: "length" },
+				{ text: "4米 - 1米3分米 = （ ）米（ ）分米", speech: "4米减1米3分米等于多少米多少分米", answer: "4米 - 1米3分米 = 2米7分米", type: "length" },
+				{ text: "25厘米 + 75厘米 = （ ）米", speech: "25厘米加75厘米等于多少米", answer: "25厘米 + 75厘米 = 1米", type: "length" },
+				{ text: "3分米5厘米 + 4分米5厘米 = （ ）分米", speech: "3分米5厘米加4分米5厘米等于多少分米", answer: "3分米5厘米 + 4分米5厘米 = 8分米", type: "length" },
+				{ text: "2米 - 80厘米 = （ ）米（ ）厘米", speech: "2米减80厘米等于多少米多少厘米", answer: "2米 - 80厘米 = 1米20厘米", type: "length" },
+				{ text: "1米2分米 + 80厘米 = （ ）米", speech: "1米2分米加80厘米等于多少米", answer: "1米2分米 + 80厘米 = 2米", type: "length" },
+				{ text: "12分米 - 80厘米 = （ ）分米", speech: "12分米减80厘米等于多少分米", answer: "12分米 - 80厘米 = 4分米", type: "length" },
+				{ text: "12分米 + 80厘米 = （ ）米", speech: "12分米加80厘米等于多少米", answer: "12分米 + 80厘米 = 2米", type: "length" },
+				{ text: "3米 + 2分米 = （ ）米（ ）分米", speech: "3米加2分米等于多少米多少分米", answer: "3米 + 2分米 = 3米2分米", type: "length" },
+				{ text: "5分米 + 30厘米 = （ ）分米", speech: "5分米加30厘米等于多少分米", answer: "5分米 + 30厘米 = 8分米", type: "length" },
+				{ text: "2米 - 5分米 = （ ）米（ ）分米", speech: "2米减5分米等于多少米多少分米", answer: "2米 - 5分米 = 1米5分米", type: "length" },
+				{ text: "80厘米 + 2分米 = （ ）厘米", speech: "80厘米加2分米等于多少厘米", answer: "80厘米 + 2分米 = 100厘米", type: "length" },
+				{ text: "1米5分米 + 3分米 = （ ）米（ ）分米", speech: "1米5分米加3分米等于多少米多少分米", answer: "1米5分米 + 3分米 = 1米8分米", type: "length" },
+				{ text: "4米 - 1米3分米 = （ ）米（ ）分米", speech: "4米减1米3分米等于多少米多少分米", answer: "4米 - 1米3分米 = 2米7分米", type: "length" },
+				{ text: "25厘米 + 75厘米 = （ ）米", speech: "25厘米加75厘米等于多少米", answer: "25厘米 + 75厘米 = 1米", type: "length" },
+				{ text: "3分米5厘米 + 4分米5厘米 = （ ）分米", speech: "3分米5厘米加4分米5厘米等于多少分米", answer: "3分米5厘米 + 4分米5厘米 = 8分米", type: "length" },
+				{ text: "2米 - 80厘米 = （ ）米（ ）厘米", speech: "2米减80厘米等于多少米多少厘米", answer: "2米 - 80厘米 = 1米20厘米", type: "length" },
+				{ text: "4米 + 3分米 = （ ）米（ ）分米", speech: "4米加3分米等于多少米多少分米", answer: "4米 + 3分米 = 4米3分米", type: "length" },
+				{ text: "6分米 + 40厘米 = （ ）分米", speech: "6分米加40厘米等于多少分米", answer: "6分米 + 40厘米 = 10分米", type: "length" },
+				{ text: "3米 - 7分米 = （ ）米（ ）分米", speech: "3米减7分米等于多少米多少分米", answer: "3米 - 7分米 = 2米3分米", type: "length" },
+				{ text: "90厘米 + 3分米 = （ ）厘米", speech: "90厘米加3分米等于多少厘米", answer: "90厘米 + 3分米 = 120厘米", type: "length" },
+				{ text: "2米4分米 + 5分米 = （ ）米（ ）分米", speech: "2米4分米加5分米等于多少米多少分米", answer: "2米4分米 + 5分米 = 2米9分米", type: "length" },
+				{ text: "5米 - 2米6分米 = （ ）米（ ）分米", speech: "5米减2米6分米等于多少米多少分米", answer: "5米 - 2米6分米 = 2米4分米", type: "length" },
+				{ text: "35厘米 + 65厘米 = （ ）米", speech: "35厘米加65厘米等于多少米", answer: "35厘米 + 65厘米 = 1米", type: "length" },
+				{ text: "4分米6厘米 + 3分米4厘米 = （ ）分米", speech: "4分米6厘米加3分米4厘米等于多少分米", answer: "4分米6厘米 + 3分米4厘米 = 8分米", type: "length" },
+				{ text: "3米 - 90厘米 = （ ）米（ ）厘米", speech: "3米减90厘米等于多少米多少厘米", answer: "3米 - 90厘米 = 2米10厘米", type: "length" },
+				{ text: "2米3分米 + 70厘米 = （ ）米", speech: "2米3分米加70厘米等于多少米", answer: "2米3分米 + 70厘米 = 3米", type: "length" },
+				{ text: "5米 + 4分米 = （ ）米（ ）分米", speech: "5米加4分米等于多少米多少分米", answer: "5米 + 4分米 = 5米4分米", type: "length" },
+				{ text: "7分米 + 50厘米 = （ ）分米", speech: "7分米加50厘米等于多少分米", answer: "7分米 + 50厘米 = 12分米", type: "length" },
+				{ text: "4米 - 8分米 = （ ）米（ ）分米", speech: "4米减8分米等于多少米多少分米", answer: "4米 - 8分米 = 3米2分米", type: "length" },
+				{ text: "110厘米 + 4分米 = （ ）厘米", speech: "110厘米加4分米等于多少厘米", answer: "110厘米 + 4分米 = 150厘米", type: "length" },
+				{ text: "3米6分米 + 6分米 = （ ）米（ ）分米", speech: "3米6分米加6分米等于多少米多少分米", answer: "3米6分米 + 6分米 = 4米2分米", type: "length" },
+				{ text: "6米 - 3米7分米 = （ ）米（ ）分米", speech: "6米减3米7分米等于多少米多少分米", answer: "6米 - 3米7分米 = 2米3分米", type: "length" },
+				{ text: "45厘米 + 55厘米 = （ ）米", speech: "45厘米加55厘米等于多少米", answer: "45厘米 + 55厘米 = 1米", type: "length" },
+				{ text: "5分米7厘米 + 4分米3厘米 = （ ）分米", speech: "5分米7厘米加4分米3厘米等于多少分米", answer: "5分米7厘米 + 4分米3厘米 = 10分米", type: "length" },
+				{ text: "4米 - 120厘米 = （ ）米（ ）厘米", speech: "4米减120厘米等于多少米多少厘米", answer: "4米 - 120厘米 = 2米80厘米", type: "length" },
+				{ text: "3米4分米 + 60厘米 = （ ）米", speech: "3米4分米加60厘米等于多少米", answer: "3米4分米 + 60厘米 = 4米", type: "length" },
+				{ text: "6米 + 5分米 = （ ）米（ ）分米", speech: "6米加5分米等于多少米多少分米", answer: "6米 + 5分米 = 6米5分米", type: "length" },
+				{ text: "8分米 + 60厘米 = （ ）分米", speech: "8分米加60厘米等于多少分米", answer: "8分米 + 60厘米 = 14分米", type: "length" },
+				{ text: "5米 - 9分米 = （ ）米（ ）分米", speech: "5米减9分米等于多少米多少分米", answer: "5米 - 9分米 = 4米1分米", type: "length" },
+				{ text: "130厘米 + 5分米 = （ ）厘米", speech: "130厘米加5分米等于多少厘米", answer: "130厘米 + 5分米 = 180厘米", type: "length" },
+				{ text: "4米7分米 + 7分米 = （ ）米（ ）分米", speech: "4米7分米加7分米等于多少米多少分米", answer: "4米7分米 + 7分米 = 5米4分米", type: "length" },
+				{ text: "7米 - 4米8分米 = （ ）米（ ）分米", speech: "7米减4米8分米等于多少米多少分米", answer: "7米 - 4米8分米 = 2米2分米", type: "length" },
+				{ text: "55厘米 + 45厘米 = （ ）米", speech: "55厘米加45厘米等于多少米", answer: "55厘米 + 45厘米 = 1米", type: "length" },
+				{ text: "6分米8厘米 + 5分米2厘米 = （ ）分米", speech: "6分米8厘米加5分米2厘米等于多少分米", answer: "6分米8厘米 + 5分米2厘米 = 12分米", type: "length" },
+				{ text: "5米 - 150厘米 = （ ）米（ ）厘米", speech: "5米减150厘米等于多少米多少厘米", answer: "5米 - 150厘米 = 3米50厘米", type: "length" },
+				{ text: "4米5分米 + 50厘米 = （ ）米", speech: "4米5分米加50厘米等于多少米", answer: "4米5分米 + 50厘米 = 5米", type: "length" },
+				{ text: "7米 + 6分米 = （ ）米（ ）分米", speech: "7米加6分米等于多少米多少分米", answer: "7米 + 6分米 = 7米6分米", type: "length" },
+				{ text: "9分米 + 70厘米 = （ ）分米", speech: "9分米加70厘米等于多少分米", answer: "9分米 + 70厘米 = 16分米", type: "length" },
+				{ text: "6米 - 10分米 = （ ）米", speech: "6米减10分米等于多少米", answer: "6米 - 10分米 = 5米", type: "length" },
+				{ text: "150厘米 + 6分米 = （ ）厘米", speech: "150厘米加6分米等于多少厘米", answer: "150厘米 + 6分米 = 210厘米", type: "length" },
+				{ text: "5米8分米 + 8分米 = （ ）米（ ）分米", speech: "5米8分米加8分米等于多少米多少分米", answer: "5米8分米 + 8分米 = 6米6分米", type: "length" },
+				{ text: "8米 - 5米9分米 = （ ）米（ ）分米", speech: "8米减5米9分米等于多少米多少分米", answer: "8米 - 5米9分米 = 2米1分米", type: "length" },
+				{ text: "65厘米 + 35厘米 = （ ）米", speech: "65厘米加35厘米等于多少米", answer: "65厘米 + 35厘米 = 1米", type: "length" },
+				{ text: "7分米9厘米 + 6分米1厘米 = （ ）分米", speech: "7分米9厘米加6分米1厘米等于多少分米", answer: "7分米9厘米 + 6分米1厘米 = 14分米", type: "length" },
+				{ text: "6米 - 180厘米 = （ ）米（ ）厘米", speech: "6米减180厘米等于多少米多少厘米", answer: "6米 - 180厘米 = 4米20厘米", type: "length" },
+				{ text: "5米6分米 + 40厘米 = （ ）米", speech: "5米6分米加40厘米等于多少米", answer: "5米6分米 + 40厘米 = 6米", type: "length" },
+				{ text: "1千米200米 + 800米 = （ ）千米", speech: "1千米200米加800米等于多少千米", answer: "1千米200米 + 800米 = 2千米", type: "length" },
+			   { text: "3千米 + 500米 = （ ）千米（ ）米", speech: "3千米加500米等于多少千米多少米", answer: "3千米 + 500米 = 3千米500米", type: "length" },
+			   { text: "2千米 - 800米 = （ ）千米（ ）米", speech: "2千米减800米等于多少千米多少米", answer: "2千米 - 800米 = 1千米200米", type: "length" },
+			   { text: "1千米500米 + 500米 = （ ）千米", speech: "1千米500米加500米等于多少千米", answer: "1千米500米 + 500米 = 2千米", type: "length" },
+			   { text: "4千米 - 1千米500米 = （ ）千米（ ）米", speech: "4千米减1千米500米等于多少千米多少米", answer: "4千米 - 1千米500米 = 2千米500米", type: "length" },
+			   { text: "2千米300米 + 700米 = （ ）千米", speech: "2千米300米加700米等于多少千米", answer: "2千米300米 + 700米 = 3千米", type: "length" },
+			   { text: "5千米 - 2千米800米 = （ ）千米（ ）米", speech: "5千米减2千米800米等于多少千米多少米", answer: "5千米 - 2千米800米 = 2千米200米", type: "length" },
+			   { text: "3千米600米 + 400米 = （ ）千米", speech: "3千米600米加400米等于多少千米", answer: "3千米600米 + 400米 = 4千米", type: "length" },
+			   { text: "6千米 - 3千米400米 = （ ）千米（ ）米", speech: "6千米减3千米400米等于多少千米多少米", answer: "6千米 - 3千米400米 = 2千米600米", type: "length" },
+			   { text: "1千米800米 + 200米 = （ ）千米", speech: "1千米800米加200米等于多少千米", answer: "1千米800米 + 200米 = 2千米", type: "length" },
+			   { text: "4千米500米 - 1千米500米 = （ ）千米", speech: "4千米500米减1千米500米等于多少千米", answer: "4千米500米 - 1千米500米 = 3千米", type: "length" },
+			   { text: "2千米 + 1千米500米 = （ ）千米（ ）米", speech: "2千米加1千米500米等于多少千米多少米", answer: "2千米 + 1千米500米 = 3千米500米", type: "length" },
+			   { text: "5千米200米 - 2千米200米 = （ ）千米", speech: "5千米200米减2千米200米等于多少千米", answer: "5千米200米 - 2千米200米 = 3千米", type: "length" },
+			   { text: "3千米 + 2千米800米 = （ ）千米（ ）米", speech: "3千米加2千米800米等于多少千米多少米", answer: "3千米 + 2千米800米 = 5千米800米", type: "length" },
+			   { text: "6千米500米 - 3千米500米 = （ ）千米", speech: "6千米500米减3千米500米等于多少千米", answer: "6千米500米 - 3千米500米 = 3千米", type: "length" },
+			   { text: "1千米 + 800米 = （ ）千米（ ）米", speech: "1千米加800米等于多少千米多少米", answer: "1千米 + 800米 = 1千米800米", type: "length" },
+			   { text: "4千米 - 2千米600米 = （ ）千米（ ）米", speech: "4千米减2千米600米等于多少千米多少米", answer: "4千米 - 2千米600米 = 1千米400米", type: "length" },
+			   { text: "2千米700米 + 300米 = （ ）千米", speech: "2千米700米加300米等于多少千米", answer: "2千米700米 + 300米 = 3千米", type: "length" },
+			   { text: "5千米 - 1千米900米 = （ ）千米（ ）米", speech: "5千米减1千米900米等于多少千米多少米", answer: "5千米 - 1千米900米 = 3千米100米", type: "length" },
+			   { text: "3千米400米 + 600米 = （ ）千米", speech: "3千米400米加600米等于多少千米", answer: "3千米400米 + 600米 = 4千米", type: "length" },
+			   { text: "1千米200米 + 1千米800米 = （ ）千米", speech: "1千米200米加1千米800米等于多少千米", answer: "1千米200米 + 1千米800米 = 3千米", type: "length" },
+			   { text: "4千米300米 - 2千米300米 = （ ）千米", speech: "4千米300米减2千米300米等于多少千米", answer: "4千米300米 - 2千米300米 = 2千米", type: "length" },
+			   { text: "2千米 + 3千米500米 = （ ）千米（ ）米", speech: "2千米加3千米500米等于多少千米多少米", answer: "2千米 + 3千米500米 = 5千米500米", type: "length" },
+			   { text: "6千米200米 - 4千米200米 = （ ）千米", speech: "6千米200米减4千米200米等于多少千米", answer: "6千米200米 - 4千米200米 = 2千米", type: "length" },
+			   { text: "3千米 + 1千米700米 = （ ）千米（ ）米", speech: "3千米加1千米700米等于多少千米多少米", answer: "3千米 + 1千米700米 = 4千米700米", type: "length" },
+			   { text: "5千米600米 - 2千米600米 = （ ）千米", speech: "5千米600米减2千米600米等于多少千米", answer: "5千米600米 - 2千米600米 = 3千米", type: "length" },
+			   { text: "1千米500米 + 2千米500米 = （ ）千米", speech: "1千米500米加2千米500米等于多少千米", answer: "1千米500米 + 2千米500米 = 4千米", type: "length" },
+			   { text: "4千米800米 - 1千米800米 = （ ）千米", speech: "4千米800米减1千米800米等于多少千米", answer: "4千米800米 - 1千米800米 = 3千米", type: "length" },
+			   { text: "2千米 + 4千米300米 = （ ）千米（ ）米", speech: "2千米加4千米300米等于多少千米多少米", answer: "2千米 + 4千米300米 = 6千米300米", type: "length" },
+			   { text: "7千米400米 - 3千米400米 = （ ）千米", speech: "7千米400米减3千米400米等于多少千米", answer: "7千米400米 - 3千米400米 = 4千米", type: "length" },
+			   { text: "3千米 + 2千米200米 = （ ）千米（ ）米", speech: "3千米加2千米200米等于多少千米多少米", answer: "3千米 + 2千米200米 = 5千米200米", type: "length" },
+			   { text: "5千米700米 - 1千米700米 = （ ）千米", speech: "5千米700米减1千米700米等于多少千米", answer: "5千米700米 - 1千米700米 = 4千米", type: "length" },
+			   { text: "1千米800米 + 3千米200米 = （ ）千米", speech: "1千米800米加3千米200米等于多少千米", answer: "1千米800米 + 3千米200米 = 5千米", type: "length" },
+			   { text: "6千米300米 - 2千米300米 = （ ）千米", speech: "6千米300米减2千米300米等于多少千米", answer: "6千米300米 - 2千米300米 = 4千米", type: "length" },
+			   { text: "2千米 + 5千米400米 = （ ）千米（ ）米", speech: "2千米加5千米400米等于多少千米多少米", answer: "2千米 + 5千米400米 = 7千米400米", type: "length" },
+			   { text: "8千米500米 - 4千米500米 = （ ）千米", speech: "8千米500米减4千米500米等于多少千米", answer: "8千米500米 - 4千米500米 = 4千米", type: "length" },
+			   { text: "3千米 + 3千米600米 = （ ）千米（ ）米", speech: "3千米加3千米600米等于多少千米多少米", answer: "3千米 + 3千米600米 = 6千米600米", type: "length" },
+			   { text: "4千米700米 - 1千米700米 = （ ）千米", speech: "4千米700米减1千米700米等于多少千米", answer: "4千米700米 - 1千米700米 = 3千米", type: "length" },
+			   { text: "1千米900米 + 2千米100米 = （ ）千米", speech: "1千米900米加2千米100米等于多少千米", answer: "1千米900米 + 2千米100米 = 4千米", type: "length" },
+			   { text: "5千米800米 - 2千米800米 = （ ）千米", speech: "5千米800米减2千米800米等于多少千米", answer: "5千米800米 - 2千米800米 = 3千米", type: "length" },
+			   { text: "2千米 + 6千米500米 = （ ）千米（ ）米", speech: "2千米加6千米500米等于多少千米多少米", answer: "2千米 + 6千米500米 = 8千米500米", type: "length" },
+			   { text: "9千米600米 - 5千米600米 = （ ）千米", speech: "9千米600米减5千米600米等于多少千米", answer: "9千米600米 - 5千米600米 = 4千米", type: "length" },
+			   { text: "3千米 + 4千米700米 = （ ）千米（ ）米", speech: "3千米加4千米700米等于多少千米多少米", answer: "3千米 + 4千米700米 = 7千米700米", type: "length" },
+			   { text: "6千米900米 - 2千米900米 = （ ）千米", speech: "6千米900米减2千米900米等于多少千米", answer: "6千米900米 - 2千米900米 = 4千米", type: "length" },
+			   { text: "1千米300米 + 4千米700米 = （ ）千米", speech: "1千米300米加4千米700米等于多少千米", answer: "1千米300米 + 4千米700米 = 6千米", type: "length" },
+			   { text: "7千米200米 - 3千米200米 = （ ）千米", speech: "7千米200米减3千米200米等于多少千米", answer: "7千米200米 - 3千米200米 = 4千米", type: "length" },
+			   { text: "2千米 + 7千米600米 = （ ）千米（ ）米", speech: "2千米加7千米600米等于多少千米多少米", answer: "2千米 + 7千米600米 = 9千米600米", type: "length" },
+			   { text: "10千米800米 - 6千米800米 = （ ）千米", speech: "10千米800米减6千米800米等于多少千米", answer: "10千米800米 - 6千米800米 = 4千米", type: "length" },
+			   { text: "3千米 + 5千米800米 = （ ）千米（ ）米", speech: "3千米加5千米800米等于多少千米多少米", answer: "3千米 + 5千米800米 = 8千米800米", type: "length" },
+			   { text: "8千米400米 - 4千米400米 = （ ）千米", speech: "8千米400米减4千米400米等于多少千米", answer: "8千米400米 - 4千米400米 = 4千米", type: "length" }
+			],
+			
+			// 质量单位加减运算
+			"weight-add": [
+				{ text: "3千克 + 500克 = （ ）千克（ ）克", speech: "3千克加500克等于多少千克多少克", answer: "3千克 + 500克 = 3千克500克", type: "weight" },
+				{ text: "2千克 - 800克 = （ ）千克（ ）克", speech: "2千克减800克等于多少千克多少克", answer: "2千克 - 800克 = 1千克200克", type: "weight" },
+				{ text: "1500克 + 500克 = （ ）千克", speech: "1500克加500克等于多少千克", answer: "1500克 + 500克 = 2千克", type: "weight" },
+				{ text: "4千克200克 + 800克 = （ ）千克", speech: "4千克200克加800克等于多少千克", answer: "4千克200克 + 800克 = 5千克", type: "weight" },
+				{ text: "3吨 + 500千克 = （ ）吨（ ）千克", speech: "3吨加500千克等于多少吨多少千克", answer: "3吨 + 500千克 = 3吨500千克", type: "weight" },
+				{ text: "5吨 - 2吨300千克 = （ ）吨（ ）千克", speech: "5吨减2吨300千克等于多少吨多少千克", answer: "5吨 - 2吨300千克 = 2吨700千克", type: "weight" },
+				{ text: "2500千克 + 1500千克 = （ ）吨", speech: "2500千克加1500千克等于多少吨", answer: "2500千克 + 1500千克 = 4吨", type: "weight" },
+				{ text: "6千克 - 3200克 = （ ）千克（ ）克", speech: "6千克减3200克等于多少千克多少克", answer: "6千克 - 3200克 = 2千克800克", type: "weight" },
+				{ text: "1吨200千克 + 800千克 = （ ）吨", speech: "1吨200千克加800千克等于多少吨", answer: "1吨200千克 + 800千克 = 2吨", type: "weight" },
+				{ text: "4吨500千克 - 1吨800千克 = （ ）吨（ ）千克", speech: "4吨500千克减1吨800千克等于多少吨多少千克", answer: "4吨500千克 - 1吨800千克 = 2吨700千克", type: "weight" },
+				{ text: "3千克 + 500克 = （ ）千克（ ）克", speech: "3千克加500克等于多少千克多少克", answer: "3千克 + 500克 = 3千克500克", type: "weight" },
+				{ text: "2千克 - 800克 = （ ）千克（ ）克", speech: "2千克减800克等于多少千克多少克", answer: "2千克 - 800克 = 1千克200克", type: "weight" },
+				{ text: "1500克 + 500克 = （ ）千克", speech: "1500克加500克等于多少千克", answer: "1500克 + 500克 = 2千克", type: "weight" },
+				{ text: "4千克200克 + 800克 = （ ）千克", speech: "4千克200克加800克等于多少千克", answer: "4千克200克 + 800克 = 5千克", type: "weight" },
+				{ text: "3吨 + 500千克 = （ ）吨（ ）千克", speech: "3吨加500千克等于多少吨多少千克", answer: "3吨 + 500千克 = 3吨500千克", type: "weight" },
+				{ text: "5吨 - 2吨300千克 = （ ）吨（ ）千克", speech: "5吨减2吨300千克等于多少吨多少千克", answer: "5吨 - 2吨300千克 = 2吨700千克", type: "weight" },
+				{ text: "2500千克 + 1500千克 = （ ）吨", speech: "2500千克加1500千克等于多少吨", answer: "2500千克 + 1500千克 = 4吨", type: "weight" },
+				{ text: "6千克 - 3200克 = （ ）千克（ ）克", speech: "6千克减3200克等于多少千克多少克", answer: "6千克 - 3200克 = 2千克800克", type: "weight" },
+				{ text: "1吨200千克 + 800千克 = （ ）吨", speech: "1吨200千克加800千克等于多少吨", answer: "1吨200千克 + 800千克 = 2吨", type: "weight" },
+				{ text: "4吨500千克 - 1吨800千克 = （ ）吨（ ）千克", speech: "4吨500千克减1吨800千克等于多少吨多少千克", answer: "4吨500千克 - 1吨800千克 = 2吨700千克", type: "weight" },
+				{ text: "4千克 + 600克 = （ ）千克（ ）克", speech: "4千克加600克等于多少千克多少克", answer: "4千克 + 600克 = 4千克600克", type: "weight" },
+				{ text: "3千克 - 1200克 = （ ）千克（ ）克", speech: "3千克减1200克等于多少千克多少克", answer: "3千克 - 1200克 = 1千克800克", type: "weight" },
+				{ text: "2000克 + 1000克 = （ ）千克", speech: "2000克加1000克等于多少千克", answer: "2000克 + 1000克 = 3千克", type: "weight" },
+				{ text: "5千克300克 + 700克 = （ ）千克", speech: "5千克300克加700克等于多少千克", answer: "5千克300克 + 700克 = 6千克", type: "weight" },
+				{ text: "4吨 + 800千克 = （ ）吨（ ）千克", speech: "4吨加800千克等于多少吨多少千克", answer: "4吨 + 800千克 = 4吨800千克", type: "weight" },
+				{ text: "6吨 - 3吨500千克 = （ ）吨（ ）千克", speech: "6吨减3吨500千克等于多少吨多少千克", answer: "6吨 - 3吨500千克 = 2吨500千克", type: "weight" },
+				{ text: "3500千克 + 1500千克 = （ ）吨", speech: "3500千克加1500千克等于多少吨", answer: "3500千克 + 1500千克 = 5吨", type: "weight" },
+				{ text: "7千克 - 4500克 = （ ）千克（ ）克", speech: "7千克减4500克等于多少千克多少克", answer: "7千克 - 4500克 = 2千克500克", type: "weight" },
+				{ text: "2吨300千克 + 700千克 = （ ）吨", speech: "2吨300千克加700千克等于多少吨", answer: "2吨300千克 + 700千克 = 3吨", type: "weight" },
+				{ text: "5吨600千克 - 2吨900千克 = （ ）吨（ ）千克", speech: "5吨600千克减2吨900千克等于多少吨多少千克", answer: "5吨600千克 - 2吨900千克 = 2吨700千克", type: "weight" },
+				{ text: "5千克 + 700克 = （ ）千克（ ）克", speech: "5千克加700克等于多少千克多少克", answer: "5千克 + 700克 = 5千克700克", type: "weight" },
+				{ text: "4千克 - 1500克 = （ ）千克（ ）克", speech: "4千克减1500克等于多少千克多少克", answer: "4千克 - 1500克 = 2千克500克", type: "weight" },
+				{ text: "3000克 + 2000克 = （ ）千克", speech: "3000克加2000克等于多少千克", answer: "3000克 + 2000克 = 5千克", type: "weight" },
+				{ text: "6千克400克 + 600克 = （ ）千克", speech: "6千克400克加600克等于多少千克", answer: "6千克400克 + 600克 = 7千克", type: "weight" },
+				{ text: "5吨 + 900千克 = （ ）吨（ ）千克", speech: "5吨加900千克等于多少吨多少千克", answer: "5吨 + 900千克 = 5吨900千克", type: "weight" },
+				{ text: "7吨 - 4吨600千克 = （ ）吨（ ）千克", speech: "7吨减4吨600千克等于多少吨多少千克", answer: "7吨 - 4吨600千克 = 2吨400千克", type: "weight" },
+				{ text: "4500千克 + 2500千克 = （ ）吨", speech: "4500千克加2500千克等于多少吨", answer: "4500千克 + 2500千克 = 7吨", type: "weight" },
+				{ text: "8千克 - 5200克 = （ ）千克（ ）克", speech: "8千克减5200克等于多少千克多少克", answer: "8千克 - 5200克 = 2千克800克", type: "weight" },
+				{ text: "3吨400千克 + 600千克 = （ ）吨", speech: "3吨400千克加600千克等于多少吨", answer: "3吨400千克 + 600千克 = 4吨", type: "weight" },
+				{ text: "6吨700千克 - 3吨800千克 = （ ）吨（ ）千克", speech: "6吨700千克减3吨800千克等于多少吨多少千克", answer: "6吨700千克 - 3吨800千克 = 2吨900千克", type: "weight" },
+				{ text: "6千克 + 800克 = （ ）千克（ ）克", speech: "6千克加800克等于多少千克多少克", answer: "6千克 + 800克 = 6千克800克", type: "weight" },
+				{ text: "5千克 - 1800克 = （ ）千克（ ）克", speech: "5千克减1800克等于多少千克多少克", answer: "5千克 - 1800克 = 3千克200克", type: "weight" },
+				{ text: "4000克 + 1000克 = （ ）千克", speech: "4000克加1000克等于多少千克", answer: "4000克 + 1000克 = 5千克", type: "weight" },
+				{ text: "7千克500克 + 500克 = （ ）千克", speech: "7千克500克加500克等于多少千克", answer: "7千克500克 + 500克 = 8千克", type: "weight" },
+				{ text: "6吨 + 700千克 = （ ）吨（ ）千克", speech: "6吨加700千克等于多少吨多少千克", answer: "6吨 + 700千克 = 6吨700千克", type: "weight" },
+				{ text: "8吨 - 5吨400千克 = （ ）吨（ ）千克", speech: "8吨减5吨400千克等于多少吨多少千克", answer: "8吨 - 5吨400千克 = 2吨600千克", type: "weight" },
+				{ text: "5500千克 + 1500千克 = （ ）吨", speech: "5500千克加1500千克等于多少吨", answer: "5500千克 + 1500千克 = 7吨", type: "weight" },
+				{ text: "9千克 - 6200克 = （ ）千克（ ）克", speech: "9千克减6200克等于多少千克多少克", answer: "9千克 - 6200克 = 2千克800克", type: "weight" },
+				{ text: "4吨600千克 + 400千克 = （ ）吨", speech: "4吨600千克加400千克等于多少吨", answer: "4吨600千克 + 400千克 = 5吨", type: "weight" },
+				{ text: "7吨800千克 - 4吨900千克 = （ ）吨（ ）千克", speech: "7吨800千克减4吨900千克等于多少吨多少千克", answer: "7吨800千克 - 4吨900千克 = 2吨900千克", type: "weight" },
+				{ text: "7千克 + 900克 = （ ）千克（ ）克", speech: "7千克加900克等于多少千克多少克", answer: "7千克 + 900克 = 7千克900克", type: "weight" },
+				{ text: "6千克 - 2200克 = （ ）千克（ ）克", speech: "6千克减2200克等于多少千克多少克", answer: "6千克 - 2200克 = 3千克800克", type: "weight" },
+				{ text: "5000克 + 2000克 = （ ）千克", speech: "5000克加2000克等于多少千克", answer: "5000克 + 2000克 = 7千克", type: "weight" },
+				{ text: "8千克600克 + 400克 = （ ）千克", speech: "8千克600克加400克等于多少千克", answer: "8千克600克 + 400克 = 9千克", type: "weight" },
+				{ text: "7吨 + 600千克 = （ ）吨（ ）千克", speech: "7吨加600千克等于多少吨多少千克", answer: "7吨 + 600千克 = 7吨600千克", type: "weight" },
+				{ text: "9吨 - 6吨500千克 = （ ）吨（ ）千克", speech: "9吨减6吨500千克等于多少吨多少千克", answer: "9吨 - 6吨500千克 = 2吨500千克", type: "weight" },
+				{ text: "6500千克 + 2500千克 = （ ）吨", speech: "6500千克加2500千克等于多少吨", answer: "6500千克 + 2500千克 = 9吨", type: "weight" },
+				{ text: "10千克 - 7200克 = （ ）千克（ ）克", speech: "10千克减7200克等于多少千克多少克", answer: "10千克 - 7200克 = 2千克800克", type: "weight" },
+				{ text: "5吨800千克 + 200千克 = （ ）吨", speech: "5吨800千克加200千克等于多少吨", answer: "5吨800千克 + 200千克 = 6吨", type: "weight" },
+				{ text: "8吨900千克 - 5吨800千克 = （ ）吨（ ）千克", speech: "8吨900千克减5吨800千克等于多少吨多少千克", answer: "8吨900千克 - 5吨800千克 = 3吨100千克", type: "weight" },
+				{ text: "8千克 + 300克 = （ ）千克（ ）克", speech: "8千克加300克等于多少千克多少克", answer: "8千克 + 300克 = 8千克300克", type: "weight" },
+				{ text: "7千克 - 2500克 = （ ）千克（ ）克", speech: "7千克减2500克等于多少千克多少克", answer: "7千克 - 2500克 = 4千克500克", type: "weight" },
+				{ text: "6000克 + 3000克 = （ ）千克", speech: "6000克加3000克等于多少千克", answer: "6000克 + 3000克 = 9千克", type: "weight" },
+				{ text: "9千克700克 + 300克 = （ ）千克", speech: "9千克700克加300克等于多少千克", answer: "9千克700克 + 300克 = 10千克", type: "weight" },
+				{ text: "8吨 + 500千克 = （ ）吨（ ）千克", speech: "8吨加500千克等于多少吨多少千克", answer: "8吨 + 500千克 = 8吨500千克", type: "weight" },
+				{ text: "10吨 - 7吨600千克 = （ ）吨（ ）千克", speech: "10吨减7吨600千克等于多少吨多少千克", answer: "10吨 - 7吨600千克 = 2吨400千克", type: "weight" },
+				{ text: "7500千克 + 1500千克 = （ ）吨", speech: "7500千克加1500千克等于多少吨", answer: "7500千克 + 1500千克 = 9吨", type: "weight" },
+				{ text: "11千克 - 8200克 = （ ）千克（ ）克", speech: "11千克减8200克等于多少千克多少克", answer: "11千克 - 8200克 = 2千克800克", type: "weight" },
+				{ text: "6吨900千克 + 100千克 = （ ）吨", speech: "6吨900千克加100千克等于多少吨", answer: "6吨900千克 + 100千克 = 7吨", type: "weight" },
+				{ text: "9吨800千克 - 6吨700千克 = （ ）吨（ ）千克", speech: "9吨800千克减6吨700千克等于多少吨多少千克", answer: "9吨800千克 - 6吨700千克 = 3吨100千克", type: "weight" }
+			],
+			
+			// 长度单位排序
+			"length-sort": [
+				{ text: "按从小到大排列：3米、25分米、280厘米、85毫米", speech: "按从小到大排列：3米、25分米、280厘米、85毫米", answer: "从小到大：85毫米、280厘米、25分米、3米", type: "length" },
+{ text: "按从大到小排列：450厘米、4米6分米、48分米、75毫米", speech: "按从大到小排列：450厘米、4米6分米、48分米、75毫米", answer: "从大到小：48分米、4米6分米、450厘米、75毫米", type: "length" },
+{ text: "按从小到大排列：82毫米、3米1分米、32分米、315厘米", speech: "按从小到大排列：82毫米、3米1分米、32分米、315厘米", answer: "从小到大：82毫米、315厘米、32分米、3米1分米", type: "length" },
+{ text: "按从大到小排列：5米、48分米、490厘米、68毫米", speech: "按从大到小排列：5米、48分米、490厘米、68毫米", answer: "从大到小：5米、490厘米、48分米、68毫米", type: "length" },
+{ text: "按从小到大排列：280厘米、3米、29分米、72毫米", speech: "按从小到大排列：280厘米、3米、29分米、72毫米", answer: "从小到大：72毫米、280厘米、29分米、3米", type: "length" },
+{ text: "按从大到小排列：5米、48分米、490厘米、65毫米", speech: "按从大到小排列：5米、48分米、490厘米、65毫米", answer: "从大到小：5米、490厘米、48分米、65毫米", type: "length" },
+{ text: "按从小到大排列：3米、25分米、280厘米、78毫米", speech: "按从小到大排列：3米、25分米、280厘米、78毫米", answer: "从小到大：78毫米、25分米、280厘米、3米", type: "length" },
+{ text: "按从大到小排列：82厘米、4米、39分米、82毫米", speech: "按从大到小排列：82厘米、4米、39分米、82毫米", answer: "从大到小：4米、39分米、82厘米、82毫米", type: "length" },
+{ text: "按从小到大排列：88毫米、3米、32分米、315厘米", speech: "按从小到大排列：88毫米、3米、32分米、315厘米", answer: "从小到大：88毫米、315厘米、32分米、3米", type: "length" },
+{ text: "按从大到小排列：6米、58分米、59厘米、75毫米", speech: "按从大到小排列：6米、58分米、59厘米、75毫米", answer: "从大到小：6米、58分米、59厘米、75毫米", type: "length" },
+{ text: "按从小到大排列：28厘米、2米、28分米、68毫米", speech: "按从小到大排列：28厘米、2米、28分米、68毫米", answer: "从小到大：68毫米、28厘米、28分米、2米", type: "length" },
+{ text: "按从大到小排列：4米、35分米、38厘米、72毫米", speech: "按从大到小排列：4米、35分米、38厘米、72毫米", answer: "从大到小：4米、35分米、38厘米、72毫米", type: "length" },
+{ text: "按从小到大排列：85毫米、5米、42分米、415厘米", speech: "按从小到大排列：85毫米、5米、42分米、415厘米", answer: "从小到大：85毫米、415厘米、42分米、5米", type: "length" },
+{ text: "按从大到小排列：7米、68分米、69厘米、78毫米", speech: "按从大到小排列：7米、68分米、69厘米、78毫米", answer: "从大到小：7米、68分米、69厘米、78毫米", type: "length" },
+{ text: "按从小到大排列：38厘米、3米、38分米、82毫米", speech: "按从小到大排列：38厘米、3米、38分米、82毫米", answer: "从小到大：82毫米、38厘米、38分米、3米", type: "length" },
+{ text: "按从大到小排列：8米、78分米、79厘米、88毫米", speech: "按从大到小排列：8米、78分米、79厘米、88毫米", answer: "从大到小：8米、78分米、79厘米、88毫米", type: "length" },
+{ text: "按从小到大排列：48厘米、4米、48分米、65毫米", speech: "按从小到大排列：48厘米、4米、48分米、65毫米", answer: "从小到大：65毫米、48厘米、48分米、4米", type: "length" },
+{ text: "按从大到小排列：9米、88分米、89厘米、72毫米", speech: "按从大到小排列：9米、88分米、89厘米、72毫米", answer: "从大到小：9米、88分米、89厘米、72毫米", type: "length" },
+{ text: "按从小到大排列：78毫米、6米、52分米、515厘米", speech: "按从小到大排列：78毫米、6米、52分米、515厘米", answer: "从小到大：78毫米、515厘米、52分米、6米", type: "length" },
+{ text: "按从大到小排列：10米、98分米、99厘米、85毫米", speech: "按从大到小排列：10米、98分米、99厘米、85毫米", answer: "从大到小：10米、98分米、99厘米、85毫米", type: "length" }
+,
+{ text: "按从小到大排列：58厘米、5米、58分米、68毫米", speech: "按从小到大排列：58厘米、5米、58分米、68毫米", answer: "从小到大：68毫米、58厘米、58分米、5米", type: "length" },
+{ text: "按从大到小排列：2米、15分米、19厘米、75毫米", speech: "按从大到小排列：2米、15分米、19厘米、75毫米", answer: "从大到小：2米、15分米、19厘米、75毫米", type: "length" },
+{ text: "按从小到大排列：150厘米、1米、18分米、82毫米", speech: "按从小到大排列：150厘米、1米、18分米、82毫米", answer: "从小到大：82毫米、150厘米、18分米、1米", type: "length" },
+{ text: "按从大到小排列：3米、25分米、29厘米、88毫米", speech: "按从大到小排列：3米、25分米、29厘米、88毫米", answer: "从大到小：3米、25分米、29厘米、88毫米", type: "length" },
+{ text: "按从小到大排列：250厘米、3米、28分米、65毫米", speech: "按从小到大排列：250厘米、3米、28分米、65毫米", answer: "从小到大：65毫米、250厘米、28分米、3米", type: "length" },
+{ text: "按从大到小排列：4米、35分米、39厘米、72毫米", speech: "按从大到小排列：4米、35分米、39厘米、72毫米", answer: "从大到小：4米、35分米、39厘米、72毫米", type: "length" },
+{ text: "按从小到大排列：350厘米、4米、38分米、78毫米", speech: "按从小到大排列：350厘米、4米、38分米、78毫米", answer: "从小到大：78毫米、350厘米、38分米、4米", type: "length" },
+{ text: "按从大到小排列：6米、55分米、59厘米、85毫米", speech: "按从大到小排列：6米、55分米、59厘米、85毫米", answer: "从大到小：6米、55分米、59厘米、85毫米", type: "length" },
+{ text: "按从小到大排列：55厘米、5米、58分米、82毫米", speech: "按从小到大排列：55厘米、5米、58分米、82毫米", answer: "从小到大：82毫米、55厘米、58分米、5米", type: "length" },
+{ text: "按从大到小排列：7米、65分米、69厘米、88毫米", speech: "按从大到小排列：7米、65分米、69厘米、88毫米", answer: "从大到小：7米、65分米、69厘米、88毫米", type: "length" },
+{ text: "按从小到大排列：650厘米、7米、68分米、65毫米", speech: "按从小到大排列：650厘米、7米、68分米、65毫米", answer: "从小到大：65毫米、650厘米、68分米、7米", type: "length" },
+{ text: "按从大到小排列：8米、75分米、79厘米、72毫米", speech: "按从大到小排列：8米、75分米、79厘米、72毫米", answer: "从大到小：8米、75分米、79厘米、72毫米", type: "length" },
+{ text: "按从小到大排列：750厘米、8米、78分米、78毫米", speech: "按从小到大排列：750厘米、8米、78分米、78毫米", answer: "从小到大：78毫米、750厘米、78分米、8米", type: "length" },
+{ text: "按从大到小排列：9米、85分米、89厘米、85毫米", speech: "按从大到小排列：9米、85分米、89厘米、85毫米", answer: "从大到小：9米、85分米、89厘米、85毫米", type: "length" },
+{ text: "按从小到大排列：850厘米、9米、88分米、82毫米", speech: "按从小到大排列：850厘米、9米、88分米、82毫米", answer: "从小到大：82毫米、850厘米、88分米、9米", type: "length" },
+{ text: "按从大到小排列：1米、12分米、13厘米、88毫米", speech: "按从大到小排列：1米、12分米、13厘米、88毫米", answer: "从大到小：1米、12分米、13厘米、88毫米", type: "length" },
+{ text: "按从小到大排列：120厘米、2米、15分米、65毫米", speech: "按从小到大排列：120厘米、2米、15分米、65毫米", answer: "从小到大：65毫米、120厘米、15分米、2米", type: "length" },
+{ text: "按从大到小排列：3米、22分米、23厘米、72毫米", speech: "按从大到小排列：3米、22分米、23厘米、72毫米", answer: "从大到小：3米、22分米、23厘米、72毫米", type: "length" },
+{ text: "按从小到大排列：22厘米、2米、25分米、78毫米", speech: "按从小到大排列：22厘米、2米、25分米、78毫米", answer: "从小到大：78毫米、22厘米、25分米、2米", type: "length" },
+{ text: "按从大到小排列：4米、32分米、33厘米、85毫米", speech: "按从大到小排列：4米、32分米、33厘米、85毫米", answer: "从大到小：4米、32分米、33厘米、85毫米", type: "length" },
+{ text: "按从小到大排列：320厘米、4米、35分米、32毫米", speech: "按从小到大排列：320厘米、4米、35分米、32毫米", answer: "从小到大：32毫米、320厘米、35分米、4米", type: "length" },
+{ text: "按从大到小排列：4米、42分米、430厘米、4千米", speech: "按从大到小排列：4米、42分米、430厘米、4千米", answer: "从大到小：4米、42分米、430厘米、4千米", type: "length" },
+{ text: "按从小到大排列：420厘米、5米、45分米、65毫米", speech: "按从小到大排列：420厘米、5米、45分米、65毫米", answer: "从小到大：65毫米、420厘米、45分米、5米", type: "length" },
+{ text: "按从大到小排列：5米、52分米、530厘米、5千米", speech: "按从大到小排列：5米、52分米、530厘米、5千米", answer: "从大到小：5米、52分米、530厘米、5千米", type: "length" },
+{ text: "按从小到大排列：520厘米、5米、55分米、6米", speech: "按从小到大排列：520厘米、5米、55分米、6米", answer: "从小到大：78毫米、520厘米、55分米、6米", type: "length" },
+{ text: "按从大到小排列：7米、62分米、63厘米、63毫米", speech: "按从大到小排列：7米、62分米、63厘米、63毫米", answer: "从大到小：7米、62分米、63厘米、63毫米", type: "length" },
+{ text: "按从小到大排列：620厘米、7米、65分米、62毫米", speech: "按从小到大排列：620厘米、7米、65分米、62毫米", answer: "从小到大：62毫米、620厘米、65分米、7米", type: "length" },
+{ text: "按从大到小排列：8米、72分米、73厘米、73毫米", speech: "按从大到小排列：8米、72分米、73厘米、73毫米", answer: "从大到小：8米、72分米、73厘米、73毫米", type: "length" },
+{ text: "按从小到大排列：720厘米、8米、75分米、65毫米", speech: "按从小到大排列：720厘米、8米、75分米、65毫米", answer: "从小到大：65毫米、720厘米、75分米、8米", type: "length" },
+{ text: "按从大到小排列：9米、82分米、83厘米、82毫米", speech: "按从大到小排列：9米、82分米、83厘米、82毫米", answer: "从大到小：9米、82分米、83厘米、82毫米", type: "length" },
+{ text: "按从小到大排列：820厘米、9米、85分米、78毫米", speech: "按从小到大排列：820厘米、9米、85分米、78毫米", answer: "从小到大：78毫米、820厘米、85分米、9米", type: "length" },
+{ text: "按从大到小排列：10米、92分米、92厘米、92毫米", speech: "按从大到小排列：10米、92分米、92厘米、92毫米", answer: "从大到小：10米、92分米、92厘米、92毫米", type: "length" },
+{ text: "按从小到大排列：920厘米、10米、95分米、82毫米", speech: "按从小到大排列：920厘米、10米、95分米、82毫米", answer: "从小到大：82毫米、920厘米、95分米、10米", type: "length" },
+{ text: "按从大到小排列：2千米、1500米、3千米、1800米", speech: "按从大到小排列：2千米、1500米、3千米、1800米", answer: "从大到小：3千米、2千米、1800米、1500米", type: "length" },
+{ text: "按从小到大排列：800米、1千米、1200米、1400米", speech: "按从小到大排列：800米、1千米、1200米、1400米", answer: "从小到大：800米、1千米、1200米、1400米", type: "length" },
+{ text: "按从大到小排列：3千米、2500米、4千米、2800米", speech: "按从大到小排列：3千米、2500米、4千米、2800米", answer: "从大到小：4千米、3千米、2800米、2500米", type: "length" },
+{ text: "按从小到大排列：1200米、1千米300米、1600米、2千米", speech: "按从小到大排列：1200米、1千米300米、1600米、2千米", answer: "从小到大：1200米、1千米300米、1600米、2千米", type: "length" },
+{ text: "按从大到小排列：4千米、3500米、5千米、3800米", speech: "按从大到小排列：4千米、3500米、5千米、3800米", answer: "从大到小：5千米、4千米、3800米、3500米", type: "length" },
+{ text: "按从小到大排列：1600米、1千米800米、2200米、3千米", speech: "按从小到大排列：1600米、1千米800米、2200米、3千米", answer: "从小到大：1600米、1千米800米、2200米、3千米", type: "length" },
+{ text: "按从大到小排列：5千米、4500米、6千米、4800米", speech: "按从大到小排列：5千米、4500米、6千米、4800米", answer: "从大到小：6千米、5千米、4800米、4500米", type: "length" },
+{ text: "按从小到大排列：2200米、2千米300米、2600米、4千米", speech: "按从小到大排列：2200米、2千米300米、2600米、4千米", answer: "从小到大：2200米、2千米300米、2600米、4千米", type: "length" },
+{ text: "按从大到小排列：6千米、5500米、7千米、5800米", speech: "按从大到小排列：6千米、5500米、7千米、5800米", answer: "从大到小：7千米、6千米、5800米、5500米", type: "length" },
+{ text: "按从小到大排列：2600米、2千米700米、3000米、5千米", speech: "按从小到大排列：2600米、2千米700米、3000米、5千米", answer: "从小到大：2600米、2千米700米、3000米、5千米", type: "length" },
+{ text: "按从大到小排列：7千米、6500米、8千米、6800米", speech: "按从大到小排列：7千米、6500米、8千米、6800米", answer: "从大到小：8千米、7千米、6800米、6500米", type: "length" },
+{ text: "按从小到大排列：2000米、2千米700米、3400米、6千米", speech: "按从小到大排列：2000米、2千米700米、3400米、6千米", answer: "从小到大：2000米、2千米700米、3400米、6千米", type: "length" },
+{ text: "按从大到小排列：8千米、7500米、9千米、7800米", speech: "按从大到小排列：8千米、7500米、9千米、7800米", answer: "从大到小：9千米、8千米、7800米、7500米", type: "length" },
+{ text: "按从小到大排列：3100米、3千米200米、3800米、7千米", speech: "按从小到大排列：3100米、3千米200米、3800米、7千米", answer: "从小到大：3100米、3千米200米、3800米、7千米", type: "length" },
+{ text: "按从大到小排列：9千米、8500米、10千米、8800米", speech: "按从大到小排列：9千米、8500米、10千米、8800米", answer: "从大到小：10千米、9千米、8800米、8500米", type: "length" },
+{ text: "按从小到大排列：3800米、3千米500米、4200米、8千米", speech: "按从小到大排列：3800米、3千米500米、4200米、8千米", answer: "从小到大：3千米500米、3300米、4200米、8千米", type: "length" },
+{ text: "按从大到小排列：1千米、800米、2千米、1500米", speech: "按从大到小排列：1千米、800米、2千米、1500米", answer: "从大到小：2千米、1千米、1500米、800米", type: "length" },
+{ text: "按从小到大排列：500米、1千米、1300米、3千米", speech: "按从小到大排列：500米、1千米、1300米、3千米", answer: "从小到大：500米、1千米、1300米、3千米", type: "length" },
+{ text: "按从大到小排列：2千米400米、2300米、3千米、2800米", speech: "按从大到小排列：2千米400米、2300米、3千米、2800米", answer: "从大到小：3千米、2千米400米、2800米、2300米", type: "length" },
+{ text: "按从小到大排列：700米、1千米100米、1600米、4千米", speech: "按从小到大排列：700米、1千米100米、1600米、4千米", answer: "从小到大：700米、1千米100米、1600米、4千米", type: "length" },
+{ text: "按从大到小排列：3千米900米、3100米、4千米、3800米", speech: "按从大到小排列：3千米900米、3100米、4千米、3800米", answer: "从大到小：4千米、3千米900米、3800米、3100米", type: "length" },
+{ text: "按从小到大排列：900米、1千米400米、1800米、2千米", speech: "按从小到大排列：900米、1千米400米、1800米、2千米", answer: "从小到大：900米、1千米400米、1800米、2千米", type: "length" },
+{ text: "按从大到小排列：4千米800米、4300米、5千米、4200米", speech: "按从大到小排列：4千米800米、4300米、5千米、4200米", answer: "从大到小：5千米、4千米800米、4300米、4200米", type: "length" },
+{ text: "按从小到大排列：1100米、2千米、2300米、3千米", speech: "按从小到大排列：1100米、2千米、2300米、3千米", answer: "从小到大：1100米、2千米、2300米、3千米", type: "length" },
+{ text: "按从大到小排列：5千米800米、5300米、6千米、5600米", speech: "按从大到小排列：5千米800米、5300米、6千米、5600米", answer: "从大到小：6千米、5千米800米、5600米、5300米", type: "length" },
+{ text: "按从小到大排列：1300米、2千米200米、2400米、3千米", speech: "按从小到大排列：1300米、2千米200米、2400米、3千米", answer: "从小到大：1300米、2千米200米、2400米、3千米", type: "length" },
+{ text: "按从大到小排列：6千米900米、6400米、7千米、6800米", speech: "按从大到小排列：6千米900米、6400米、7千米、6800米", answer: "从大到小：7千米、6千米900米、6800米、6400米", type: "length" },
+{ text: "按从小到大排列：1500米、2千米400米、2600米、3千米", speech: "按从小到大排列：1500米、2千米400米、2600米、3千米", answer: "从小到大：1500米、2千米400米、2600米、3千米", type: "length" },
+{ text: "按从大到小排列：7千米900米、7500米、8千米、7800米", speech: "按从大到小排列：7千米900米、7500米、8千米、7800米", answer: "从大到小：8千米、7千米900米、7800米、7500米", type: "length" },
+{ text: "按从小到大排列：1700米、2千米600米、2800米、3千米", speech: "按从小到大排列：1700米、2千米600米、2800米、3千米", answer: "从小到大：1700米、2千米600米、2800米、3千米", type: "length" },
+{ text: "按从大到小排列：8千米600米、8400米、9千米、9200米", speech: "按从大到小排列：8千米600米、8400米、9千米、9200米", answer: "从大到小：9千米、9200米、8千米600米、8400米", type: "length" },
+{ text: "按从小到大排列：1900米、2千米800米、3000米、4千米", speech: "按从小到大排列：1900米、2千米800米、3000米、4千米", answer: "从小到大：1900米、2千米800米、3000米、4千米", type: "length" },
+{ text: "按从小到大排列：2100米、3千米、3100米、4千米", speech: "按从小到大排列：2100米、3千米、3100米、4千米", answer: "从小到大：2100米、3千米、3100米、4千米", type: "length" },
+{ text: "按从大到小排列：1千米400米、1200米、2千米、1800米", speech: "按从大到小排列：1千米400米、1200米、2千米、1800米", answer: "从大到小：2千米、1800米、1千米400米、1200米", type: "length" },
+{ text: "按从小到大排列：600米、1千米、1400米、2千米", speech: "按从小到大排列：600米、1千米、1400米、2千米", answer: "从小到大：600米、1千米、1400米、2千米", type: "length" },
+{ text: "按从大到小排列：2千米400米、2500米、3千米、2900米", speech: "按从大到小排列：2千米400米、2500米、3千米、2900米", answer: "从大到小：3千米、2900米、2千米500米、2400米", type: "length" },
+{ text: "按从小到大排列：800米、1千米300米、1700米、2千米", speech: "按从小到大排列：800米、1千米300米、1700米、2千米", answer: "从小到大：800米、1千米300米、1700米、2千米", type: "length" },
+{ text: "按从大到小排列：3千米500米、3300米、4千米、3900米", speech: "按从大到小排列：3千米500米、3300米、4千米、3900米", answer: "从大到小：4千米、3900米、3千米500米、3300米", type: "length" },
+{ text: "按从小到大排列：1000米、1千米500米、1900米、2千米", speech: "按从小到大排列：1000米、1千米500米、1900米、2千米", answer: "从小到大：1000米、1千米500米、1900米、2千米", type: "length" },
+{ text: "按从大到小排列：4千米800米、4400米、5千米、4900米", speech: "按从大到小排列：4千米800米、4400米、5千米、4900米", answer: "从大到小：5千米、4900米、4千米800米、4400米", type: "length" },
+{ text: "按从小到大排列：1200米、1千米700米、2100米、3千米", speech: "按从小到大排列：1200米、1千米700米、2100米、3千米", answer: "从小到大：1200米、1千米700米、2100米、3千米", type: "length" },
+{ text: "按从大到小排列：5千米800米、5500米、6千米、6200米", speech: "按从大到小排列：5千米800米、5500米、6千米、6200米", answer: "从大到小：6千米、6200米、5千米800米、5500米", type: "length" },
+{ text: "按从小到大排列：1400米、2千米、2300米、8千米", speech: "按从小到大排列：1400米、2千米、2300米、8千米", answer: "从小到大：1400米、2千米、2300米、8千米", type: "length" },
+{ text: "按从大到小排列：6千米600米、6600米、7千米、7300米", speech: "按从大到小排列：6千米600米、6600米、7千米、7300米", answer: "从大到小：7千米、7300米、6千米700米、6600米", type: "length" },
+{ text: "按从小到大排列：1600米、2千米100米、2700米、3千米", speech: "按从小到大排列：1600米、2千米100米、2700米、3千米", answer: "从小到大：1600米、2千米100米、2700米、3千米", type: "length" },
+{ text: "按从大到小排列：7千米700米、7800米、8千米、8400米", speech: "按从大到小排列：7千米800米、7700米、8千米、8400米", answer: "从大到小：8千米、8400米、7千米800米、7700米", type: "length" },
+{ text: "按从小到大排列：1800米、2千米300米、2900米、3千米", speech: "按从小到大排列：1800米、2千米300米、2900米、3千米", answer: "从小到大：1800米、2千米300米、2900米、3千米", type: "length" },
+{ text: "按从大到小排列：8千米900米、8800米、9千米、9500米", speech: "按从大到小排列：8千米900米、8800米、9千米、9500米", answer: "从大到小：9千米、9500米、8千米900米、8800米", type: "length" },
+{ text: "按从小到大排列：2000米、2千米500米、3100米、4千米", speech: "按从小到大排列：2000米、2千米500米、3100米、4千米", answer: "从小到大：2000米、2千米500米、3100米、4千米", type: "length" }			],
+			
+			// 质量单位排序
+			"weight-sort": [
+				{ text: "按从小到大排列：4500克、4千克800克、4千克700克、4750克", speech: "按从小到大排列：4500克、4千克800克、4千克700克、4750克", answer: "从小到大：4500克、4千克700克、4750克、4千克800克", type: "weight" },
+{ text: "按从大到小排列：3200克、3千克20克、3千克100克、3150克", speech: "按从大到小排列：3200克、3千克20克、3千克100克、3150克", answer: "从大到小：3千克20克、3200克、3150克、3千克100克", type: "weight" },
+{ text: "按从小到大排列：280克、2千克900克、2千克800克、2950克", speech: "按从小到大排列：280克、2千克900克、2千克800克、2950克", answer: "从小到大：280克、2千克800克、2千克900克、2950克", type: "weight" },
+{ text: "按从大到小排列：5200克、5千克300克、5千克20克、5250克", speech: "按从大到小排列：5200克、5千克300克、5千克20克、5250克", answer: "从大到小：5千克300克、5250克、5200克、5千克20克", type: "weight" },
+{ text: "按从小到大排列：380克、3千克900克、3千克800克、3950克", speech: "按从小到大排列：380克、3千克900克、3千克800克、3950克", answer: "从小到大：380克、3千克800克、3千克900克、3950克", type: "weight" },
+{ text: "按从大到小排列：6200克、6千克400克、6千克300克、6250克", speech: "按从大到小排列：6200克、6千克400克、6千克300克、6250克", answer: "从大到小：6千克400克、6千克300克、6250克、6200克", type: "weight" },
+{ text: "按从小到大排列：420克、4千克300克、4千克200克、4350克", speech: "按从小到大排列：420克、4千克300克、4千克200克、4350克", answer: "从小到大：4200克、4千克200克、4350克、4千克300克", type: "weight" },
+{ text: "按从大到小排列：580克、5千克900克、5千克800克、5850克", speech: "按从大到小排列：580克、5千克900克、5千克800克、5850克", answer: "从大到小：5千克900克、5850克、5千克800克、580克", type: "weight" },
+{ text: "按从小到大排列：350克、3千克600克、3千克500克、3650克", speech: "按从小到大排列：350克、3千克600克、3千克500克、3650克", answer: "从小到大：350克、3千克500克、3650克、3千克600克", type: "weight" },
+{ text: "按从大到小排列：4800克、4千克900克、4千克80克、4850克", speech: "按从大到小排列：4800克、4千克900克、4千克80克、4850克", answer: "从大到小：4千克900克、4850克、4800克、4千克80克", type: "weight" },
+{ text: "按从小到大排列：2900克、2千克950克、2千克850克、3050克", speech: "按从小到大排列：2900克、2千克950克、2千克850克、3050克", answer: "从小到大：3050克、2千克950克、2900克、2千克850克", type: "weight" },
+{ text: "按从大到小排列：5400克、5千克500克、5千克40克、5450克", speech: "按从大到小排列：5400克、5千克500克、5千克40克、5450克", answer: "从大到小：5千克500克、5450克、5400克、5千克40克", type: "weight" },
+{ text: "按从小到大排列：3300克、3千克350克、3千克250克、3450克", speech: "按从小到大排列：3300克、3千克350克、3千克250克、3450克", answer: "从小到大：3千克250克、3300克、3千克350克、3450克", type: "weight" },
+{ text: "按从大到小排列：5900克、5千克950克、5千克850克、5930克", speech: "按从大到小排列：5900克、5千克950克、5千克850克、5930克", answer: "从大到小：5千克950克、5930克、5900克、5千克850克", type: "weight" },
+{ text: "按从小到大排列：4100克、4千克150克、4千克50克、4250克", speech: "按从小到大排列：4100克、4千克150克、4千克50克、4250克", answer: "从小到大：4千克50克、4100克、4千克150克、4250克", type: "weight" },
+{ text: "按从大到小排列：6700克、6千克750克、6千克650克、6730克", speech: "按从大到小排列：6700克、6千克750克、6千克650克、6730克", answer: "从大到小：6千克750克、6730克、6700克、6千克650克", type: "weight" },
+{ text: "按从小到大排列：3700克、3千克750克、3千克650克、3850克", speech: "按从小到大排列：3700克、3千克750克、3千克650克、3850克", answer: "从小到大：3千克650克、3700克、3千克750克、3850克", type: "weight" },
+{ text: "按从大到小排列：6300克、6千克350克、6千克250克、6330克", speech: "按从大到小排列：6300克、6千克350克、6千克250克、6330克", answer: "从大到小：6千克350克、6330克、6300克、6千克250克", type: "weight" },
+{ text: "按从小到大排列：4600克、4千克650克、4千克550克、4750克", speech: "按从小到大排列：4600克、4千克650克、4千克550克、4750克", answer: "从小到大：4千克550克、4600克、4千克650克、4750克", type: "weight" },
+{ text: "按从大到小排列：7100克、7千克180克、7千克50克、7150克", speech: "按从大到小排列：7100克、7千克180克、7千克50克、7150克", answer: "从大到小：7千克180克、7150克、7100克、7千克50克", type: "weight" },
+{ text: "按从小到大排列：3900克、3千克950克、3千克850克、4050克", speech: "按从小到大排列：3900克、3千克950克、3千克850克、4050克", answer: "从小到大：3千克850克、3900克、3千克950克、4050克", type: "weight" },
+{ text: "按从大到小排列：6500克、6千克850克、6千克450克、6550克", speech: "按从大到小排列：6500克、6千克850克、6千克450克、6550克", answer: "从大到小：6千克850克、6550克、6500克、6千克450克", type: "weight" },
+{ text: "按从小到大排列：4400克、4千克450克、4千克350克、4550克", speech: "按从小到大排列：4400克、4千克450克、4千克350克、4550克", answer: "从小到大：4千克350克、4400克、4千克450克、4550克", type: "weight" },
+{ text: "按从大到小排列：6900克、6千克930克、6千克850克、6950克", speech: "按从大到小排列：6900克、6千克930克、6千克850克、6950克", answer: "从大到小：6950克、6千克930克、6900克、6千克850克", type: "weight" },
+{ text: "按从小到大排列：5100克、5千克150克、5千克50克、5250克", speech: "按从小到大排列：5100克、5千克150克、5千克50克、5250克", answer: "从小到大：5千克50克、5100克、5千克150克、5250克", type: "weight" },
+{ text: "按从大到小排列：7300克、7千克550克、7千克250克、7350克", speech: "按从大到小排列：7300克、7千克550克、7千克250克、7350克", answer: "从大到小：7千克550克、7350克、7300克、7千克250克", type: "weight" },
+{ text: "按从小到大排列：4700克、4千克750克、4千克650克、4850克", speech: "按从小到大排列：4700克、4千克750克、4千克650克、4850克", answer: "从小到大：4千克650克、4700克、4千克750克、4850克", type: "weight" },
+{ text: "按从大到小排列：7500克、7千克650克、7千克450克、7550克", speech: "按从大到小排列：7500克、7千克650克、7千克450克、7550克", answer: "从大到小：7千克650克、7550克、7500克、7千克450克", type: "weight" },
+{ text: "按从小到大排列：5300克、5千克350克、5千克250克、5450克", speech: "按从小到大排列：5300克、5千克350克、5千克250克、5450克", answer: "从小到大：5千克250克、5300克、5千克350克、5450克", type: "weight" },
+{ text: "按从大到小排列：7700克、7千克850克、7千克650克、7750克", speech: "按从大到小排列：7700克、7千克850克、7千克650克、7750克", answer: "从大到小：7千克850克、7750克、7700克、7千克650克", type: "weight" },
+{ text: "按从小到大排列：4900克、4千克950克、4千克850克、5050克", speech: "按从小到大排列：4900克、4千克950克、4千克850克、5050克", answer: "从小到大：4千克850克、4900克、4千克950克、5050克", type: "weight" },
+{ text: "按从大到小排列：7900克、7千克950克、7千克850克、7800克", speech: "按从大到小排列：7900克、7千克950克、7千克850克、7800克", answer: "从大到小：7千克950克、7900克、7千克850克、7800克", type: "weight" },
+{ text: "按从小到大排列：5500克、5千克550克、5千克450克、5650克", speech: "按从小到大排列：5500克、5千克550克、5千克450克、5650克", answer: "从小到大：5千克450克、5500克、5千克550克、5650克", type: "weight" },
+{ text: "按从大到小排列：8100克、8千克250克、8千克50克、8150克", speech: "按从大到小排列：8100克、8千克250克、8千克50克、8150克", answer: "从大到小：8千克250克、8150克、8100克、8千克50克", type: "weight" },
+{ text: "按从小到大排列：5700克、5千克750克、5千克650克、5850克", speech: "按从小到大排列：5700克、5千克750克、5千克650克、5850克", answer: "从小到大：5千克650克、5700克、5千克750克、5850克", type: "weight" },
+{ text: "按从大到小排列：8300克、8千克450克、8千克250克、8350克", speech: "按从大到小排列：8300克、8千克450克、8千克250克、8350克", answer: "从大到小：8千克450克、8350克、8300克、8千克250克", type: "weight" },
+{ text: "按从小到大排列：5900克、5千克950克、5千克850克、6050克", speech: "按从小到大排列：5900克、5千克950克、5千克850克、6050克", answer: "从小到大：5千克850克、5900克、5千克950克、6050克", type: "weight" },
+{ text: "按从大到小排列：8500克、8千克650克、8千克450克、8550克", speech: "按从大到小排列：8500克、8千克650克、8千克450克、8550克", answer: "从大到小：8千克650克、8550克、8500克、8千克450克", type: "weight" },
+{ text: "按从小到大排列：6100克、6千克150克、6千克50克、6250克", speech: "按从小到大排列：6100克、6千克150克、6千克50克、6250克", answer: "从小到大：6千克50克、6100克、6千克150克、6250克", type: "weight" },
+{ text: "按从大到小排列：8700克、8千克850克、8千克650克、8750克", speech: "按从大到小排列：8700克、8千克850克、8千克650克、8750克", answer: "从大到小：8千克850克、8750克、8700克、8千克650克", type: "weight" },
+{ text: "按从小到大排列：6300克、6千克350克、6千克250克、6450克", speech: "按从小到大排列：6300克、6千克350克、6千克250克、6450克", answer: "从小到大：6千克250克、6300克、6千克350克、6450克", type: "weight" },
+{ text: "按从大到小排列：8900克、8千克950克、8千克850克、8000克克", speech: "按从大到小排列：8900克、8千克950克、8千克850克、8000克", answer: "从大到小：8千克950克、8900克、8千克850克、8000克", type: "weight" },
+{ text: "按从小到大排列：6500克、6千克550克、6千克450克、6650克", speech: "按从小到大排列：6500克、6千克550克、6千克450克、6650克", answer: "从小到大：6千克450克、6500克、6千克550克、6650克", type: "weight" },
+{ text: "按从大到小排列：9100克、9千克250克、9千克50克、9150克", speech: "按从大到小排列：9100克、9千克250克、9千克50克、9150克", answer: "从大到小：9千克250克、9150克、9100克、9千克50克", type: "weight" },
+{ text: "按从小到大排列：6700克、6千克750克、6千克650克、6850克", speech: "按从小到大排列：6700克、6千克750克、6千克650克、6850克", answer: "从小到大：6千克650克、6700克、6千克750克、6850克", type: "weight" },
+{ text: "按从大到小排列：9300克、9千克450克、9千克250克、9350克", speech: "按从大到小排列：9300克、9千克450克、9千克250克、9350克", answer: "从大到小：9千克450克、9350克、9300克、9千克250克", type: "weight" },
+{ text: "按从小到大排列：6900克、6千克950克、6千克850克、7050克", speech: "按从小到大排列：6900克、6千克950克、6千克850克、7050克", answer: "从小到大：6千克850克、6900克、6千克950克、7050克", type: "weight" },
+{ text: "按从大到小排列：9500克、9千克650克、9千克450克、9550克", speech: "按从大到小排列：9500克、9千克650克、9千克450克、9550克", answer: "从大到小：9千克650克、9550克、9500克、9千克450克", type: "weight" },
+{ text: "按从小到大排列：7100克、7千克150克、7千克50克、7250克", speech: "按从小到大排列：7100克、7千克150克、7千克50克、7250克", answer: "从小到大：7千克50克、7100克、7千克150克、7250克", type: "weight" },
+{ text: "按从大到小排列：9700克、9千克850克、9千克650克、9750克", speech: "按从大到小排列：9700克、9千克850克、9千克650克、9750克", answer: "从大到小：9千克850克、9750克、9700克、9千克650克", type: "weight" },
+{ text: "按从小到大排列：7300克、7千克350克、7千克250克、7450克", speech: "按从小到大排列：7300克、7千克350克、7千克250克、7450克", answer: "从小到大：7千克250克、7300克、7千克350克、7450克", type: "weight" },
+{ text: "按从大到小排列：9900克、9千克950克、9千克850克、9940克", speech: "按从大到小排列：9900克、9千克950克、9千克850克、9940克", answer: "从大到小：9千克950克、9940克、9900克、9千克850克", type: "weight" }
+			]
+		};
+
+		// 初始化变量
+		let currentQuestionIndex = 0;
+		let questions = [];
+		const totalQuestions = 10;
+		let isPlaying = false;
+		let isAutoPlaying = false;
+		let playCount = 0;
+		let isQuestionVisible = false;
+		let autoPlayTimeout = null;
+		let currentMode = "";
+		let currentOrder = "asc"; // 排序顺序：asc-从小到大，desc-从大到小
+
+		// DOM元素
+		const questionText = document.getElementById('questionText');
+		const answerText = document.getElementById('answerText');
+		const answerSection = document.getElementById('answerSection');
+		const currentIndex = document.getElementById('currentIndex');
+		const totalQuestionsEl = document.getElementById('totalQuestions');
+		const progress = document.getElementById('progress');
+		const statusEl = document.getElementById('status');
+		const questionList = document.getElementById('questionList');
+		const playCountEl = document.getElementById('playCount');
+		const toggleQuestionBtn = document.getElementById('toggleQuestionBtn');
+		const sortingOptions = document.getElementById('sortingOptions');
+		
+		// 按钮
+		const prevBtn = document.getElementById('prevBtn');
+		const playBtn = document.getElementById('playBtn');
+		const answerBtn = document.getElementById('answerBtn');
+		const nextBtn = document.getElementById('nextBtn');
+		const repeatBtn = document.getElementById('repeatBtn');
+		const newSetBtn = document.getElementById('newSetBtn');
+		const autoPlayBtn = document.getElementById('autoPlayBtn');
+		const stopAutoBtn = document.getElementById('stopAutoBtn');
+		const modeBtns = document.querySelectorAll('.mode-btn');
+		const sortBtns = document.querySelectorAll('.sort-btn');
+
+		// 初始化页面
+		function initPage() {
+			currentIndex.textContent = currentQuestionIndex + 1;
+			totalQuestionsEl.textContent = totalQuestions;
+			updateProgress();
+			updateQuestionList();
+			displayCurrentQuestion();
+			
+			// 初始状态
+			prevBtn.disabled = true;
+			answerSection.style.display = 'none';
+			updatePlayCount();
+			
+			// 初始题目隐藏状态
+			isQuestionVisible = false;
+			updateQuestionVisibility();
+		}
+
+		// 选择练习模式
+		function selectMode(mode) {
+			currentMode = mode;
+			
+			// 更新按钮状态
+			modeBtns.forEach(btn => {
+				if (btn.dataset.mode === mode) {
+					btn.classList.add('active');
+				} else {
+					btn.classList.remove('active');
+				}
+			});
+			
+			// 显示/隐藏排序选项
+			if (mode.includes('sort')) {
+				sortingOptions.style.display = 'flex';
+			} else {
+				sortingOptions.style.display = 'none';
+			}
+			
+			// 重新选择题目
+			selectRandomQuestions();
+			currentQuestionIndex = 0;
+			displayCurrentQuestion();
+			updateProgress();
+			statusEl.textContent = `已切换到${getModeName(mode)}模式`;
+		}
+
+		// 获取模式名称
+		function getModeName(mode) {
+			const names = {
+				'length-add': '长度单位加减运算',
+				'weight-add': '质量单位加减运算',
+				'length-sort': '长度单位排序',
+				'weight-sort': '质量单位排序'
+			};
+			return names[mode] || '未知模式';
+		}
+
+		// 选择排序顺序
+		function selectSortOrder(order) {
+			currentOrder = order;
+			
+			// 更新按钮状态
+			sortBtns.forEach(btn => {
+				if (btn.dataset.order === order) {
+					btn.classList.add('active');
+				} else {
+					btn.classList.remove('active');
+				}
+			});
+			
+			// 重新生成排序题目
+			if (currentMode.includes('sort')) {
+				selectRandomQuestions();
+				currentQuestionIndex = 0;
+				displayCurrentQuestion();
+				updateProgress();
+				statusEl.textContent = `已切换到${order === 'asc' ? '从小到大' : '从大到小'}排列`;
+			}
+		}
+
+		// 随机选择题目
+		function selectRandomQuestions() {
+			if (!currentMode) return;
+			
+			// 复制题目池
+			const poolCopy = [...questionPool[currentMode]];
+			questions = [];
+			
+			// 随机选择题目
+			for (let i = 0; i < totalQuestions && poolCopy.length > 0; i++) {
+				const randomIndex = Math.floor(Math.random() * poolCopy.length);
+				let question = {...poolCopy[randomIndex]};
+				
+				// 如果是排序模式，根据当前排序顺序更新题目和答案
+				if (currentMode.includes('sort')) {
+					const orderText = currentOrder === 'asc' ? '从小到大' : '从大到小';
+					question.speech = question.speech.replace(/从[大大小小]+排列/, `${orderText}排列`);
+					question.text = question.text.replace(/从[大大小小]+排列/, `${orderText}排列`);
+					
+					// 反转排序答案
+					if (currentOrder === 'desc') {
+						const answerParts = question.answer.split('：');
+						if (answerParts.length === 2) {
+							const values = answerParts[1].split('、');
+							if (values.length > 1) {
+								question.answer = `${answerParts[0]}：${values.reverse().join('、')}`;
+							}
+						}
+					}
+				}
+				
+				questions.push(question);
+				poolCopy.splice(randomIndex, 1);
+			}
+			
+			// 如果题目池不够，补充默认题目
+			while (questions.length < totalQuestions) {
+				questions.push({
+					text: "请选择其他模式",
+					speech: "请选择其他模式",
+					answer: "请选择其他练习模式",
+					type: "length"
+				});
+			}
+		}
+
+		// 显示当前题目
+		function displayCurrentQuestion() {
+			if (questions.length === 0) {
+				questionText.textContent = "请选择练习模式开始练习";
+				questionText.className = "question-text question-hidden";
+				return;
+			}
+			
+			const question = questions[currentQuestionIndex];
+			
+			if (isQuestionVisible) {
+				questionText.innerHTML = question.text + 
+					`<span class="unit-type ${question.type}-unit">${question.type === 'length' ? '长度' : '质量'}</span>`;
+				questionText.className = "question-text";
+			} else {
+				questionText.textContent = "题目已隐藏，点击\"显示题目\"按钮查看";
+				questionText.className = "question-text question-hidden";
+			}
+			
+			answerText.textContent = question.answer;
+			answerSection.style.display = 'none';
+			
+			// 重置播放计数
+			playCount = 0;
+			updatePlayCount();
+			
+			// 更新按钮状态
+			prevBtn.disabled = currentQuestionIndex === 0;
+			nextBtn.disabled = currentQuestionIndex === totalQuestions - 1;
+			
+			// 更新题目列表高亮
+			updateQuestionList();
+		}
+
+		// 更新题目显示状态
+		function updateQuestionVisibility() {
+			if (questions.length === 0) return;
+			
+			if (isQuestionVisible) {
+				toggleQuestionBtn.textContent = "隐藏题目";
+				const question = questions[currentQuestionIndex];
+				questionText.innerHTML = question.text + 
+					`<span class="unit-type ${question.type}-unit">${question.type === 'length' ? '长度' : '质量'}</span>`;
+				questionText.className = "question-text";
+			} else {
+				toggleQuestionBtn.textContent = "显示题目";
+				questionText.textContent = "题目已隐藏，点击\"显示题目\"按钮查看";
+				questionText.className = "question-text question-hidden";
+			}
+		}
+
+		// 更新进度条
+		function updateProgress() {
+			const progressPercent = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+			progress.style.width = `${progressPercent}%`;
+		}
+
+		// 更新题目列表
+		function updateQuestionList() {
+			questionList.innerHTML = '';
+			questions.forEach((question, index) => {
+				const item = document.createElement('div');
+				item.className = 'question-item';
+				if (index === currentQuestionIndex) {
+					item.classList.add('active');
+				}
+				item.innerHTML = `题目 ${index + 1}: ${question.text} 
+					<span class="unit-type ${question.type}-unit">${question.type === 'length' ? '长度' : '质量'}</span>`;
+				item.addEventListener('click', () => {
+					currentQuestionIndex = index;
+					displayCurrentQuestion();
+					updateProgress();
+					// 如果正在自动播放，停止自动播放
+					if (isAutoPlaying) {
+						stopAutoPlay();
+					}
+				});
+				questionList.appendChild(item);
+			});
+		}
+
+		// 更新播放计数显示
+		function updatePlayCount() {
+			playCountEl.textContent = `已播放: ${playCount}/3 遍`;
+		}
+
+		// 语音播报函数
+		function speakText(text) {
+			return new Promise((resolve) => {
+				if ('speechSynthesis' in window) {
+					// 停止当前正在播放的语音
+					window.speechSynthesis.cancel();
+					
+					const utterance = new SpeechSynthesisUtterance(text);
+					utterance.lang = 'zh-CN';
+					utterance.rate = 0.5; // 设置语速为0.5倍
+					
+					utterance.onstart = function() {
+						isPlaying = true;
+						statusEl.textContent = '正在播放题目...';
+						playBtn.disabled = true;
+						repeatBtn.disabled = true;
+					};
+					
+					utterance.onend = function() {
+						isPlaying = false;
+						statusEl.textContent = '播放完成';
+						playBtn.disabled = false;
+						repeatBtn.disabled = false;
+						resolve();
+					};
+					
+					utterance.onerror = function() {
+						isPlaying = false;
+						statusEl.textContent = '播放出错';
+						playBtn.disabled = false;
+						repeatBtn.disabled = false;
+						resolve();
+					};
+					
+					window.speechSynthesis.speak(utterance);
+				} else {
+					alert('您的浏览器不支持语音合成功能，请使用Chrome、Edge或Safari浏览器。');
+					resolve();
+				}
+			});
+		}
+
+		// 播放当前题目
+		async function playCurrentQuestion() {
+			if (questions.length === 0) {
+				statusEl.textContent = '请先选择练习模式';
+				return;
+			}
+			
+			const question = questions[currentQuestionIndex];
+			await speakText(question.speech);
+			playCount++;
+			updatePlayCount();
+		}
+
+		// 自动播放功能
+		async function autoPlay() {
+			if (isAutoPlaying) {
+				// 播放当前题目三遍
+				for (let i = playCount; i < 3; i++) {
+					if (!isAutoPlaying) break; // 如果停止自动播放，退出循环
+					await playCurrentQuestion();
+				}
+				
+				// 如果已经播放了三遍，并且自动播放还在继续，等待3秒后进入下一题
+				if (isAutoPlaying && playCount >= 3) {
+					// 延迟3秒后进入下一题
+					statusEl.textContent = '等待3秒后进入下一题...';
+					await new Promise(resolve => {
+						autoPlayTimeout = setTimeout(resolve, 3000);
+					});
+					
+					if (isAutoPlaying && currentQuestionIndex < totalQuestions - 1) {
+						currentQuestionIndex++;
+						displayCurrentQuestion();
+						updateProgress();
+						// 继续自动播放
+						autoPlay();
+					} else if (currentQuestionIndex >= totalQuestions - 1) {
+						// 所有题目播放完毕
+						stopAutoPlay();
+						statusEl.textContent = '所有题目已播放完毕';
+					}
+				}
+			}
+		}
+
+		// 开始自动播放
+		function startAutoPlay() {
+			if (questions.length === 0) {
+				statusEl.textContent = '请先选择练习模式';
+				return;
+			}
+			
+			isAutoPlaying = true;
+			autoPlayBtn.disabled = true;
+			stopAutoBtn.disabled = false;
+			statusEl.textContent = '自动播放已开始';
+			// 禁用其他控制按钮
+			prevBtn.disabled = true;
+			nextBtn.disabled = true;
+			playBtn.disabled = true;
+			repeatBtn.disabled = true;
+			newSetBtn.disabled = true;
+			toggleQuestionBtn.disabled = true;
+			modeBtns.forEach(btn => btn.disabled = true);
+			sortBtns.forEach(btn => btn.disabled = true);
+			
+			autoPlay();
+		}
+
+		// 停止自动播放
+		function stopAutoPlay() {
+			isAutoPlaying = false;
+			autoPlayBtn.disabled = false;
+			stopAutoBtn.disabled = true;
+			statusEl.textContent = '自动播放已停止';
+			// 启用其他控制按钮
+			prevBtn.disabled = currentQuestionIndex === 0;
+			nextBtn.disabled = currentQuestionIndex === totalQuestions - 1;
+			playBtn.disabled = false;
+			repeatBtn.disabled = false;
+			newSetBtn.disabled = false;
+			toggleQuestionBtn.disabled = false;
+			modeBtns.forEach(btn => btn.disabled = false);
+			sortBtns.forEach(btn => btn.disabled = false);
+			
+			if (autoPlayTimeout) {
+				clearTimeout(autoPlayTimeout);
+				autoPlayTimeout = null;
+			}
+			
+			// 停止语音
+			window.speechSynthesis.cancel();
+		}
+
+		// 事件监听
+		playBtn.addEventListener('click', async () => {
+			await playCurrentQuestion();
+		});
+
+		repeatBtn.addEventListener('click', async () => {
+			await playCurrentQuestion();
+		});
+
+		answerBtn.addEventListener('click', () => {
+			answerSection.style.display = 'block';
+		});
+
+		prevBtn.addEventListener('click', () => {
+			if (currentQuestionIndex > 0) {
+				currentQuestionIndex--;
+				displayCurrentQuestion();
+				updateProgress();
+			}
+		});
+
+		nextBtn.addEventListener('click', () => {
+			if (currentQuestionIndex < totalQuestions - 1) {
+				currentQuestionIndex++;
+				displayCurrentQuestion();
+				updateProgress();
+			}
+		});
+
+		newSetBtn.addEventListener('click', () => {
+			// 停止自动播放
+			if (isAutoPlaying) {
+				stopAutoPlay();
+			}
+			// 重新选择题目
+			selectRandomQuestions();
+			currentQuestionIndex = 0;
+			displayCurrentQuestion();
+			updateProgress();
+			statusEl.textContent = '已生成新题目组';
+		});
+
+		autoPlayBtn.addEventListener('click', () => {
+			startAutoPlay();
+		});
+
+		stopAutoBtn.addEventListener('click', () => {
+			stopAutoPlay();
+		});
+
+		toggleQuestionBtn.addEventListener('click', () => {
+			isQuestionVisible = !isQuestionVisible;
+			updateQuestionVisibility();
+		});
+
+		// 模式选择事件
+		modeBtns.forEach(btn => {
+			btn.addEventListener('click', () => {
+				selectMode(btn.dataset.mode);
+			});
+		});
+
+		// 排序选择事件
+		sortBtns.forEach(btn => {
+			btn.addEventListener('click', () => {
+				selectSortOrder(btn.dataset.order);
+			});
+		});
+
+		// 初始化页面
+		document.addEventListener('DOMContentLoaded', initPage);
+	</script>
+</body>
+</html>
