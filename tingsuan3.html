@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0">
+  <title>梯度三 · 听算练习 | 最优分配（三年级版）</title>
+  <style>
+    :root {
+      --bg: #fefaf5;
+      --card: #ffffff;
+      --accent: #b45f2a;
+      --accent-light: #f5b17b;
+      --text: #3e2c1c;
+      --border: #e7c7a2;
+      --highlight: #fff9f2;
+      --shadow: 0 8px 28px rgba(120, 70, 30, 0.08);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(135deg, #f9efe2 0%, #fef7ed 100%);
+      font-family: 'Noto Serif SC', '楷体', 'KaiTi', '宋体', 'SimSun', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 750px;
+      width: 100%;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(180, 120, 60, 0.1);
+      padding: 40px 38px;
+      position: relative;
+    }
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #d68b4a, #f5b17b, #d68b4a);
+      border-radius: 28px 28px 0 0;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-block;
+      background: #8b3a1f;
+      color: white;
+      padding: 4px 22px;
+      border-radius: 22px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      color: #4b2e1d;
+      font-weight: 700;
+      margin: 6px 0 4px;
+    }
+    .header .sub {
+      font-size: 0.95rem;
+      color: #8b5a3a;
+    }
+    .instruction {
+      background: #fffaee;
+      border-left: 5px solid #8b3a1f;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-size: 0.98rem;
+    }
+    .audio-panel {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 16px 0 20px;
+      background: #fff9f2;
+      padding: 16px 20px;
+      border-radius: 18px;
+      border: 1px solid #f3d9b1;
+    }
+    .btn {
+      background: #8b3a1f;
+      border: none;
+      color: white;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn:hover {
+      background: #6b2d15;
+    }
+    .btn:active {
+      background: #4d1e0c;
+    }
+    .btn.secondary {
+      background: #fdebd0;
+      color: #6b4a2c;
+      border: 1px solid #ebc9a2;
+    }
+    .btn.secondary:hover {
+      background: #f5d5a8;
+    }
+    .listen-count {
+      font-weight: 600;
+      color: #8b3a1f;
+      font-size: 0.95rem;
+    }
+    .progress {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .progress .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #e7c7a2;
+      transition: background 0.3s;
+    }
+    .progress .dot.done {
+      background: #8b3a1f;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 24px;
+      margin: 20px 0;
+    }
+    @media (max-width: 500px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .input-group {
+      background: #fffbf5;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid #ecdbba;
+    }
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #4b2e1d;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #e7c7a2;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      text-align: center;
+      background: white;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #8b3a1f;
+      box-shadow: 0 0 0 3px rgba(139, 58, 31, 0.12);
+    }
+    .input-group input.correct {
+      border-color: #5a9e6f;
+      background: #f2faf4;
+    }
+    .input-group input.wrong {
+      border-color: #c0392b;
+      background: #fef5f5;
+    }
+    .star-rating {
+      display: flex;
+      gap: 8px;
+      font-size: 2rem;
+      cursor: pointer;
+      margin: 8px 0;
+      user-select: none;
+      justify-content: center;
+    }
+    .star-rating .star {
+      color: #e0b07c;
+      transition: color 0.15s;
+    }
+    .star-rating .star.filled {
+      color: #f7b731;
+    }
+    .feedback {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin: 10px 0;
+      min-height: 28px;
+    }
+    .btn-check {
+      margin: 10px auto;
+      display: block;
+    }
+    /* 三年级友好提示 */
+    .grade-tip {
+      background: #e8f4e8;
+      border-radius: 16px;
+      padding: 10px 16px;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #2d6a2d;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="badge">🌳 梯度三 · 综合应用（三年级）</span>
+      <h1>听算练习 · 最优分配</h1>
+      <p class="sub">倾听促销规则，捕捉关键数据</p>
+    </div>
+
+    <div class="instruction">
+      <p>🎧 点击播放按钮，系统将朗读商场促销信息，共朗读<strong>三遍</strong>。</p>
+      <p>📌 听完后凭记忆填写商品单价和购买数量。</p>
+      <p>📐 <strong>难度提示：</strong>满100减10，数据适合三年级同学计算。</p>
+    </div>
+
+    <div class="audio-panel">
+      <button class="btn" id="btnPlay" onclick="playNext()">🔊 播放朗读</button>
+      <button class="btn secondary" id="btnStop" onclick="stopAudio()">⏹️ 停止</button>
+      <span class="listen-count" id="listenLabel">第 0 / 3 遍</span>
+      <div class="progress">
+        <span class="dot" id="dot1"></span>
+        <span class="dot" id="dot2"></span>
+        <span class="dot" id="dot3"></span>
+      </div>
+    </div>
+
+    <div class="input-grid">
+      <div class="input-group">
+        <label>📚 书包每个多少元？</label>
+        <input type="text" id="input1" placeholder="请输入价格" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label>✏️ 文具盒每个多少元？</label>
+        <input type="text" id="input2" placeholder="请输入价格" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label>⚽ 足球每个多少元？</label>
+        <input type="text" id="input3" placeholder="请注意是否为干扰信息" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label>🎁 满多少元减10元？</label>
+        <input type="text" id="input4" placeholder="请输入促销门槛" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label>🏫 每个班配几个书包？</label>
+        <input type="text" id="input5" placeholder="请输入数量" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label>📦 每个班配几个文具盒？</label>
+        <input type="text" id="input6" placeholder="请输入数量" autocomplete="off" inputmode="numeric">
+      </div>
+    </div>
+
+    <div style="text-align:center; margin:8px 0;">
+      <span style="font-weight:600; color:#4b2e1d;">🌟 自评听力表现：</span>
+      <span class="star-rating" id="starRating">
+        <span class="star" data-value="1">☆</span>
+        <span class="star" data-value="2">☆</span>
+        <span class="star" data-value="3">☆</span>
+        <span class="star" data-value="4">☆</span>
+        <span class="star" data-value="5">☆</span>
+      </span>
+    </div>
+    <div class="feedback" id="feedbackMsg"></div>
+    <button class="btn btn-check" onclick="checkAnswers()">✅ 提交检查</button>
+    
+    <div class="grade-tip">
+      💡 小提醒：听完三遍后填写。如果没听清，可以再点播放，多听几遍也没关系！
+    </div>
+  </div>
+
+  <script>
+    // 修改后的朗读内容：满100元减10元，书包46元/个，文具盒9元/个，其余条件不变（足球135元/个，3个班级，每班5个书包和12个文具盒）
+    const speechText = "阳光商场开展满一百元减十元活动。书包每个四十六元，文具盒每个九元，足球每个一百三十五元。学校要为三个班级各配备五个书包和十二个文具盒。";
+    
+    let listenCount = 0;
+    let isSpeaking = false;
+    
+    // 正确答案根据新数据设置: 书包46, 文具盒9, 足球135, 满减门槛100, 每班书包5个, 每班文具盒12个
+    const correctAnswers = { input1:'46', input2:'9', input3:'135', input4:'100', input5:'5', input6:'12' };
+
+    function updateDots() {
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById('dot' + i);
+        if (i <= listenCount) dot.classList.add('done');
+        else dot.classList.remove('done');
+      }
+      document.getElementById('listenLabel').textContent = '第 ' + listenCount + ' / 3 遍';
+    }
+
+    function speak(text, callback) {
+      if (!window.speechSynthesis) {
+        alert('您的浏览器不支持语音朗读，请使用Chrome或Edge浏览器。');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.85;      // 语速稍慢，适合三年级学生
+      utterance.pitch = 1.0;
+      utterance.onend = function() { 
+        isSpeaking = false; 
+        if (callback) callback(); 
+      };
+      utterance.onerror = function() { 
+        isSpeaking = false; 
+      };
+      isSpeaking = true;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function playNext() {
+      if (isSpeaking) {
+        // 如果正在朗读，先停止再重新播放更符合直觉（可选，为了体验先提示）
+        return;
+      }
+      // 如果已经听完三遍，从头开始计数的同时重置计数
+      if (listenCount >= 3) { 
+        listenCount = 0; 
+        updateDots(); 
+      }
+      listenCount++;
+      updateDots();
+      const playBtn = document.getElementById('btnPlay');
+      playBtn.textContent = '🔊 正在朗读第 ' + listenCount + ' 遍...';
+      speak(speechText, function() {
+        playBtn.textContent = '🔊 播放朗读';
+        if (listenCount >= 3) {
+          document.getElementById('feedbackMsg').textContent = '✅ 三遍已播完，请凭记忆填写上方信息。没记住可以再点播放，多听几遍哦！';
+        }
+      });
+    }
+
+    function stopAudio() {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      const playBtn = document.getElementById('btnPlay');
+      playBtn.textContent = '🔊 播放朗读';
+    }
+
+    // 星星评分交互
+    const stars = document.querySelectorAll('#starRating .star');
+    stars.forEach(star => {
+      star.addEventListener('click', function() {
+        const value = parseInt(this.dataset.value);
+        stars.forEach((s, index) => {
+          if (index < value) { 
+            s.textContent = '★';
+            s.classList.add('filled'); 
+          } else { 
+            s.textContent = '☆';
+            s.classList.remove('filled'); 
+          }
+        });
+      });
+    });
+
+    function checkAnswers() {
+      let allCorrect = true;
+      let filledCount = 0;
+      for (let key in correctAnswers) {
+        const input = document.getElementById(key);
+        const val = input.value.trim();
+        if (val === '') { 
+          input.classList.remove('correct', 'wrong'); 
+          continue; 
+        }
+        filledCount++;
+        // 数字比对，允许前置零等简单格式
+        if (String(parseFloat(val)) === correctAnswers[key] || val === correctAnswers[key]) { 
+          input.classList.add('correct');
+          input.classList.remove('wrong'); 
+        } else { 
+          input.classList.add('wrong');
+          input.classList.remove('correct');
+          allCorrect = false; 
+        }
+      }
+      const msg = document.getElementById('feedbackMsg');
+      if (filledCount === 0) {
+        msg.textContent = '📝 请先填写信息再提交检查，可以再听一遍音频。';
+      } else if (allCorrect && filledCount === 6) {
+        msg.innerHTML = '🎉 太棒了！所有促销信息填写正确！接下来可以思考：怎样买最省钱？足球需要买吗？';
+      } else if (allCorrect) {
+        msg.textContent = '✅ 已填写的都正确，请补充完整。';
+      } else {
+        msg.textContent = '🔍 红色格子有误，再仔细回忆一下音频内容（满100减10，书包46，文具盒9，足球135是多余信息）。';
+      }
+    }
+    
+    // 初始化圆点状态
+    updateDots();
+  </script>
+</body>
+</html>
