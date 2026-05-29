@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>因数与倍数｜听算作业（隐藏题目版）</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #fef7e0;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fffaf0;
+            border-radius: 32px;
+            box-shadow: 0 10px 25px -8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid #ffe3b3;
+            transition: opacity 0.2s ease;
+        }
+        .card-header {
+            background: #f5d99b;
+            color: #5a3e1b;
+            padding: 18px 24px;
+            border-bottom: 2px solid #ffcd7e;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .card-content {
+            padding: 24px;
+        }
+        .blocks-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        .block-btn-vertical {
+            background: #fff2e0;
+            border: 2px solid #ffdcb5;
+            padding: 16px 20px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #7a5516;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .block-btn-vertical.active {
+            background: #f5d99b;
+            color: #4a2e0c;
+            border-color: #e6bc7e;
+            box-shadow: 0 6px 12px rgba(245,217,155,0.3);
+        }
+        .block-btn-vertical:active {
+            transform: scale(0.97);
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: #fff6e8;
+            padding: 12px 20px;
+            border-radius: 60px;
+            border: 1px solid #ffe2b5;
+        }
+        .progress {
+            background: #fff0df;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #7a5516;
+        }
+        /* 题目区域样式（与参考答案面板一致） */
+        .question-reveal {
+            background: #fff6e8;
+            border-radius: 24px;
+            padding: 28px 20px;
+            margin: 20px 0;
+            border: 1px solid #ffe2b5;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .question-reveal:hover {
+            background: #fff2e0;
+        }
+        .question-placeholder {
+            font-size: 1.3rem;
+            color: #b88d4b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .question-placeholder span {
+            font-size: 2rem;
+        }
+        .question-text-display {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #4f3a1a;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .btn {
+            border: none;
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #fff0e0;
+            color: #7a5516;
+            border: 1px solid #ffdcb5;
+        }
+        .btn-primary {
+            background: #f5d99b;
+            color: #4a2e0c;
+            border-color: #e6bc7e;
+        }
+        .btn-primary:active {
+            background: #e9cb85;
+            transform: scale(0.97);
+        }
+        .answers-panel {
+            margin-top: 28px;
+            background: #fff6e8;
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid #ffe2b5;
+        }
+        .answers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #ffdcb5;
+            padding-bottom: 8px;
+            color: #7a5516;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        .answer-item {
+            background: #fffcf5;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            border-left: 3px solid #f5bc70;
+            color: #5a3e1b;
+        }
+        .answer-index {
+            font-weight: 700;
+            color: #b86f1c;
+        }
+        .footer-tip {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #b88d4b;
+            margin-top: 20px;
+        }
+        @media (max-width: 550px) {
+            .question-text-display { font-size: 1.2rem; }
+            .btn { padding: 8px 16px; }
+            .block-btn-vertical { font-size: 1.1rem; padding: 12px 16px; }
+            .question-placeholder { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 板块选择区（初始显示） -->
+    <div class="card" id="blockSelectCard">
+        <div class="card-header">
+            <h2>📐 因数与倍数 · 听算练习</h2>
+        </div>
+        <div class="card-content">
+            <div class="blocks-vertical" id="blocksVertical">
+                <!-- 动态生成竖排大按钮 -->
+            </div>
+            <div class="footer-tip" style="margin-top: 20px;">
+                🎧 点击板块开始听算 → 系统自动随机抽取10~15道题 → 听题后在纸上作答 → 点击「显示答案」核对
+            </div>
+        </div>
+    </div>
+
+    <!-- 听算主区域（初始隐藏） -->
+    <div class="card" id="quizCard" style="display: none;">
+        <div class="card-header" style="background: #f5d99b;">
+            <h2 id="blockTitle">板块名称</h2>
+        </div>
+        <div class="card-content">
+            <div class="quiz-header">
+                <div class="progress" id="progressLabel">第1 / 12题</div>
+                <button class="btn btn-primary" id="manualSpeakBtn">🔊 朗读本题</button>
+            </div>
+            <!-- 题目展示区域：初始为可点击占位图，点击后显示真实题目 -->
+            <div id="questionRevealContainer" class="question-reveal" onclick="revealQuestion()">
+                <div class="question-placeholder">
+                    <span>📖</span>
+                    <div>点击显示题目</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="nextBtn">➡ 下一题</button>
+                <button class="btn" id="resetBtn">🔄 换一组</button>
+                <button class="btn" id="toggleAnswersBtn">🔍 显示答案</button>
+                <button class="btn" id="backToModuleBtn">🏠 返回模块</button>
+            </div>
+            <div class="answers-panel">
+                <div class="answers-header">
+                    <span>📋 参考答案（当前组题目）</span>
+                </div>
+                <div id="answersList" style="display: none;"></div>
+                <div id="answersPlaceholder" style="color: #b88d4b; font-size: 0.85rem;">完成所有题目后，点击「显示答案」核对。</div>
+            </div>
+            <div class="footer-tip">
+                💡 提示：题目默认隐藏，点击上方区域可显示题目｜每道题自动朗读3遍（间隔2秒）｜点击「下一题」立即朗读新题
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===================== 题库（与之前相同，无公因数公倍数）=====================
+    const block1Pool = [
+        { text: "因为 24 ÷ 4 = 6，所以 24 是 4 的什么？", answer: "倍数" },
+        { text: "因为 35 ÷ 5 = 7，所以 5 是 35 的什么？", answer: "因数" },
+        { text: "48 是 6 的什么？", answer: "倍数" },
+        { text: "9 是 72 的什么？", answer: "因数" },
+        { text: "请写出 18 的所有因数（从小到大，用顿号隔开）", answer: "1,2,3,6,9,18" },
+        { text: "请写出 24 的所有因数", answer: "1,2,3,4,6,8,12,24" },
+        { text: "请写出 30 以内 7 的倍数", answer: "7,14,21,28" },
+        { text: "请写出 50 以内 8 的倍数", answer: "8,16,24,32,40,48" },
+        { text: "一个数的最大因数是 27，这个数是多少？", answer: "27" },
+        { text: "一个数的最小倍数是 19，这个数是多少？", answer: "19" },
+        { text: "36 的因数中，最大的是多少？", answer: "36" },
+        { text: "40 以内 6 的倍数有几个？", answer: "6" },
+        { text: "20 的最小倍数是多少？", answer: "20" },
+        { text: "一个数既是 15 的倍数，又是 15 的因数，这个数是？", answer: "15" },
+        { text: "写出 32 的所有因数", answer: "1,2,4,8,16,32" },
+        { text: "写出 45 的所有因数", answer: "1,3,5,9,15,45" },
+        { text: "100 以内 12 的最大倍数是多少？", answer: "96" },
+        { text: "一个数的因数中最小是1，最大是28，这个数是？", answer: "28" },
+        { text: "既是 8 的倍数又是 8 的因数的数是？", answer: "8" },
+        { text: "24 的因数中，是合数的有几个？", answer: "5" },
+        { text: "30 的因数中，奇数的个数？", answer: "4" },
+        { text: "一个自然数的最小倍数是 32，这个数的因数一共有几个？", answer: "6" },
+        { text: "写出 56 以内 7 的所有倍数", answer: "7,14,21,28,35,42,49,56" },
+        { text: "写出 40 的因数中所有偶数", answer: "2,4,8,10,20,40" },
+        { text: "72 的因数一共有多少个？", answer: "12" },
+        { text: "一个数的最小倍数是 13，它的最大因数是多少？", answer: "13" },
+        { text: "写出 100 以内 9 的所有倍数", answer: "9,18,27,36,45,54,63,72,81,90,99" },
+        { text: "20 以内 3 的倍数有几个？", answer: "6" },
+        { text: "一个数是 48 的因数，又是 8 的倍数，这个数最大是多少？", answer: "24" },
+        { text: "一个数既是 24 的因数，又是 6 的倍数，这个数可能是多少？", answer: "6,12,24" },
+        { text: "50 以内 9 的倍数有几个？", answer: "5" },
+        { text: "一个数的最大因数和最小倍数都是 25，这个数是多少？", answer: "25" },
+        { text: "一个数有因数 2 和 5，且是两位数，最小是多少？", answer: "10" }
+    ];
+    const block2Pool = [
+        { text: "下面哪个数是2的倍数？ 13, 24, 35", answer: "24" },
+        { text: "下面哪个数是5的倍数？ 47, 60, 73", answer: "60" },
+        { text: "下面哪个数是3的倍数？ 41, 57, 64", answer: "57" },
+        { text: "既是2的倍数又是3的倍数的最小两位数是多少？", answer: "12" },
+        { text: "既是2的倍数又是5的倍数的最小三位数是多少？", answer: "100" },
+        { text: "2、3、5的倍数的最小两位数是多少？", answer: "30" },
+        { text: "在 1~30 中，既是3的倍数又是5的倍数有哪些？", answer: "15,30" },
+        { text: "一个两位数，同时是2和3的倍数，十位是3，这个数是？", answer: "36" },
+        { text: "一个三位数，同时是2和5的倍数，百位是4，十位是0，这个数是？", answer: "400" },
+        { text: "写出 40 以内 4 的倍数，并判断其中奇数的个数", answer: "0" },
+        { text: "写出 50 以内 5 的倍数，其中偶数的个数", answer: "5" },
+        { text: "下面哪个数既是3的倍数又是奇数？ 18, 27, 30", answer: "27" },
+        { text: "最小的既是2的倍数又是5的倍数的自然数（0除外）是多少？", answer: "10" },
+        { text: "三位数中，既是2的倍数又有因数3，最小的一个是多少？", answer: "102" },
+        { text: "一个数既是3的倍数，又是5的倍数，它最小是多少？", answer: "15" },
+        { text: "在 1~100 中，同时是2和3的倍数的数共有几个？", answer: "16" },
+        { text: "能同时被2和5整除的最小四位数是多少？", answer: "1000" },
+        { text: "一个三位数，既是3的倍数又是5的倍数，个位是0，百位是2，十位是几？", answer: "1,4,7" },
+        { text: "一个数有因数3和5，并且是偶数，最小是多少？", answer: "30" },
+        { text: "下面哪个数是2、3、5的倍数？ 45, 60, 75", answer: "60" },
+        { text: "一个两位数，同时是3和5的倍数，且十位比个位大2，这个数是？", answer: "75" },
+        { text: "在 50 以内，既是2的倍数又是5的倍数的数有几个？", answer: "5" },
+        { text: "一个奇数，同时是3的倍数，最小两位数是多少？", answer: "15" },
+        { text: "既是3的倍数又是5的倍数，且是奇数的最小三位数？", answer: "105" },
+        { text: "写出 100 以内所有 6 的倍数", answer: "6,12,18,24,30,36,42,48,54,60,66,72,78,84,90,96" },
+        { text: "既是2的倍数又是3的倍数，且小于50的最大数是多少？", answer: "48" },
+        { text: "一个数同时是2、3、5的倍数，并且是三位数，最小是多少？", answer: "120" },
+        { text: "下面哪个数有因数2和5？ 340, 345, 350", answer: "340,350" },
+        { text: "一个三位数，个位是0，各位数字和是9，这个数一定是谁的倍数？", answer: "3,5,9" },
+        { text: "5的倍数中，最大的两位偶数是？", answer: "90" },
+        { text: "既是2的倍数又是3的倍数的数，个位是4，最小两位数是？", answer: "24" },
+        { text: "在 20~50 中，同时是2和3的倍数的数有哪些？", answer: "24,30,36,42,48" },
+        { text: "一个两位数，既是5的倍数又是奇数，最大是多少？", answer: "95" },
+        { text: "一个三位数，既是2的倍数又有因数5，百位是1，十位是2，这个数是？", answer: "120" },
+        { text: "37 是奇数还是偶数？", answer: "奇数" },
+        { text: "100 是奇数还是偶数？", answer: "偶数" },
+        { text: "一个奇数与一个偶数的和是奇数还是偶数？", answer: "奇数" },
+        { text: "一个偶数与一个偶数的和是奇数还是偶数？", answer: "偶数" },
+        { text: "一个奇数与一个奇数的和是奇数还是偶数？", answer: "偶数" },
+        { text: "99 是奇数还是偶数？", answer: "奇数" },
+        { text: "102 是奇数还是偶数？", answer: "偶数" },
+        { text: "一个两位数，个位是5，它是奇数还是偶数？", answer: "奇数" },
+        { text: "一个两位数，个位是0，它是奇数还是偶数？", answer: "偶数" },
+        { text: "写出 36 的所有因数中，是偶数的有几个？", answer: "6" }
+    ];
+    const block3Pool = [
+        { text: "判断 13 是质数还是合数？", answer: "质数" },
+        { text: "判断 21 是质数还是合数？", answer: "合数" },
+        { text: "最小的质数是多少？", answer: "2" },
+        { text: "最小的合数是多少？", answer: "4" },
+        { text: "20以内最大的质数是多少？", answer: "19" },
+        { text: "20以内既是奇数又是合数的数有哪些？", answer: "9,15" },
+        { text: "请写出 24 的所有因数，再判断它是质数还是合数？", answer: "1,2,3,4,6,8,12,24,合数" },
+        { text: "请写出 17 的所有因数，再判断它是质数还是合数？", answer: "1,17,质数" },
+        { text: "一个质数，十位是3，个位是7，这个数是？", answer: "37" },
+        { text: "两个不同质数的和是12，这两个质数分别是？", answer: "5,7" },
+        { text: "在1~10中，质数有几个？", answer: "4" },
+        { text: "既是质数又是偶数的数是？", answer: "2" },
+        { text: "一个合数至少有（）个因数？", answer: "3" },
+        { text: "36的因数中，质数有几个？", answer: "2" },
+        { text: "在 1~20 中，合数有多少个？", answer: "11" },
+        { text: "最小的两位质数是多少？", answer: "11" },
+        { text: "最大的两位质数是多少？", answer: "97" },
+        { text: "写出 30 以内所有质数", answer: "2,3,5,7,11,13,17,19,23,29" },
+        { text: "两个质数的积是 15，这两个质数是？", answer: "3,5" },
+        { text: "一个合数，它的因数至少有 3 个，这句话对吗？", answer: "对" },
+        { text: "质数中，唯一的一个偶数是？", answer: "2" },
+        { text: "写出 50 以内所有合数（列举5个即可）", answer: "4,6,8,9,10" },
+        { text: "一个数既是奇数又是合数，且小于10，这个数是？", answer: "9" },
+        { text: "两个质数的和是 18，积是 65，这两个质数是？", answer: "5,13" },
+        { text: "最小的三位质数是？", answer: "101" },
+        { text: "在 70~80 之间，质数有哪些？", answer: "71,73,79" },
+        { text: "一个数除了1和它本身还有别的因数，这个数叫做？", answer: "合数" },
+        { text: "写出 100 以内最大的质数", answer: "97" },
+        { text: "质数 37 的因数有几个？", answer: "2" },
+        { text: "合数 49 的因数有哪几个？", answer: "1,7,49" },
+        { text: "两个不同质数的和是 20，积是 91，这两个数是？", answer: "7,13" },
+        { text: "在自然数中，既不是质数也不是合数的数是？", answer: "1" },
+        { text: "请写出 18 的所有因数，再判断它是质数还是合数？", answer: "1,2,3,6,9,18,合数" },
+        { text: "请写出 30 的所有因数，再判断它是质数还是合数？", answer: "1,2,3,5,6,10,15,30,合数" },
+        { text: "请写出 42 的所有因数，再判断它是质数还是合数？", answer: "1,2,3,6,7,14,21,42,合数" },
+        { text: "请写出 50 的所有因数，再判断它是质数还是合数？", answer: "1,2,5,10,25,50,合数" },
+        { text: "请写出 11 的所有因数，再判断它是质数还是合数？", answer: "1,11,质数" },
+        { text: "写出 48 的因数中所有质数", answer: "2,3" }
+    ];
+    const block4Pool = [
+        { text: "奇数 + 奇数 的和是奇数还是偶数？", answer: "偶数" },
+        { text: "偶数 + 偶数 的和是奇数还是偶数？", answer: "偶数" },
+        { text: "奇数 + 偶数 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "一个奇数加上一个奇数，再加上一个偶数，结果是奇数还是偶数？", answer: "偶数" },
+        { text: "13 + 25 的和是奇数还是偶数？", answer: "偶数" },
+        { text: "24 + 37 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "18 + 32 + 49 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "两个连续自然数的和是奇数还是偶数？", answer: "奇数" },
+        { text: "三个连续奇数的和是奇数还是偶数？", answer: "奇数" },
+        { text: "1+3+5+7+9 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "2+4+6+8+10 的和是奇数还是偶数？", answer: "偶数" },
+        { text: "一个偶数加上一个质数2，结果是奇数还是偶数？", answer: "偶数" },
+        { text: "一个奇数与一个奇数的乘积是奇数还是偶数？", answer: "奇数" },
+        { text: "一个奇数与一个偶数的乘积是奇数还是偶数？", answer: "偶数" },
+        { text: "奇数 × 偶数 的结果是奇数还是偶数？", answer: "偶数" },
+        { text: "偶数 × 偶数 的结果是奇数还是偶数？", answer: "偶数" },
+        { text: "奇数 + 偶数 + 奇数 的结果是奇数还是偶数？", answer: "偶数" },
+        { text: "三个连续偶数的和是奇数还是偶数？", answer: "偶数" },
+        { text: "100 + 101 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "一个奇数与一个质数（不为2）的和是奇数还是偶数？", answer: "偶数" },
+        { text: "两个奇数的积再加上一个偶数，结果是奇数还是偶数？", answer: "奇数" },
+        { text: "任意两个偶数的差是奇数还是偶数？", answer: "偶数" },
+        { text: "1×2 + 3×4 的结果是奇数还是偶数？", answer: "偶数" },
+        { text: "5×7 + 8 的结果是奇数还是偶数？", answer: "奇数" },
+        { text: "一个奇数与它本身的和是奇数还是偶数？", answer: "偶数" },
+        { text: "一个偶数与它本身的积是奇数还是偶数？", answer: "偶数" },
+        { text: "11 + 13 + 15 的和是奇数还是偶数？", answer: "奇数" },
+        { text: "20 + 22 + 24 的和是奇数还是偶数？", answer: "偶数" },
+        { text: "一个奇数减去一个偶数的结果是奇数还是偶数？", answer: "奇数" },
+        { text: "一个偶数减去一个奇数的结果是奇数还是偶数？", answer: "奇数" }
+    ];
+    const block5Pool = [
+        { text: "一个数既是 36 的因数，又是 6 的倍数，这个数最大是多少？", answer: "36" },
+        { text: "在 1~20 中，既是质数又是奇数的数有几个？", answer: "7" },
+        { text: "既是2和3的倍数，又是5的倍数的最大两位数是多少？", answer: "90" },
+        { text: "两个质数的和是16，积是39，这两个质数是多少？", answer: "3,13" },
+        { text: "最小的三位质数是多少？", answer: "101" },
+        { text: "一个自然数，它的最大因数是30，最小倍数也是30，这个数是？", answer: "30" },
+        { text: "相邻两个偶数的和一定是奇数还是偶数？", answer: "偶数" },
+        { text: "写出 72 的所有因数中，合数的个数？", answer: "9" },
+        { text: "在 1 到 50 中，是 12 的倍数的数有哪些？", answer: "12,24,36,48" },
+        { text: "一个两位数，个位是最小的质数，十位是最小的合数，这个数是？", answer: "42" },
+        { text: "两个不同质数的积是 21，这两个质数分别是？", answer: "3,7" },
+        { text: "100以内最大的质数是多少？", answer: "97" },
+        { text: "一个偶数，它有因数5，又是3的倍数，最小三位数是多少？", answer: "120" },
+        { text: "相邻两个奇数的和是奇数还是偶数？", answer: "偶数" },
+        { text: "一个数的最小倍数是25，最大因数是25，它的所有因数中，奇数有几个？", answer: "3" },
+        { text: "一个三位数，同时是2、3、5的倍数，且百位是1，十位是2，这个数是？", answer: "120" },
+        { text: "在 1~100 中，既是奇数又是合数的最大数是多少？", answer: "99" },
+        { text: "两个连续奇数的积是 15，这两个数是？", answer: "3,5" },
+        { text: "一个两位数，既是3的倍数又是5的倍数，且十位数字是最大的一位数，这个数是？", answer: "90" },
+        { text: "最小的合数与最小的质数的和是多少？", answer: "6" },
+        { text: "在 40~60 之间，质数有几个？", answer: "5" },
+        { text: "一个数除以2余1，除以3余2，除以5余0，这个数最小是多少？", answer: "15" },
+        { text: "既是奇数又是合数的最小两位数是多少？", answer: "15" },
+        { text: "一个数，它的最大因数和最小倍数都是 42，这个数的因数中，质数有几个？", answer: "3" },
+        { text: "在 10~30 中，既是2的倍数又是3的倍数的数有几个？", answer: "4" },
+        { text: "一个质数的2倍加上另一个质数的3倍等于 23，这两个质数分别是？", answer: "2,5" },
+        { text: "两个偶数的和加上一个奇数的结果是奇数还是偶数？", answer: "奇数" },
+        { text: "一个数有因数 2、3、5，且是三位数，最小是多少？", answer: "120" },
+        { text: "写出 80 以内 8 的倍数中，最大的奇数？", answer: "不存在" },
+        { text: "在 1~30 中，是 15 的倍数的数有几个？", answer: "2" },
+        { text: "一个合数至少有 3 个因数，这句话对吗？", answer: "对" },
+        { text: "两个质数的差是 2，积是 35，这两个数是？", answer: "5,7" },
+        { text: "既是 4 的倍数，又是 6 的倍数的最小三位数是多少？", answer: "108" },
+        { text: "一个自然数，既是奇数又是合数，且是 3 的倍数，最小是多少？", answer: "9" },
+        { text: "在 50~70 之间，同时是2和5的倍数的数有几个？", answer: "2" }
+    ];
+
+    const allPools = {
+        block1: block1Pool,
+        block2: block2Pool,
+        block3: block3Pool,
+        block4: block4Pool,
+        block5: block5Pool
+    };
+
+    // 当前状态
+    let currentBlockId = "block1";
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let answersVisible = false;
+    let currentSpeechTimer = null;
+    let pendingNextSpeechTimer = null; // 备用
+    let isQuestionRevealed = false;     // 当前题目是否已显示
+
+    // DOM
+    const blockSelectCard = document.getElementById("blockSelectCard");
+    const quizCard = document.getElementById("quizCard");
+    const blockTitle = document.getElementById("blockTitle");
+    const progressLabel = document.getElementById("progressLabel");
+    const questionRevealContainer = document.getElementById("questionRevealContainer");
+    const manualSpeakBtn = document.getElementById("manualSpeakBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const toggleAnswersBtn = document.getElementById("toggleAnswersBtn");
+    const backToModuleBtn = document.getElementById("backToModuleBtn");
+    const answersListDiv = document.getElementById("answersList");
+    const answersPlaceholderDiv = document.getElementById("answersPlaceholder");
+
+    // 全局函数，用于点击占位区域显示题目（必须挂载到window上，因为onclick属性调用）
+    window.revealQuestion = function() {
+        if (isQuestionRevealed) return;
+        if (!currentQuestions.length) return;
+        const currentText = currentQuestions[currentIndex].text;
+        // 替换内容为题目文本
+        questionRevealContainer.innerHTML = `<div class="question-text-display">${currentText}</div>`;
+        questionRevealContainer.style.cursor = "default";
+        isQuestionRevealed = true;
+    };
+
+    // 重置题目区域为占位状态（隐藏题目）
+    function resetQuestionReveal() {
+        questionRevealContainer.innerHTML = `
+            <div class="question-placeholder">
+                <span>📖</span>
+                <div>点击显示题目</div>
+            </div>
+        `;
+        questionRevealContainer.style.cursor = "pointer";
+        isQuestionRevealed = false;
+    }
+
+    // 停止所有朗读及定时器
+    function cancelAllSpeech() {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        if (currentSpeechTimer) {
+            clearTimeout(currentSpeechTimer);
+            currentSpeechTimer = null;
+        }
+        if (pendingNextSpeechTimer) {
+            clearTimeout(pendingNextSpeechTimer);
+            pendingNextSpeechTimer = null;
+        }
+    }
+
+    // 朗读当前题目三遍，每遍间隔2秒（语速0.8）
+    function speakCurrentThreeTimes() {
+        if (!currentQuestions.length) return;
+        const textToSpeak = currentQuestions[currentIndex].text;
+        cancelAllSpeech();
+
+        let repeatCount = 0;
+        const speakOnce = () => {
+            if (!window.speechSynthesis) return;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = "zh-CN";
+            utterance.rate = 0.8;
+            utterance.onend = () => {
+                repeatCount++;
+                if (repeatCount < 3) {
+                    currentSpeechTimer = setTimeout(() => {
+                        if (currentSpeechTimer) speakOnce();
+                    }, 2000);
+                } else {
+                    currentSpeechTimer = null;
+                }
+            };
+            window.speechSynthesis.speak(utterance);
+        };
+        speakOnce();
+    }
+
+    // 立即朗读（无延迟）
+    function speakImmediate() {
+        speakCurrentThreeTimes();
+    }
+
+    // 随机抽取
+    function randomPickQuestions(pool, min=10, max=15) {
+        const count = Math.floor(Math.random() * (max - min + 1)) + min;
+        const shuffled = [...pool];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, count);
+    }
+
+    function refreshCurrentBlock() {
+        const pool = allPools[currentBlockId];
+        if (!pool) return;
+        currentQuestions = randomPickQuestions(pool, 10, 15);
+        currentIndex = 0;
+        renderCurrentQuestion();
+        answersListDiv.style.display = "none";
+        answersPlaceholderDiv.style.display = "block";
+        answersVisible = false;
+        const blockNames = { block1:"板块一·因数倍数", block2:"板块二·2,3,5倍数特征+奇偶", block3:"板块三·质数与合数", block4:"板块四·和的奇偶性", block5:"板块五·综合闯关" };
+        blockTitle.innerText = `${blockNames[currentBlockId]} (共${currentQuestions.length}题)`;
+        resetQuestionReveal();  // 切换题目后重置占位
+    }
+
+    function renderCurrentQuestion() {
+        if (!currentQuestions.length) return;
+        progressLabel.innerText = `第${currentIndex+1} / ${currentQuestions.length}题`;
+        // 注意：题目文本不自动显示到DOM，只存储在数据中；如果已显示题目，则更新显示内容
+        if (isQuestionRevealed) {
+            // 如果当前题目已经显示，则更新显示文本（避免显示旧题目）
+            const currentText = currentQuestions[currentIndex].text;
+            questionRevealContainer.innerHTML = `<div class="question-text-display">${currentText}</div>`;
+            questionRevealContainer.style.cursor = "default";
+        } else {
+            // 确保占位状态
+            resetQuestionReveal();
+        }
+    }
+
+    // 下一题：立即朗读，重置占位
+    function nextQuestion() {
+        if (!currentQuestions.length) return;
+        if (currentIndex + 1 < currentQuestions.length) {
+            currentIndex++;
+            renderCurrentQuestion();
+            speakImmediate();
+        } else {
+            cancelAllSpeech();
+            alert(`🎉 恭喜！已完成本组 ${currentQuestions.length} 道听算题！点击「显示答案」核对纸上答案，或「换一组题目」继续练习。`);
+        }
+    }
+
+    // 换一组：刷新后立即朗读第一题，重置占位
+    function resetQuestions() {
+        cancelAllSpeech();
+        refreshCurrentBlock();
+        speakImmediate();
+    }
+
+    function toggleAnswers() {
+        if (answersVisible) {
+            answersListDiv.style.display = "none";
+            answersPlaceholderDiv.style.display = "block";
+            answersVisible = false;
+        } else {
+            let html = `<div class="answers-grid">`;
+            currentQuestions.forEach((q, idx) => {
+                html += `
+                    <div class="answer-item">
+                        <div class="answer-index">第${idx+1}题</div>
+                        <div style="font-weight:500;">${q.text.length > 55 ? q.text.substring(0,55)+'…' : q.text}</div>
+                        <div style="color:#b86f1c; margin-top:6px;">✔ 答案：${q.answer}</div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            answersListDiv.innerHTML = html;
+            answersListDiv.style.display = "block";
+            answersPlaceholderDiv.style.display = "none";
+            answersVisible = true;
+        }
+    }
+
+    function backToModule() {
+        cancelAllSpeech();
+        quizCard.style.transition = "opacity 0.2s";
+        quizCard.style.opacity = "0";
+        setTimeout(() => {
+            quizCard.style.display = "none";
+            blockSelectCard.style.display = "block";
+            blockSelectCard.style.opacity = "0";
+            blockSelectCard.style.transition = "opacity 0.2s";
+            setTimeout(() => {
+                blockSelectCard.style.opacity = "1";
+            }, 20);
+        }, 200);
+    }
+
+    function switchToBlock(blockId) {
+        currentBlockId = blockId;
+        cancelAllSpeech();
+        blockSelectCard.style.transition = "opacity 0.2s";
+        blockSelectCard.style.opacity = "0";
+        setTimeout(() => {
+            blockSelectCard.style.display = "none";
+            quizCard.style.display = "block";
+            quizCard.style.opacity = "0";
+            quizCard.style.transition = "opacity 0.2s";
+            setTimeout(() => {
+                quizCard.style.opacity = "1";
+            }, 20);
+            refreshCurrentBlock();
+            speakImmediate();  // 进入板块立即朗读第一题
+        }, 200);
+        document.querySelectorAll(".block-btn-vertical").forEach(btn => {
+            if (btn.dataset.block === blockId) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+    }
+
+    function buildVerticalBlocks() {
+        const blocks = [
+            { id: "block1", name: "📘 因数倍数基础" },
+            { id: "block2", name: "🔢 2、3、5倍数+奇偶" },
+            { id: "block3", name: "🔍 质数与合数" },
+            { id: "block4", name: "🎲 和的奇偶性" },
+            { id: "block5", name: "🏆 综合闯关" }
+        ];
+        const container = document.getElementById("blocksVertical");
+        container.innerHTML = "";
+        blocks.forEach(block => {
+            const btn = document.createElement("button");
+            btn.className = "block-btn-vertical";
+            btn.dataset.block = block.id;
+            btn.innerText = block.name;
+            btn.addEventListener("click", () => switchToBlock(block.id));
+            container.appendChild(btn);
+        });
+        if (container.firstChild) container.firstChild.classList.add("active");
+    }
+
+    buildVerticalBlocks();
+    blockSelectCard.style.display = "block";
+    quizCard.style.display = "none";
+
+    manualSpeakBtn.addEventListener("click", () => {
+        cancelAllSpeech();
+        speakImmediate();
+    });
+    nextBtn.addEventListener("click", nextQuestion);
+    resetBtn.addEventListener("click", resetQuestions);
+    toggleAnswersBtn.addEventListener("click", toggleAnswers);
+    backToModuleBtn.addEventListener("click", backToModule);
+    window.addEventListener("beforeunload", () => cancelAllSpeech());
+</script>
+</body>
+</html>
