@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>二年级词语听写系统 - 数智赋能小学生WEB听觉作业设计实践研究</title>
+    <link rel="icon" type="image/png" href="https://metis-online.fbcontent.cn/metis-lectio/uxPOvzX0E3VvOxDn9ynBJE.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F0F7F0;
+            font-family: 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            color: #1C4D3C;
+        }
+
+        /* 研究课题专用头 */
+        .research-banner {
+            max-width: 1400px;
+            margin: 0 auto 24px auto;
+            background: linear-gradient(135deg, #E9F3E6 0%, #D3E5CC 100%);
+            border-radius: 60px;
+            padding: 16px 28px;
+            text-align: center;
+            box-shadow: 0 6px 14px rgba(0, 32, 0, 0.08);
+            border: 1px solid rgba(80, 110, 70, 0.3);
+        }
+        .research-banner h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #1A4D3E;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23428E5C" width="24px" height="24px"><path d="M12 2L15 8.5L22 9.5L17 14L18.5 21L12 17.5L5.5 21L7 14L2 9.5L9 8.5L12 2z"/></svg>') no-repeat left center;
+            background-size: 28px;
+            padding-left: 36px;
+            display: inline-block;
+        }
+        .research-banner p {
+            font-size: 0.8rem;
+            color: #3D6B53;
+            margin-top: 6px;
+        }
+
+        /* 主容器网格 */
+        .app-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 28px;
+        }
+
+        /* 左侧课次卡片 */
+        .lesson-sidebar {
+            background: rgba(255, 255, 245, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 20px 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #DDEBD8;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .lesson-sidebar h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2C624B;
+            border-left: 5px solid #73A580;
+            padding-left: 14px;
+        }
+        .lesson-list {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        .lesson-list button {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-radius: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2A5A46;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .lesson-list button:hover {
+            background: #D9EED3;
+        }
+        .lesson-list button.active {
+            background: #2C6B4F;
+            color: white;
+            box-shadow: 0 4px 10px rgba(44,107,79,0.2);
+        }
+        .lesson-list button.active .badge {
+            background: white;
+            color: #2C6B4F;
+        }
+        .badge {
+            background: #C8E0C0;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* 右侧主要内容卡片 */
+        .main-card {
+            background: rgba(255, 254, 245, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 28px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(150, 180, 130, 0.4);
+            transition: all 0.2s;
+        }
+
+        /* 模式切换区 */
+        .mode-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 2px solid #D1E3CA;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+        }
+        .title-section h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1F533F;
+        }
+        .title-section p {
+            color: #5C8770;
+            font-size: 0.85rem;
+        }
+        .mode-switch {
+            background: #EAF5E5;
+            border-radius: 48px;
+            padding: 4px;
+            display: flex;
+            gap: 8px;
+        }
+        .mode-btn {
+            padding: 8px 26px;
+            border-radius: 40px;
+            font-weight: 700;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            color: #2C624B;
+        }
+        .mode-btn.active-mode {
+            background: #FF8C42;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 设置面板 (听写专用) */
+        .dictate-panel {
+            background: #F8FCF5;
+            border-radius: 32px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: space-between;
+            border: 1px solid #D9EAD2;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .control-group label {
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .value-highlight {
+            color: #FF6421;
+            background: #FFF0E5;
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #73A580;
+        }
+
+        /* 按钮组 */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .btn {
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            box-shadow: 0 3px 7px rgba(0,0,0,0.05);
+        }
+        .btn-primary {
+            background: #FF8C42;
+            color: #2B4D3A;
+            border: none;
+        }
+        .btn-secondary {
+            background: #73A580;
+            color: white;
+        }
+        .btn-outline {
+            border: 2px solid #2C6B4F;
+            color: #2C6B4F;
+            background: transparent;
+        }
+
+        /* 词语网格 */
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .word-card {
+            background: #FFFFFFCC;
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            padding: 18px 6px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            border: 1px solid #C9DFC1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+        .word-card.active {
+            border: 3px solid #FF8C42;
+            background: #FFFAF0;
+            transform: scale(1.02);
+        }
+        .word-text {
+            color: #2A5A46;
+            font-weight: 800;
+        }
+        .word-text.invisible {
+            visibility: hidden;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7F9F85;
+            background: #F9FFF7;
+            border-radius: 48px;
+        }
+
+        @media (max-width: 780px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+            .lesson-sidebar {
+                position: static;
+            }
+            .word-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .research-banner h2 {
+                font-size: 1rem;
+                padding-left: 30px;
+                background-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="research-banner">
+    <h2>📖 数智赋能小学生WEB听觉作业设计实践研究 · 二年级词语听写系统</h2>
+    <p>智能语音·听写模式·学习模式·自适应语速0.6（清晰慢速）</p>
+</div>
+
+<div class="app-layout">
+    <!-- 左侧课次栏 -->
+    <aside class="lesson-sidebar">
+        <h3>📚 课次目录</h3>
+        <div id="lessonListContainer" class="lesson-list"></div>
+    </aside>
+
+    <!-- 主听写区域 -->
+    <main class="main-card">
+        <div class="mode-bar">
+            <div class="title-section">
+                <h1 id="currentLessonTitle">二年级下册词语</h1>
+                <p id="wordCountInfo">共 0 个词语</p>
+            </div>
+            <div class="mode-switch">
+                <button id="studyModeBtn" class="mode-btn">📖 学习模式</button>
+                <button id="dictateModeBtn" class="mode-btn active-mode">🎧 听写模式</button>
+            </div>
+        </div>
+
+        <!-- 听写设置区 (仅在听写模式可见) -->
+        <div id="settingsPanel" class="dictate-panel">
+            <div class="control-group">
+                <label>🔁 重复次数 <span id="repeatVal" class="value-highlight">2 次</span></label>
+                <input type="range" id="repeatCount" min="1" max="3" step="1" value="2">
+            </div>
+            <div class="control-group">
+                <label>⏸️ 词间停顿 <span id="pauseVal" class="value-highlight">3 秒</span></label>
+                <input type="range" id="pauseTime" min="1" max="8" step="1" value="3">
+            </div>
+            <div class="control-group">
+                <label>🎙️ 朗读语速 <span id="speedVal" class="value-highlight">0.6 (慢速)</span></label>
+                <input type="range" id="speedRate" min="0.5" max="1.2" step="0.05" value="0.6">
+            </div>
+        </div>
+
+        <!-- 操作按钮组 -->
+        <div id="controlsArea" class="action-buttons">
+            <button id="playBtn" class="btn btn-primary">▶️ 开始听写</button>
+            <button id="showAnswerBtn" class="btn btn-secondary">👁️ 对答案</button>
+            <button id="resetWordsBtn" class="btn btn-outline">🔄 重置/隐藏</button>
+        </div>
+
+        <!-- 词语展示区 -->
+        <div id="wordsGrid" class="word-grid"></div>
+        <div id="emptyHint" class="empty-state" style="display: none;">
+            ✨ 从左侧选择一个课次，开始听写或学习吧 ✨
+        </div>
+    </main>
+</div>
+
+<script>
+    // ======================= 二年级词库（基于真实教材常见词语，与结构一致） ======================
+    const lessonData = [
+        { id: 1, title: "第1课", words: ["春天", "寻找", "眉毛", "野花", "柳枝", "桃花"] },
+        { id: 2, title: "第2课", words: ["鲜花", "先生", "原来", "大叔", "太太", "做客", "正巧", "惊奇", "快活", "美好", "礼物"] },
+        { id: 3, title: "第3课", words: ["植树", "碧空如洗", "万里无云", "格外", "引人注目", "休息", "小心", "笔直"] },
+        { id: 4, title: "第4课", words: ["雷锋", "叔叔", "昨天", "温暖", "爱心"] },
+        { id: 5, title: "第5课", words: ["好奇", "也许", "桌子", "平时", "难道", "平常", "农民", "加工", "农具", "甜菜", "工具", "劳动", "经过", "应该"] },
+        { id: 6, title: "第6课", words: ["弱小", "周末", "父母", "吸引", "芬芳", "背包", "雨衣", "为什么", "勇敢", "识字"] },
+        { id: 7, title: "识字1", words: ["神州", "中华", "山川", "长江", "长城", "民族", "情谊"] },
+        { id: 8, title: "识字2", words: ["传统", "节日", "春节", "花灯", "清明节", "先人", "龙舟", "中秋", "转眼", "团圆"] },
+        { id: 9, title: "第7课", words: ["彩色", "铅笔盒", "森林", "雪松", "歌声", "苹果", "精灵", "季节", "流动"] },
+        { id: 10, title: "第8课", words: ["出色", "妹妹", "碧绿", "波纹", "恋恋不舍", "柳树", "枝条", "不时"] },
+        { id: 11, title: "第9课", words: ["绿色", "一直", "说话", "童话", "阿姨", "发现", "弟弟", "发明", "拼音", "字母", "上升"] },
+        { id: 12, title: "第10课", words: ["亡羊补牢", "劝告", "禾苗", "力气", "明白"] },
+        { id: 13, title: "第11课", words: ["杨桃", "图画", "讲桌", "座位", "教室", "老老实实", "时候", "哈哈大笑", "五角星", "画纸", "神情"] },
+        { id: 14, title: "第12课", words: ["愿意", "飞快", "为难", "伯伯", "立刻", "突然", "吃惊", "认真", "难为情"] },
+        { id: 15, title: "第13课", words: ["雷雨", "乌云", "黑沉沉", "闪电", "雷声", "窗户", "清新", "迎面"] },
+        { id: 16, title: "第14课", words: ["野外", "天然", "指南针", "帮助", "方向", "忠实", "向导", "指点", "北极星", "永远", "黑夜", "帮忙", "特别", "积雪"] },
+        { id: 17, title: "第15课", words: ["航天员", "宇宙飞船", "空间站", "活动", "主要", "方便", "直接", "浴桶", "清理", "实在", "通常"] },
+        { id: 18, title: "第16课", words: ["大象", "耳朵", "扇子", "似的", "慢慢", "遇到", "一定", "每天", "睡觉", "经常", "人家"] },
+        { id: 19, title: "第17课", words: ["决定", "商店", "河马", "工夫", "终于", "星期"] },
+        { id: 20, title: "第18课", words: ["青蛙", "野鸭", "泉水", "花丛", "尽情", "游泳"] }
+    ];
+
+    // 全局状态
+    let currentLesson = null;
+    let isStudyMode = false;   // false=听写模式, true=学习模式
+    let isPlaying = false;     // 是否正在播放
+
+    // DOM 元素
+    const lessonContainer = document.getElementById('lessonListContainer');
+    const lessonTitleSpan = document.getElementById('currentLessonTitle');
+    const wordCountSpan = document.getElementById('wordCountInfo');
+    const wordsGridDiv = document.getElementById('wordsGrid');
+    const emptyHint = document.getElementById('emptyHint');
+    const playBtn = document.getElementById('playBtn');
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    const resetBtn = document.getElementById('resetWordsBtn');
+    const studyModeBtn = document.getElementById('studyModeBtn');
+    const dictateModeBtn = document.getElementById('dictateModeBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const repeatRange = document.getElementById('repeatCount');
+    const pauseRange = document.getElementById('pauseTime');
+    const speedRange = document.getElementById('speedRate');
+    const repeatValSpan = document.getElementById('repeatVal');
+    const pauseValSpan = document.getElementById('pauseVal');
+    const speedValSpan = document.getElementById('speedVal');
+
+    // 辅助函数：取消当前语音
+    function cancelSpeech() {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+    }
+
+    // 朗读单词 (使用当前语速)
+    function speakWord(word) {
+        return new Promise((resolve) => {
+            const speed = parseFloat(speedRange.value);
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'zh-CN';
+            utterance.rate = speed;   // 默认0.6 + 可调
+            utterance.pitch = 1.0;
+            utterance.onend = () => resolve();
+            utterance.onerror = () => resolve();
+            window.speechSynthesis.speak(utterance);
+        });
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 停止听写并重置界面状态
+    function stopDictation(resetButtonText = true) {
+        if (isPlaying) {
+            isPlaying = false;
+            cancelSpeech();
+            if (resetButtonText) playBtn.innerHTML = '▶️ 开始听写';
+        }
+        // 移除所有高亮
+        document.querySelectorAll('.word-card').forEach(card => card.classList.remove('active'));
+    }
+
+    // 根据当前模式渲染单词卡片 (听写模式隐藏文字，学习模式显示)
+    function renderWordCards(words) {
+        wordsGridDiv.innerHTML = '';
+        if (!words || words.length === 0) return;
+        words.forEach((word, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.dataset.index = idx;
+            const span = document.createElement('span');
+            span.className = 'word-text';
+            if (!isStudyMode) {
+                span.classList.add('invisible');   // 听写模式默认隐藏答案
+            } else {
+                span.classList.remove('invisible');
+            }
+            span.innerText = word;
+            card.appendChild(span);
+            wordsGridDiv.appendChild(card);
+        });
+        // 简单的入场动画
+        anime({
+            targets: '.word-card',
+            opacity: [0, 1],
+            translateY: [12, 0],
+            delay: anime.stagger(35),
+            easing: 'easeOutQuad'
+        });
+    }
+
+    // 刷新整个右侧内容 (当选中课次或切换模式时)
+    function refreshLessonDisplay() {
+        if (!currentLesson) {
+            emptyHint.style.display = 'block';
+            wordsGridDiv.innerHTML = '';
+            lessonTitleSpan.innerText = '二年级词语听写';
+            wordCountSpan.innerText = '共 0 个词语';
+            return;
+        }
+        emptyHint.style.display = 'none';
+        lessonTitleSpan.innerText = currentLesson.title;
+        wordCountSpan.innerText = `共 ${currentLesson.words.length} 个词语`;
+        renderWordCards(currentLesson.words);
+        // 停止任何正在进行的听写
+        stopDictation(true);
+    }
+
+    // 选择课次
+    function selectLesson(lesson, btnElement) {
+        if (isPlaying) stopDictation(true);
+        currentLesson = lesson;
+        // UI 高亮
+        document.querySelectorAll('.lesson-list button').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        refreshLessonDisplay();
+    }
+
+    // 初始化左侧课次列表
+    function initLessonList() {
+        lessonContainer.innerHTML = '';
+        lessonData.forEach(lesson => {
+            const btn = document.createElement('button');
+            btn.innerHTML = `<span>${lesson.title}</span><span class="badge">${lesson.words.length}</span>`;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                selectLesson(lesson, btn);
+            };
+            lessonContainer.appendChild(btn);
+        });
+        // 默认选中第一个课次
+        if (lessonData.length > 0) {
+            const firstBtn = lessonContainer.querySelector('button');
+            if (firstBtn) selectLesson(lessonData[0], firstBtn);
+        } else {
+            emptyHint.style.display = 'block';
+        }
+    }
+
+    // 听写核心流程 (支持重复次数、停顿、当前语速)
+    async function startDictation() {
+        if (!currentLesson) {
+            alert("请先选择一个课次");
+            return;
+        }
+        if (isPlaying) {
+            stopDictation(true);
+            return;
+        }
+
+        const wordsList = currentLesson.words;
+        const repeatTimes = parseInt(repeatRange.value);
+        const pauseSeconds = parseInt(pauseRange.value) * 1000;
+
+        isPlaying = true;
+        playBtn.innerHTML = '⏸️ 停止听写';
+
+        // 听写模式下强制隐藏所有答案（清除可见）
+        if (!isStudyMode) {
+            document.querySelectorAll('.word-text').forEach(el => el.classList.add('invisible'));
+        }
+
+        for (let i = 0; i < wordsList.length; i++) {
+            if (!isPlaying) break;
+
+            const word = wordsList[i];
+            const cards = document.querySelectorAll('.word-card');
+            cards.forEach(c => c.classList.remove('active'));
+            if (cards[i]) cards[i].classList.add('active');
+            cards[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 重复朗读当前词
+            for (let r = 0; r < repeatTimes; r++) {
+                if (!isPlaying) break;
+                await speakWord(word);
+                if (r < repeatTimes - 1) await sleep(400);
+            }
+
+            // 词间停顿（最后一个词后不停）
+            if (i < wordsList.length - 1 && isPlaying) {
+                await sleep(pauseSeconds);
+            }
+        }
+
+        // 结束
+        if (isPlaying) {
+            isPlaying = false;
+            playBtn.innerHTML = '▶️ 开始听写';
+            document.querySelectorAll('.word-card').forEach(c => c.classList.remove('active'));
+            // 可选轻柔完成提示
+        } else {
+            playBtn.innerHTML = '▶️ 开始听写';
+        }
+    }
+
+    // 显示所有答案
+    function showAllAnswers() {
+        if (!currentLesson) return;
+        const allTexts = document.querySelectorAll('.word-text');
+        allTexts.forEach(span => span.classList.remove('invisible'));
+        anime({
+            targets: '.word-text',
+            scale: [0.9, 1],
+            opacity: [0.6, 1],
+            duration: 400,
+            easing: 'easeOutBack'
+        });
+    }
+
+    // 重置 / 隐藏 (听写模式隐藏答案，学习模式全部显示)
+    function resetVisibility() {
+        if (!currentLesson) return;
+        if (!isStudyMode) {
+            // 听写模式：隐藏所有词语
+            document.querySelectorAll('.word-text').forEach(span => span.classList.add('invisible'));
+        } else {
+            // 学习模式：显示全部
+            document.querySelectorAll('.word-text').forEach(span => span.classList.remove('invisible'));
+        }
+        // 如果有听写正在进行，停止并重置
+        if (isPlaying) stopDictation(true);
+        document.querySelectorAll('.word-card').forEach(card => card.classList.remove('active'));
+    }
+
+    // 切换模式 (学习模式 / 听写模式)
+    function setMode(isStudy) {
+        isStudyMode = isStudy;
+        if (isStudy) {
+            studyModeBtn.classList.add('active-mode');
+            dictateModeBtn.classList.remove('active-mode');
+            settingsPanel.style.display = 'none';
+            // 学习模式下展示所有词语答案
+            if (currentLesson) {
+                document.querySelectorAll('.word-text').forEach(span => span.classList.remove('invisible'));
+            }
+            // 学习模式下开始听写按钮给出友善提醒（但不禁用，改为提示，改善体验）
+        } else {
+            dictateModeBtn.classList.add('active-mode');
+            studyModeBtn.classList.remove('active-mode');
+            settingsPanel.style.display = 'flex';
+            // 听写模式隐藏所有词语
+            if (currentLesson) {
+                document.querySelectorAll('.word-text').forEach(span => span.classList.add('invisible'));
+            }
+        }
+        // 停止当前播放，刷新渲染保持模式一致性（重新渲染保持UI）
+        if (currentLesson) {
+            renderWordCards(currentLesson.words);
+            if (!isStudyMode) {
+                document.querySelectorAll('.word-text').forEach(span => span.classList.add('invisible'));
+            } else {
+                document.querySelectorAll('.word-text').forEach(span => span.classList.remove('invisible'));
+            }
+        }
+        if (isPlaying) stopDictation(true);
+    }
+
+    // 滑块数值展示
+    function bindSliders() {
+        repeatRange.addEventListener('input', () => {
+            repeatValSpan.innerText = repeatRange.value + ' 次';
+        });
+        pauseRange.addEventListener('input', () => {
+            pauseValSpan.innerText = pauseRange.value + ' 秒';
+        });
+        speedRange.addEventListener('input', () => {
+            let val = parseFloat(speedRange.value).toFixed(2);
+            speedValSpan.innerText = val + ' (语速)';
+        });
+        // 初始值
+        repeatValSpan.innerText = repeatRange.value + ' 次';
+        pauseValSpan.innerText = pauseRange.value + ' 秒';
+        speedValSpan.innerText = parseFloat(speedRange.value).toFixed(2) + ' (语速)';
+    }
+
+    // 事件绑定
+    function bindEvents() {
+        playBtn.onclick = () => {
+            if (!currentLesson) { alert("请选择课次"); return; }
+            if (isStudyMode) {
+                alert("当前为学习模式，如需听写请切换到「听写模式」");
+                return;
+            }
+            startDictation();
+        };
+        showAnswerBtn.onclick = () => {
+            if (!currentLesson) return;
+            showAllAnswers();
+        };
+        resetBtn.onclick = () => {
+            if (!currentLesson) return;
+            resetVisibility();
+        };
+        studyModeBtn.onclick = () => setMode(true);
+        dictateModeBtn.onclick = () => setMode(false);
+    }
+
+    // 页面关闭前停止语音
+    window.addEventListener('beforeunload', () => {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+    });
+
+    // 初始化系统
+    function init() {
+        initLessonList();
+        bindSliders();
+        bindEvents();
+        setMode(false);   // 默认听写模式（符合主需求，语速0.6初始）
+        // 保证语速默认0.6
+        speedRange.value = "0.6";
+        speedValSpan.innerText = "0.6 (语速)";
+        // 预热语音 (某些浏览器需要)
+        if (window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
