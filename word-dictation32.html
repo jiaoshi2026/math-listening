@@ -1,0 +1,654 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>三年级（下）语文词语听写助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body {
+            font-family: 'KaiTi', 'STKaiti', '楷体', 'PingFang SC', 'Microsoft YaHei', serif;
+            background-image: url('https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/picture/Mc2VcWHChq6EV8dhETfYGa.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.6);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-collapsed { transform: translateX(100%); }
+        .nav-toggle-btn {
+            position: absolute;
+            left: -48px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 64px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 12px 0 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-right: none;
+            z-index: 60;
+        }
+        .nav-item-active {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .pinyin-text {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 8px rgba(5,150,105,0.1);
+        }
+        .progress-container { background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
+        .summary-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: all 0.2s;
+        }
+        .wrong-highlight {
+            border: 3px solid #EF4444 !important;
+            background: #FEF2F2 !important;
+            box-shadow: 0 0 12px rgba(239,68,68,0.2);
+        }
+        .wrong-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #EF4444;
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: bold;
+        }
+        .repeat-badge {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-family: system-ui;
+            z-index: 200;
+            pointer-events: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex text-gray-800 select-none overflow-hidden">
+
+<main id="main-area" class="w-full h-full flex flex-col items-center justify-center relative transition-all duration-300">
+    <div id="welcome-screen" class="text-center space-y-6">
+        <h1 class="text-6xl font-bold text-gray-800 mb-4 tracking-widest">三年级（下）语文词语听写</h1>
+        <p class="text-2xl text-gray-600">共收录22个单元，右侧选择课程开始</p>
+        <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full opacity-50"></div>
+        <div class="mt-8 flex flex-col items-center space-y-6">
+            <p class="text-emerald-600 font-bold text-xl">🔊 每词朗读3遍 · 语速0.6 · 间隔3秒</p>
+            <div class="flex flex-col items-center space-y-4">
+                <button id="all-words-toggle" onclick="toggleAllWords()" class="px-10 py-4 bg-white border-2 border-emerald-500 text-emerald-600 rounded-2xl text-xl font-bold hover:bg-emerald-500 hover:text-white transition-all shadow-md active:scale-95">
+                    查看词语表 (标注错字)
+                </button>
+           <!-- 👇 团队名称放在按钮下方 -->
+                <div class="team-name-footer">
+                    数智赋能小学生WEB听觉作业设计研究团队
+                </div>
+                <button id="wrong-words-test-btn" onclick="startWrongWordsTest()" class="hidden px-10 py-4 bg-red-500 text-white rounded-2xl text-xl font-bold hover:bg-red-600 transition-all shadow-lg active:scale-95 animate-pulse">               <button id="wrong-words-test-btn" onclick="startWrongWordsTest()" class="hidden px-10 py-4 bg-red-500 text-white rounded-2xl text-xl font-bold hover:bg-red-600 transition-all shadow-lg active:scale-95 animate-pulse">
+                    开始错题听写 (<span id="wrong-count">0</span>)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="all-words-screen" class="hidden w-full h-full p-12 overflow-hidden flex flex-col bg-white/90 backdrop-blur-md">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-4xl font-bold text-gray-800 border-l-8 border-emerald-500 pl-6">全集词语表</h2>
+            <button onclick="hideAllWords()" class="px-8 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-xl">返回首页</button>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar pr-4">
+            <div id="all-words-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-12"></div>
+        </div>
+    </div>
+
+    <div id="display-screen" class="hidden w-full h-full flex flex-col items-center justify-center relative">
+        <div class="absolute top-8 left-8 z-10"><span id="word-index" class="text-4xl font-bold px-6 py-3 rounded-full shadow-sm bg-white/70">1</span></div>
+        <div class="flex-1 flex flex-col items-center justify-center w-full px-4 space-y-4">
+            <div id="pinyin-display" class="pinyin-text text-[100px] md:text-[140px] font-medium tracking-wider text-center break-words"></div>
+        </div>
+        <div class="w-full px-12 pb-12">
+            <div class="progress-container h-4 w-full"><div id="progress-bar" class="h-full bg-emerald-500 w-0 rounded-full"></div></div>
+        </div>
+    </div>
+
+    <div id="summary-screen" class="hidden w-full h-full p-12 overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center mb-8">
+            <h2 id="summary-title" class="text-4xl font-bold text-gray-800 border-l-8 border-emerald-500 pl-6">词语回顾</h2>
+            <button onclick="resetToWelcome()" class="px-8 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-xl">返回首页</button>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar pr-4">
+            <div id="summary-grid" class="grid grid-cols-2 md:grid-cols-3 gap-6 pb-12"></div>
+        </div>
+    </div>
+</main>
+
+<nav id="sidebar" class="fixed right-0 top-0 h-full w-80 glass-nav flex flex-col z-50">
+    <div class="nav-toggle-btn" onclick="toggleSidebar()">
+        <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </div>
+    <div class="p-6 border-b border-gray-200/50">
+        <h2 class="text-2xl font-bold text-gray-800">课程列表</h2>
+        <p class="text-sm text-gray-500 mt-1">点击课程自动开始听写</p>
+    </div>
+    <div id="lesson-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
+    <div class="p-4 border-t border-gray-200/50 text-center text-gray-400 text-sm">每词朗读3遍 · 间隔3秒</div>
+</nav>
+
+<div id="repeat-indicator" class="repeat-badge hidden">🔊 朗读第 <span id="repeat-count">1</span>/3 遍</div>
+
+<script>
+    // ==================== 完整22个单元数据 ====================
+    const lessons = [
+        { id:2, title:"2 燕子", words:[
+            {pinyin:"yàn zi",word:"燕子",explanation:"一种候鸟，春天飞来",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/mFnqJGciKLbT5FtXvgkCkZ.mp3"},
+            {pinyin:"wū hēi",word:"乌黑",explanation:"深黑色",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3qU7NBvwttjprRPPY3kN4k.mp3"},
+            {pinyin:"jiǎn dāo",word:"剪刀",explanation:"用来剪东西的工具",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/r42LNtNid6HWFbJENLaLsQ.mp3"},
+            {pinyin:"huó pō",word:"活泼",explanation:"生动活跃",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/h358R59p2GSzb6eY997n5K.mp3"},
+            {pinyin:"qīng fēng",word:"轻风",explanation:"微微的风",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/haMJ2uPeZACkvuHPctUVD6.mp3"},
+            {pinyin:"sǎ luò",word:"洒落",explanation:"散落下来",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VrgrpoQuuBkdhDEn3MFgfe.mp3"},
+            {pinyin:"gǎn jí",word:"赶集",explanation:"去集市买卖东西",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/7haePkPvAUnMy8oqhoXXRH.mp3"},
+            {pinyin:"guāng cǎi duó mù",word:"光彩夺目",explanation:"光彩鲜明耀眼",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/BXoubU2RzfdPQMSq9yAsnN.mp3"},
+            {pinyin:"chūn guāng",word:"春光",explanation:"春天的景色",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/rBADg6Qj4enTk5Xz29752e.mp3"},
+            {pinyin:"ǒu ěr",word:"偶尔",explanation:"有时候",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/xPuif5m6W6hyzCWnLJUWyS.mp3"},
+            {pinyin:"xián sǎn",word:"闲散",explanation:"清闲自在",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/EHmtHEDihEsHYZDjKHwyB2.mp3"},
+            {pinyin:"xiān xì",word:"纤细",explanation:"非常细",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Y4HmfX5H9qXn3DyVDDzgpW.mp3"},
+            {pinyin:"diàn xiàn",word:"电线",explanation:"传输电流的导线",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Pp9ZAM3yMUF8Kfd5cPxKQN.mp3"}
+        ]},
+        { id:3, title:"3 荷花", words:[
+            {pinyin:"hé huā",word:"荷花",explanation:"夏天开的水生花卉",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/KYT3M8EboaphT5aYwV2zyM.mp3"},
+            {pinyin:"gōng yuán",word:"公园",explanation:"供人游玩休息的地方",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3vdj3tbTpfMP42sUdTyMh8.mp3"},
+            {pinyin:"qīng xiāng",word:"清香",explanation:"清淡的香味",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/6aKSBvxJNUGDwraLWq2n7T.mp3"},
+            {pinyin:"gǎn jǐn",word:"赶紧",explanation:"抓紧时间，快点",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/rjunAKotaEYnrc2Xp3EBmJ.mp3"},
+            {pinyin:"hé yè",word:"荷叶",explanation:"荷花的叶子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/iAaJdASfDijsEREXaMKZ87.mp3"},
+            {pinyin:"lián peng",word:"莲蓬",explanation:"荷花的果实",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/EuJJSEmAZfBwqYDTcz7R6G.mp3"},
+            {pinyin:"pò liè",word:"破裂",explanation:"裂开，破开",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/UBNyVGPcwKkfaNY42aDSTU.mp3"},
+            {pinyin:"zī shì",word:"姿势",explanation:"身体呈现的样子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/8FnBfPWTYwTafEaDqsdDsF.mp3"},
+            {pinyin:"huà jiā",word:"画家",explanation:"擅长绘画的人",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SEzQLBEWLAKCQLwUoGgTxf.mp3"},
+            {pinyin:"běn lǐng",word:"本领",explanation:"技能，能力",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ZULiU6vgbhdgvvtEriiTN8.mp3"},
+            {pinyin:"liǎo bu qǐ",word:"了不起",explanation:"非常厉害",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3KS5ikDdrKhhmsLEnMfu2X.mp3"},
+            {pinyin:"wēi fēng",word:"微风",explanation:"轻微的风",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/FP9fNWC8AHuBbrCYDFdqcc.mp3"},
+            {pinyin:"tíng zhǐ",word:"停止",explanation:"不再继续",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/DWV52NE4uf2povpL8cyHTm.mp3"}
+        ]},
+        { id:4, title:"语文园地 (一)", words:[
+            {pinyin:"bǐ shǒu",word:"匕首",explanation:"短小的刀",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VYSkZ5xDswcGcgPTqMFqQX.mp3"},
+            {pinyin:"yǐ fāng",word:"乙方",explanation:"合同中的一方",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/iWqgg3g6VFw9FvnmWziWzi.mp3"},
+            {pinyin:"rǒng cháng",word:"冗长",explanation:"繁杂而长",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SVuBYCzF3kHXNjALoPsuxe.mp3"},
+            {pinyin:"jūn quǎn",word:"军犬",explanation:"军队用的狗",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/AX8gNAPqZkP8uh8NeL8Uv7.mp3"},
+            {pinyin:"duì huàn",word:"兑换",explanation:"交换，换取",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/CKNzbnv5g3dSijBdNQzfuD.mp3"},
+            {pinyin:"zhēng zhí",word:"争执",explanation:"争论不休",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/QiigpKLnCNxyh36uWGc4wW.mp3"}
+        ]},
+        { id:6, title:"6 会摇尾巴的狼", words:[
+            {pinyin:"yǒu qíng",word:"友情",explanation:"朋友间的情谊",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/PbE73zzVbkobAK9pGsjGSm.mp3"},
+            {pinyin:"rèn shi",word:"认识",explanation:"知道，了解",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YjchhgXdBSHNuvifEfxR9X.mp3"},
+            {pinyin:"zhōng chéng",word:"忠诚",explanation:"忠心诚实",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/PXH2jdaWeqcfkokNCJfAYL.mp3"},
+            {pinyin:"xùn liáng",word:"驯良",explanation:"温顺善良",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/EyanRNm9wYcKAH2RCpNiac.mp3"},
+            {pinyin:"shàn liáng",word:"善良",explanation:"心地好",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Ga9rkLwGHGoYtg6ndTNMRD.mp3"},
+            {pinyin:"wēn hé",word:"温和",explanation:"温柔平和",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/iCEynC3rmPq3JSJHLLvbYE.mp3"},
+            {pinyin:"dá xiè",word:"答谢",explanation:"表示感谢",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/G78eFTPsWpfHbJpHZq8vpb.mp3"},
+            {pinyin:"huā yán qiǎo yǔ",word:"花言巧语",explanation:"虚假好听的话",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/S6yTtB3Uke6J92Crouqv38.mp3"},
+            {pinyin:"zháo jí",word:"着急",explanation:"焦急不安",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/F966Ydcd9kuLdSXGvfYiWg.mp3"},
+            {pinyin:"xiāng xìn",word:"相信",explanation:"认为是真的",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/TDPo6zhuDTkBQFzkJX3dsK.mp3"},
+            {pinyin:"chén tǔ",word:"尘土",explanation:"细小的灰尘",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/t6WNwirNT9x6YdjLehrgzi.mp3"},
+            {pinyin:"xiōng è",word:"凶恶",explanation:"凶狠恶毒",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/H3TwBhQm49cGmpY6P8q9Bc.mp3"},
+            {pinyin:"è hěn hěn",word:"恶狠狠",explanation:"非常凶恶的样子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/LeobcuNeRWLiRXUe68yMvL.mp3"},
+            {pinyin:"liè rén",word:"猎人",explanation:"打猎的人",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vSvdAPsLGDnTMXRwnecwsi.mp3"},
+            {pinyin:"shōu shi",word:"收拾",explanation:"整理，整顿",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/AjUcxhw3uq5M6BxAjqHHcj.mp3"}
+        ]},
+        { id:7, title:"7 鹿角和鹿腿", words:[
+            {pinyin:"tòng kuài",word:"痛快",explanation:"尽兴，畅快",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/7Xx8XpqFWysQBJXg7H949f.mp3"},
+            {pinyin:"yún chèn",word:"匀称",explanation:"均匀相称",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/5ytnNuDCDJqhNW27L7r6rL.mp3"},
+            {pinyin:"jīng měi",word:"精美",explanation:"精致美好",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/bQuVwivuz5RNAWQqe4WfEU.mp3"},
+            {pinyin:"bié zhì",word:"别致",explanation:"新奇独特",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/R3F79SHV2LyQdwHxTbXZJj.mp3"},
+            {pinyin:"méi tou",word:"眉头",explanation:"两眉之间的部位",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jtEQW5xg6ZMnGC8pAcm6h7.mp3"},
+            {pinyin:"méi jīng dǎ cǎi",word:"没精打采",explanation:"精神不振",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YKfenr2iS3MEHWFwYQvbFD.mp3"},
+            {pinyin:"jī ling",word:"机灵",explanation:"聪明灵活",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/gbuv7tdxXcHDA7nWxN9vYm.mp3"},
+            {pinyin:"huī xīn sàng qì",word:"灰心丧气",explanation:"失去信心和勇气",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/neGUp8hUM46imHFeu7wsME.mp3"},
+            {pinyin:"jī huì",word:"机会",explanation:"时机",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/obvps3yWUM3iSxVTi9WnNk.mp3"},
+            {pinyin:"tàn qì",word:"叹气",explanation:"因忧愁而呼气",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/6QH8mTXYkck6eWmXvtCZa5.mp3"},
+            {pinyin:"táo shēng",word:"逃生",explanation:"逃离危险保全性命",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/iAPuAGVCraJETo4x6ZxSdV.mp3"}
+        ]},
+        { id:9, title:"9 海底世界", words:[
+            {pinyin:"níng jìng",word:"宁静",explanation:"安静平和",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/CdFJiPF9DpaVufTAVCDNLh.mp3"},
+            {pinyin:"qì guān",word:"器官",explanation:"身体的组成部分",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/rHQqcfNCcYCd8piTCBMfF6.mp3"},
+            {pinyin:"shì fǒu",word:"是否",explanation:"是不是",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/fYtzZUA4cj3mzbaXMup3uW.mp3"},
+            {pinyin:"qiè qiè sī yǔ",word:"窃窃私语",explanation:"小声说话",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/9YXvNsTNf6fx8rGhGRe7n5.mp3"},
+            {pinyin:"wēi xiǎn",word:"危险",explanation:"有危害的情况",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Yqw8AboQ6x7mqSk5VPye5n.mp3"},
+            {pinyin:"fāng fǎ",word:"方法",explanation:"做事的办法",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/LEHgAupWySkbY5fCiBcC8W.mp3"},
+            {pinyin:"jī ròu",word:"肌肉",explanation:"身体的组织",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/o7yarAZ5nyBsNdELd38iPS.mp3"},
+            {pinyin:"gōng jī",word:"攻击",explanation:"进攻打击",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/w7yD5AXD9vjbMzkgVidu9J.mp3"},
+            {pinyin:"lì yòng",word:"利用",explanation:"使用，运用",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/5yteCehKLPM9pSAuDEAekT.mp3"},
+            {pinyin:"hòu tuì",word:"后退",explanation:"向后退",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HVWE7cJrzkASxMGkRRWP7D.mp3"},
+            {pinyin:"miǎn fèi",word:"免费",explanation:"不收费",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/TDMkpZ8dBLAUCsNUfiGWtV.mp3"},
+            {pinyin:"chā yì",word:"差异",explanation:"不同之处",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/5QUL3MDzR9ZLfzhv3gjbpd.mp3"},
+            {pinyin:"qīng chu",word:"清楚",explanation:"明白，清晰",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/rbBrEhzUvRp3MuobGjSVsQ.mp3"},
+            {pinyin:"qí yì",word:"奇异",explanation:"奇特，不寻常",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/B2WuekbnaJgmLzsTYfu8cj.mp3"}
+        ]},
+        { id:10, title:"10 石峰", words:[
+            {pinyin:"shí yàn",word:"实验",explanation:"为了检验而做的试验",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Rb6eMQu93dLUi6SaUopTzW.mp3"},
+            {pinyin:"yàn zhèng",word:"验证",explanation:"检验证实",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ZCz5p7PbNv9nF9dRjpaSV8.mp3"},
+            {pinyin:"jì hào",word:"记号",explanation:"做的标记",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VESU8CK7zXTj6Q3tjprQBD.mp3"},
+            {pinyin:"jiǎn shǎo",word:"减少",explanation:"变少",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ohQwmQmRXfrX9V6LaVK7cc.mp3"},
+            {pinyin:"zǔ lì",word:"阻力",explanation:"阻碍的力量",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/y5M6K4iQ9whRYyMZ7oCj2e.mp3"},
+            {pinyin:"dà yuē",word:"大约",explanation:"大概，差不多",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/PV344PiJLyyoHQBCSAnxz4.mp3"},
+            {pinyin:"bāo kuò",word:"包括",explanation:"包含",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/eaa5Wty3SSZB4qbGJ5ewAF.mp3"},
+            {pinyin:"jiǎn chá",word:"检查",explanation:"查看，检验",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/e3XEjdD8P4SnhbZcZ44td9.mp3"},
+            {pinyin:"zhì shǎo",word:"至少",explanation:"最少，不少于",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/C7WfVdYsLeeUrXraSVfoP4.mp3"},
+            {pinyin:"mí shī",word:"迷失",explanation:"迷路，失去方向",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Pyyg963aX2ZEuYEr2EQmkG.mp3"},
+            {pinyin:"wú wù",word:"无误",explanation:"没有错误",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/PAFYsXwyS4ee2Tg4F2M7ha.mp3"},
+            {pinyin:"nì fēng",word:"逆风",explanation:"迎面吹来的风",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/aE2NYoEMBDJEZTUHCeKuHd.mp3"},
+            {pinyin:"mò shēng",word:"陌生",explanation:"不熟悉",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vuT7K7FLQY9DLvr5pr8eoH.mp3"},
+            {pinyin:"jǐng wù",word:"景物",explanation:"风景和物体",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/kchTDyeEuUnV6BhnDBtPyb.mp3"},
+            {pinyin:"néng lì",word:"能力",explanation:"才能和本领",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/a9UamRbcrodWmLgbrH3a2E.mp3"}
+        ]},
+        { id:13, title:"13 纸的发明", words:[
+            {pinyin:"wén míng",word:"文明",explanation:"社会进步的状态",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/XS4DctSwBdGKeZRm79gEq2.mp3"},
+            {pinyin:"wěi dà",word:"伟大",explanation:"了不起，崇高",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/m2uWbGPQpVjttJtFyAUVbY.mp3"},
+            {pinyin:"gòng xiàn",word:"贡献",explanation:"拿出力量帮助",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VwmeqUBYYWoC9qe8TBKK8D.mp3"},
+            {pinyin:"zǔ xiān",word:"祖先",explanation:"上代的人",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/z7ku7u5fnt79VYkLZVpCMb.mp3"},
+            {pinyin:"chuàng zào",word:"创造",explanation:"发明，制造",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jPKECHHEfSHLTaq7BMm8Ah.mp3"},
+            {pinyin:"cái liào",word:"材料",explanation:"原料，资料",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/xXUF6Xc9pyzMQi973NL3aY.mp3"},
+            {pinyin:"yóu qí",word:"尤其",explanation:"特别，更加",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/J4rboNaccv8D2ngDNteEm9.mp3"},
+            {pinyin:"bǎo cún",word:"保存",explanation:"保留，存放",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/GNofjvtvv3dsqxWqB2KrQJ.mp3"},
+            {pinyin:"xī shōu",word:"吸收",explanation:"吸取，接纳",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Srt4uuR3yCeDGmPLpKCs7P.mp3"},
+            {pinyin:"jī lěi",word:"积累",explanation:"积聚，累积",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HeeLoRoNRAgNp7YyNEgrtL.mp3"},
+            {pinyin:"jīng yàn",word:"经验",explanation:"经历和体验",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/giEcQoFLKKDKV6DX4n2ieh.mp3"},
+            {pinyin:"gǎi jìn",word:"改进",explanation:"改变旧有情况",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Vhj3BegPuAJgLunphgDutE.mp3"},
+            {pinyin:"jià gé",word:"价格",explanation:"价钱",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VVkDBdgkxnUFTh4PneCfnG.mp3"},
+            {pinyin:"pián yi",word:"便宜",explanation:"价钱低",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3ypPE7B67BpJfNV8erLQin.mp3"},
+            {pinyin:"mǎn zú",word:"满足",explanation:"感到满意",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/K3RsMUGwcoGUupbFLhtNcC.mp3"},
+            {pinyin:"cù jìn",word:"促进",explanation:"推动发展",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HQoigSsFnwQjBQb4c9rLre.mp3"},
+            {pinyin:"shè huì",word:"社会",explanation:"人们共同生活的群体",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4RN84jtdDWWwyRkck2HHeW.mp3"}
+        ]},
+        { id:14, title:"14 赵州桥", words:[
+            {pinyin:"wén míng",word:"闻名",explanation:"有名，著名",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/QirRVDkDUCeV3qQxBCFWcg.mp3"},
+            {pinyin:"shè jì",word:"设计",explanation:"规划，构思",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/oGbtHiJymcFEqGkTSmU5gE.mp3"},
+            {pinyin:"chuàng jǔ",word:"创举",explanation:"从未有过的举动",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/gw5K8A45XSVV9kS7oPJXtZ.mp3"},
+            {pinyin:"jiǎn qīng",word:"减轻",explanation:"减少重量或程度",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/94nUA9SrAqAccET73mToNH.mp3"},
+            {pinyin:"bù dàn",word:"不但",explanation:"不仅",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jzUv96gVw2uwDc3tzTnNW2.mp3"},
+            {pinyin:"jiān gù",word:"坚固",explanation:"结实牢固",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/PWjfBdMomzVcedNZmQ28i4.mp3"},
+            {pinyin:"ér qiě",word:"而且",explanation:"并且",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4KQEhDWLj6yFxupC8PTNWS.mp3"},
+            {pinyin:"měi guān",word:"美观",explanation:"外形好看",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4WVXa9J9x4fJkgx9QGdXLN.mp3"},
+            {pinyin:"tǐ xiàn",word:"体现",explanation:"表现出来",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/LMvKzoAaJPQU7X8mpWzuKG.mp3"},
+            {pinyin:"cái gàn",word:"才干",explanation:"才能",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/RdXMq8QzskEdVgZPnt8Kkb.mp3"},
+            {pinyin:"bǎo guì",word:"宝贵",explanation:"珍贵，有价值",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3qgq8HEtoTodfFRmWzYpFM.mp3"},
+            {pinyin:"lì shǐ",word:"历史",explanation:"过去的事情",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ZygsaJAqH59t4abE2uT8LY.mp3"},
+            {pinyin:"wén huà",word:"文化",explanation:"人类的精神财富",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/nC3QXMUdZDwzBusqpHDh76.mp3"}
+        ]},
+        { id:15, title:"语文园地 (二)", words:[
+            {pinyin:"yuán zhù",word:"援助",explanation:"帮助，支援",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Z7kenYVbM9JPdfGNMpKxWk.mp3"},
+            {pinyin:"tóu zhì",word:"投掷",explanation:"扔，抛",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HFsyw3zqU3kxfKLWNUHeqk.mp3"},
+            {pinyin:"dǎ lāo",word:"打捞",explanation:"从水里捞取",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/LUXgQ2yPuidHSphHJBTCGm.mp3"},
+            {pinyin:"chāi fēn",word:"拆分",explanation:"拆开分解",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4GkeQWpc8AstRcKmqDxrTE.mp3"},
+            {pinyin:"jiǎo dòng",word:"搅动",explanation:"搅拌，搅和",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YemhesMs3HVSmGG7p53LwH.mp3"},
+            {pinyin:"tuò zhǎn",word:"拓展",explanation:"扩展，开拓",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/J5fgAgvVPDUunWnLskt3AL.mp3"}
+        ]},
+        { id:16, title:"16 胡萝卜先生的长胡子", words:[
+            {pinyin:"hú luó bo",word:"胡萝卜",explanation:"一种蔬菜",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/whs7AwZ8hkJzpZkPEKbbqQ.mp3"},
+            {pinyin:"hú zi",word:"胡子",explanation:"嘴边的毛",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/eAwcgQeLsnDSTtAwEkgys4.mp3"},
+            {pinyin:"fā chóu",word:"发愁",explanation:"因困难而忧虑",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/6WiJnnynwjoaaRb4MLJVBG.mp3"},
+            {pinyin:"nóng mì",word:"浓密",explanation:"又多又密",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3rsVyrd3vrFqyN4QswcryF.mp3"},
+            {pinyin:"miàn bāo",word:"面包",explanation:"一种食品",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SZMvGp5PHNWPEXCjYGZnVb.mp3"},
+            {pinyin:"wán quán",word:"完全",explanation:"全部，彻底",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/L25yNdK6NKQxpmRgbLWarW.mp3"},
+            {pinyin:"jiē shi",word:"结实",explanation:"坚固，牢固",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/mLx3Mvjvw399eFd2DdxDZH.mp3"},
+            {pinyin:"què dìng",word:"确定",explanation:"明确肯定",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/7cmSnnHo6vyZzPkDphcwH2.mp3"},
+            {pinyin:"zú gòu",word:"足够",explanation:"充足",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/2E97xM3sLyv5xnEieYfTTi.mp3"},
+            {pinyin:"què shí",word:"确实",explanation:"真实可靠",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/6cmZ6j77G9Am4MLRmeqxDf.mp3"}
+        ]},
+        { id:17, title:"17 我变成了一棵树", words:[
+            {pinyin:"xī wàng",word:"希望",explanation:"心里想要实现的事",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/6YEYgns4KATtSy325AeBr7.mp3"},
+            {pinyin:"xíng zhuàng",word:"形状",explanation:"物体的样子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/AfRrPQM8ycWTrnaDV7fZDk.mp3"},
+            {pinyin:"xǐ huan",word:"喜欢",explanation:"对人或事物有好感",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/aF22uwC2ByDYKEtjMmNGNX.mp3"},
+            {pinyin:"dān xīn",word:"担心",explanation:"放心不下",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jNyVySmPcLoLLHujivkbR8.mp3"},
+            {pinyin:"róng yì",word:"容易",explanation:"不难，简单",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/KkbYXzHni5z9Z3EffuwwfS.mp3"},
+            {pinyin:"dīng líng",word:"丁零",explanation:"铃声",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/GjQmYTmcbeQrghMXJg6oAm.mp3"},
+            {pinyin:"shī wàng",word:"失望",explanation:"希望落空",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HMJaqj3BVDax6n3X8AHEUA.mp3"},
+            {pinyin:"qiǎo kè lì",word:"巧克力",explanation:"一种甜食",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Ko2F33ytQ5UvB26dRefgYe.mp3"},
+            {pinyin:"xiāng cháng",word:"香肠",explanation:"一种肉制品",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/mUNEiQegLbcsHZbsPzQzRB.mp3"},
+            {pinyin:"huā shēng",word:"花生",explanation:"一种坚果",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/DDiX7nGH4SZrUiVxup5GyF.mp3"},
+            {pinyin:"niú nǎi",word:"牛奶",explanation:"奶牛产的奶",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/W7Lz89La2oPRH3AboC5Xrj.mp3"},
+            {pinyin:"hù xiāng",word:"互相",explanation:"彼此",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/tfAJ9xechP6Jk5dtDZqCh9.mp3"},
+            {pinyin:"xiǎng niàn",word:"想念",explanation:"思念",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/RVXyCezE6qBP8iUTnxAq8F.mp3"},
+            {pinyin:"fàn cài",word:"饭菜",explanation:"饭和菜",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/BaBEKyysBYEuXucsXnUPtB.mp3"},
+            {pinyin:"kě néng",word:"可能",explanation:"也许会发生",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/si7M7PMEokTc55VaHTLPFF.mp3"},
+            {pinyin:"má fan",word:"麻烦",explanation:"费事，不方便",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YQeAJrH953zHQ6eTjdrNSX.mp3"},
+            {pinyin:"yǎn jing",word:"眼睛",explanation:"视觉器官",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/kasNnwEAz3mu5XDnTSdEUT.mp3"},
+            {pinyin:"mì mì",word:"秘密",explanation:"不让人知道的事",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jRJqyDPbLTwJrfdtRARVsV.mp3"}
+        ]},
+        { id:18, title:"18 童年的水墨画", words:[
+            {pinyin:"tóng nián",word:"童年",explanation:"儿童时期",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/fEq4JTZN4wt7TApKWyjqiA.mp3"},
+            {pinyin:"chuí liǔ",word:"垂柳",explanation:"枝条下垂的柳树",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3vTr4m8tUAyKxRzW5LvejD.mp3"},
+            {pinyin:"píng jìng",word:"平静",explanation:"安静，没有波动",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/tkgxmeQThoLVpg2r4acwQT.mp3"},
+            {pinyin:"chì bǎng",word:"翅膀",explanation:"鸟类飞行的器官",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/dy7jDhpQ3DWx8m4cMU6q8U.mp3"},
+            {pinyin:"xì shuǎ",word:"戏耍",explanation:"玩耍",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/xBAtVKYwZCB5X7uE3AcqGj.mp3"},
+            {pinyin:"hú lu",word:"葫芦",explanation:"一种植物",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/BwziX5ixj4GexbfyjR4d6k.mp3"},
+            {pinyin:"sōng shù",word:"松树",explanation:"常绿乔木",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/23QiaUDmabaKWAaWEvwAF8.mp3"},
+            {pinyin:"qīng shuǎng",word:"清爽",explanation:"清新凉爽",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/j7Cfqdt8GdHrkNNvDu6tPk.mp3"},
+            {pinyin:"ní tǔ",word:"泥土",explanation:"土壤",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/5Rgb6VYJDPWiqFMDvdnp4d.mp3"},
+            {pinyin:"kāi fàng",word:"开放",explanation:"花朵绽开",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/hbgfYe4Nu7dc5jBUBGS6pJ.mp3"}
+        ]},
+        { id:19, title:"19 肥皂泡", words:[
+            {pinyin:"féi zào pào",word:"肥皂泡",explanation:"肥皂水吹出的泡泡",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4T8pm6TxrcZCfhm3qu4vV5.mp3"},
+            {pinyin:"zhǒng lèi",word:"种类",explanation:"类别",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/54U4BBYD5vV55ErNiwyDyN.mp3"},
+            {pinyin:"qí zhōng",word:"其中",explanation:"那里面",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vdxnr5CdfGXvcocYETu7kh.mp3"},
+            {pinyin:"róng huà",word:"溶化",explanation:"固体变成液体",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/MLaopbiRzGWu8NZkamZFxX.mp3"},
+            {pinyin:"wǎng qiú",word:"网球",explanation:"一种球类运动",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/qBnGVhP4aCwjUeKtnqPym9.mp3"},
+            {pinyin:"fēn liè",word:"分裂",explanation:"分开，裂开",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/C6Cn4v23gqGEWA8RHYNJwA.mp3"},
+            {pinyin:"xíng shì",word:"形式",explanation:"事物的样式",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/cNvsXa3ryxusiDkpSYEPiV.mp3"},
+            {pinyin:"yuán mǎn",word:"圆满",explanation:"完美，没有缺憾",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jm5wvNQRWTvafr82o5TzJQ.mp3"},
+            {pinyin:"xī yáng",word:"夕阳",explanation:"傍晚的太阳",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/qdzwLYn3WzwTYTHVDP5KNj.mp3"},
+            {pinyin:"mù sòng",word:"目送",explanation:"用眼睛看着离去",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/oRksrgME3DDNVmMVjTqcyP.mp3"},
+            {pinyin:"jiāo ào",word:"骄傲",explanation:"自豪，自满",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/rtLwN9ZfNtgz9WhNNFwkNN.mp3"}
+        ]},
+        { id:20, title:"20 灰雀", words:[
+            {pinyin:"yǎng bìng",word:"养病",explanation:"休息治病",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/pcGDAKuqWJqqMkngiLUhjX.mp3"},
+            {pinyin:"fěn hóng",word:"粉红",explanation:"淡红色",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/pDvUk7sDyzRaCBKMbRM3i6.mp3"},
+            {pinyin:"yǎng wàng",word:"仰望",explanation:"抬头向上看",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/DaEMbxrdA3YjXrD3dtMku8.mp3"},
+            {pinyin:"huò zhě",word:"或者",explanation:"表示选择",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/RQiPASaUEZFZhLzDjJxask.mp3"},
+            {pinyin:"yán hán",word:"严寒",explanation:"极冷",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/D8PsWXBvEDEGnxGqnDapJH.mp3"},
+            {pinyin:"běn lái",word:"本来",explanation:"原来",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/gYGwEsxAh2kdyF68ShFuNf.mp3"},
+            {pinyin:"kě xī",word:"可惜",explanation:"值得惋惜",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/LFbhjRkrL6ngatbmQTTbtc.mp3"},
+            {pinyin:"kěn dìng",word:"肯定",explanation:"确定，一定",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/DBHGJyHhCRADtRYeo2t8qP.mp3"},
+            {pinyin:"wēi xiào",word:"微笑",explanation:"轻微地笑",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YSXpvLM6zgHqvCSphoLT9i.mp3"},
+            {pinyin:"chéng shí",word:"诚实",explanation:"真实不说谎",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/WSSYYcahsX8f9RJrg5iePD.mp3"}
+        ]},
+        { id:21, title:"语文园地 (三)", words:[
+            {pinyin:"xù rì",word:"旭日",explanation:"初升的太阳",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/q6BbLKuggbE9gdszeqeXqZ.mp3"},
+            {pinyin:"dǎo yǔ",word:"岛屿",explanation:"海洋中的陆地",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SRMjRfHazDgn5yW8hSDV7B.mp3"},
+            {pinyin:"hǎi àn",word:"海岸",explanation:"海边的陆地",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/FQSV8J5EEd5kwE4Jcpjdv6.mp3"},
+            {pinyin:"làng huā",word:"浪花",explanation:"波浪激起的水花",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Bcj4ENNwvPYcpaqhK9cn8E.mp3"},
+            {pinyin:"jūn jiàn",word:"军舰",explanation:"军用船只",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/NPKhA4mTUJwHJ8eFLoq2sg.mp3"},
+            {pinyin:"tiě máo",word:"铁锚",explanation:"船用的铁制锚",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/o3GgQVJUevfWQGsdapFZN5.mp3"},
+            {pinyin:"liào wàng",word:"瞭望",explanation:"登高远望",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/pbp43z7zVvWhHyFADa23vi.mp3"},
+            {pinyin:"xún háng",word:"巡航",explanation:"巡逻航行",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/paGkJdH3DtPNzXvQ4hFmVP.mp3"}
+        ]},
+        { id:22, title:"22 火烧云", words:[
+            {pinyin:"huǒ shāo yún",word:"火烧云",explanation:"像火烧一样红的云",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/AcLLie5rudQCLqUQvVi3YR.mp3"},
+            {pinyin:"xiào yíng yíng",word:"笑盈盈",explanation:"满脸笑容的样子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/YA9w3Y4BhCo7X6ZtHXaqTC.mp3"},
+            {pinyin:"chéng liáng",word:"乘凉",explanation:"在凉快的地方休息",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/BRhfiopXodrVJCau5LdfzG.mp3"},
+            {pinyin:"gāo shòu",word:"高寿",explanation:"年纪大",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/NRkg5Fkh9APvPzF7CGSUV6.mp3"},
+            {pinyin:"hóng tóng tóng",word:"红彤彤",explanation:"形容很红",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/emhGsAKj78cvJ8qWPmdrti.mp3"},
+            {pinyin:"biàn huà",word:"变化",explanation:"事物产生新的状况",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/BPV6eTGaQWDFcNjpf6yJX4.mp3"},
+            {pinyin:"jīn càn càn",word:"金灿灿",explanation:"形容金黄色",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ivQiWSAhgxfZX6nn2EELBK.mp3"},
+            {pinyin:"yán sè",word:"颜色",explanation:"色彩",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/8hzyQBGVZ3YdeV32axwdJf.mp3"},
+            {pinyin:"sì hū",word:"似乎",explanation:"好像",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/GHmUBBHhdiepyXfqyGnmyS.mp3"},
+            {pinyin:"wēi wǔ",word:"威武",explanation:"威风凛凛",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/kkgbDZetJECce2JSXtGLsb.mp3"},
+            {pinyin:"zhèn jìng",word:"镇静",explanation:"情绪稳定",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/4SvwVuqDkJ5WCoE4MBbZ62.mp3"},
+            {pinyin:"qí shí",word:"其实",explanation:"实际上",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/cxWQYeNy8LHAhWyLYZ8Ca5.mp3"},
+            {pinyin:"chén jìng",word:"沉静",explanation:"安静，沉稳",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/eE7TKxz6KYojow94m97JGJ.mp3"},
+            {pinyin:"piān piān",word:"偏偏",explanation:"表示跟预期相反",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/JjGHPc4bN7azSBohdpBN56.mp3"},
+            {pinyin:"děng dài",word:"等待",explanation:"等候",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/n6aYLH5ZBGjUPK6UruZcMK.mp3"},
+            {pinyin:"ài hào",word:"爱好",explanation:"喜欢做的事",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/mL2Jr6YnhQwfLFt9jbQzhD.mp3"}
+        ]},
+        { id:23, title:"23 暴风雨来临之前", words:[
+            {pinyin:"lái lín",word:"来临",explanation:"到来",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/d3tZDbRTbFpMpnfs7KhEqa.mp3"},
+            {pinyin:"chén mèn",word:"沉闷",explanation:"心情不舒畅",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/gg2cVLPCpcCZJvPk6P9SRE.mp3"},
+            {pinyin:"qí xíng guài zhuàng",word:"奇形怪状",explanation:"形状奇怪",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/uE275WtabkoVephXxUWso3.mp3"},
+            {pinyin:"hūn àn",word:"昏暗",explanation:"光线不足",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/nmk2wZ7JsiotTuUxcZYi5E.mp3"},
+            {pinyin:"qīng wēi",word:"轻微",explanation:"程度浅，数量少",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/hi9gCYENNqxgFJmyT6nZS6.mp3"},
+            {pinyin:"qíng kuàng",word:"情况",explanation:"情形",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/qLRQJgaCr5bu8ziavC8zsA.mp3"},
+            {pinyin:"dòng jìng",word:"动静",explanation:"动作或响声",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/5g49DTkUkdGEJjdVdMMSAJ.mp3"},
+            {pinyin:"gǎn lù",word:"赶路",explanation:"加快速度走路",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Q5XGByvwuG2P9ZVH2gmiM3.mp3"},
+            {pinyin:"pū dòng",word:"扑动",explanation:"拍打翅膀",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/fnEfL2b5LXozv7TUymsoJP.mp3"},
+            {pinyin:"shù shāo",word:"树梢",explanation:"树的顶端",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vLUrSPQdHS2B8gZNxQ7hjD.mp3"},
+            {pinyin:"luàn péng péng",word:"乱蓬蓬",explanation:"形容杂乱",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/MgLtNJLUzDX9Q8Ymv7bsKn.mp3"},
+            {pinyin:"hōng lóng lóng",word:"轰隆隆",explanation:"形容雷声",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/WrJkGefULah3HgSNKhZ95M.mp3"}
+        ]},
+        { id:24, title:"24 我们奇妙的世界", words:[
+            {pinyin:"qí miào",word:"奇妙",explanation:"神奇美妙",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/GmcrFrrKXzkRCxBGsBzd9i.mp3"},
+            {pinyin:"shēng mìng",word:"生命",explanation:"生物体所具有的活动能力",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/j4LRNFWmtGBkJ9BBLHKthA.mp3"},
+            {pinyin:"chéng xiàn",word:"呈现",explanation:"显现，展示",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Zc2VKVX48YG9NxLqN2SfuA.mp3"},
+            {pinyin:"biàn huàn",word:"变幻",explanation:"不规则地改变",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vEsNFfccpU2ogqSXXTUdbU.mp3"},
+            {pinyin:"yuán rùn",word:"圆润",explanation:"圆而光滑",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Mp5WGw2MrNijd2JTfS42KB.mp3"},
+            {pinyin:"lǐ zi",word:"李子",explanation:"一种水果",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/eoBLGiCSJJ3X9LDcb9hP8D.mp3"},
+            {pinyin:"xià rì",word:"夏日",explanation:"夏天",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/wCfpSMZerfNtoPRryNi9og.mp3"},
+            {pinyin:"gǎn tàn",word:"感叹",explanation:"有所感触而叹息",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/MW46p6BNDucp68tyYUz7Cf.mp3"},
+            {pinyin:"guāng huī",word:"光辉",explanation:"闪烁耀眼的光",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/a9jEgW37s36xMP7ULcTUkZ.mp3"},
+            {pinyin:"shén qí",word:"神奇",explanation:"非常奇妙",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/KJAVczxUwaKL9X5zr6wCQj.mp3"},
+            {pinyin:"guāng máng",word:"光芒",explanation:"向四面放射的光",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/oHzamTLFEGuNuwwKs4bhZW.mp3"},
+            {pinyin:"jiàn zào",word:"建造",explanation:"建筑，修建",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/hkLgfvMxyC7nh7Vux7Eva9.mp3"},
+            {pinyin:"bīng zhù",word:"冰柱",explanation:"柱状的冰",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Am26Wz44MTEpkimWyYLhdP.mp3"},
+            {pinyin:"fēng lì",word:"锋利",explanation:"刀刃尖锐",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Wg6nmo3XKyT2dKKqDgxfSa.mp3"},
+            {pinyin:"dāo jiàn",word:"刀剑",explanation:"刀和剑",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/VWaVvaDBnf4eLopXz496iN.mp3"},
+            {pinyin:"róng huà",word:"融化",explanation:"冰雪变成水",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SiAV9Y7yoBenSSzXmxYMxZ.mp3"}
+        ]},
+        { id:25, title:"25 慢性子裁缝和急性子顾客", words:[
+            {pinyin:"xìng zi",word:"性子",explanation:"性格，脾气",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/QHhXz8pavjVxunu4tdVoHn.mp3"},
+            {pinyin:"gù kè",word:"顾客",explanation:"商店的客人",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Zbv4JEQXkHFLpnN9hSRTjc.mp3"},
+            {pinyin:"xiào hua",word:"笑话",explanation:"引人发笑的话",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/qh6mhvAVJQiAwejMuLVXtU.mp3"},
+            {pinyin:"dà fang",word:"大方",explanation:"不小气",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/zc8hXDbvBHxndimZFYvdHU.mp3"},
+            {pinyin:"kuā jiǎng",word:"夸奖",explanation:"称赞",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ZZRpT5E2662jAi88pZj5ri.mp3"},
+            {pinyin:"chéng rèn",word:"承认",explanation:"表示同意",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/wN9GA8UwzgBicDfuAzWEtW.mp3"},
+            {pinyin:"tí qián",word:"提前",explanation:"把时间往前移",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/omLZtdgZoDwrfWF6xazomj.mp3"},
+            {pinyin:"fú wù",word:"服务",explanation:"为别人做事",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/nbhAatzgHeZ4fYjgzSjH7C.mp3"},
+            {pinyin:"mǎn yì",word:"满意",explanation:"满足自己的愿望",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/U3NsTovMNwVSXbCA4pQN5T.mp3"},
+            {pinyin:"xiù zi",word:"袖子",explanation:"衣服的袖子",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/7zeKNQgKRtAKcLeiLp7hSk.mp3"},
+            {pinyin:"chèn shān",word:"衬衫",explanation:"一种上衣",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/kV4QWC3WoTW39ZFjf4oYR2.mp3"},
+            {pinyin:"fù zé",word:"负责",explanation:"担当责任",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/DiDuztmoah3i3XoNXhz8m4.mp3"},
+            {pinyin:"míng shēng",word:"名声",explanation:"名誉",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/GvxL4WFxRJcxTz6nXoS9XL.mp3"},
+            {pinyin:"xiè qì",word:"泄气",explanation:"失去信心",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/FNqTz5jxumH8Tb6Sekn43W.mp3"},
+            {pinyin:"fàng xīn",word:"放心",explanation:"心情安定",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/XxhF4tn7zA6ySn8yXtkJNf.mp3"},
+            {pinyin:"shǒu yì",word:"手艺",explanation:"手工技艺",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/EWLQXoUqLU28o2S2TFCF26.mp3"},
+            {pinyin:"gǎn dòng",word:"感动",explanation:"思想感情受触动",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/FSNP6qhTyr5faoEpADf4LK.mp3"},
+            {pinyin:"nǎo nù",word:"恼怒",explanation:"生气，发怒",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/jebaCisqrzfGWRZP3uVJjJ.mp3"}
+        ]},
+        { id:26, title:"26 漏", words:[
+            {pinyin:"mò fēi",word:"莫非",explanation:"难道",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/Gra8pHmWKzQKwzxdN3ZpKW.mp3"},
+            {pinyin:"lì hai",word:"厉害",explanation:"凶猛，高强",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/TpxxN5V2AhbrXPaSLPr6DG.mp3"},
+            {pinyin:"zǒu nán chuǎng běi",word:"走南闯北",explanation:"到处闯荡",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/vuaVPm9eHDmMEao84Q4Gpd.mp3"},
+            {pinyin:"tīng shuō",word:"听说",explanation:"听人说",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/32FJ5fSSQnMWM5F8m8d5b7.mp3"},
+            {pinyin:"fā dǒu",word:"发抖",explanation:"身体颤动",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/FNQLLoCeniDf4ytaxqBrAm.mp3"},
+            {pinyin:"hài pà",word:"害怕",explanation:"恐惧",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/UpCWASnq3x7GMPkKQtrEnU.mp3"},
+            {pinyin:"sōng shǒu",word:"松手",explanation:"放开手",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/3ykBin2FRT9oXkbDYp6yiB.mp3"},
+            {pinyin:"gǔ tou",word:"骨头",explanation:"骨骼",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/v2wTB3jrLpVzofXet99vEF.mp3"},
+            {pinyin:"táo mìng",word:"逃命",explanation:"逃跑保命",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/f89shm3rMuyT7EidSFkXJR.mp3"},
+            {pinyin:"gān xīn",word:"甘心",explanation:"情愿",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/T2MAcaRhiUpko5Wa23MY9b.mp3"},
+            {pinyin:"táo pǎo",word:"逃跑",explanation:"逃走",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/aihtNkZdfm7k9sxUveWpKV.mp3"}
+        ]},
+        { id:27, title:"语文园地 (四)", words:[
+            {pinyin:"hū xī",word:"呼吸",explanation:"一呼一吸",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/m5dgUf4D8WHBm7bm9dMdMF.mp3"},
+            {pinyin:"ké sou",word:"咳嗽",explanation:"喉部发痒而发出声音",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/8zQQQsEHZVPJvsU6QLeyd3.mp3"},
+            {pinyin:"láo dao",word:"唠叨",explanation:"说话啰嗦",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/ryRst6P42kvPwnXYMd8Xdm.mp3"},
+            {pinyin:"yāo he",word:"吆喝",explanation:"大声喊叫",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/HwZRfoyNA3KLsu9u8grPRB.mp3"},
+            {pinyin:"sù shuō",word:"诉说",explanation:"告诉，陈述",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/gSUEmTEx3TthZ7Mq6T4cqL.mp3"},
+            {pinyin:"fěng cì",word:"讽刺",explanation:"用比喻夸张的话嘲笑",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/WBisHXnMvgdHASB3eySixA.mp3"},
+            {pinyin:"gào jiè",word:"告诫",explanation:"警告劝诫",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/SKrWYP3qFiaQU4FYCqsXcR.mp3"},
+            {pinyin:"biàn lùn",word:"辩论",explanation:"辩解争论",audioUrl:"https://musk-online.fbcontent.cn/pub-musk-ai-studio/workflow/file/audio/R9roepJsqheCYNzdAuwP4A.mp3"}
+        ]}
+    ];
+    
+    // 错题记录
+    let wrongWordsSet = new Set(JSON.parse(localStorage.getItem('dictation_wrong_v3') || '[]'));
+    function saveWrongs() { localStorage.setItem('dictation_wrong_v3', JSON.stringify(Array.from(wrongWordsSet))); }
+    
+    let currentLesson = null, currentWordIndex = 0, isPlaying = false, animationId = null;
+    let isWrongTestMode = false, currentAudio = null, wordIntervalTimeout = null;
+    const REPEAT_COUNT = 3, PLAYBACK_RATE = 0.6, GAP_BETWEEN_WORDS = 3000;
+    
+    const welcomeDiv = document.getElementById('welcome-screen');
+    const displayDiv = document.getElementById('display-screen');
+    const summaryDiv = document.getElementById('summary-screen');
+    const allWordsDiv = document.getElementById('all-words-screen');
+    const allWordsGrid = document.getElementById('all-words-grid');
+    const lessonListDiv = document.getElementById('lesson-list');
+    const pinyinSpan = document.getElementById('pinyin-display');
+    const progressBar = document.getElementById('progress-bar');
+    const wordIndexSpan = document.getElementById('word-index');
+    const summaryGrid = document.getElementById('summary-grid');
+    const summaryTitleSpan = document.getElementById('summary-title');
+    const sidebar = document.getElementById('sidebar');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const repeatIndicator = document.getElementById('repeat-indicator');
+    const repeatCountSpan = document.getElementById('repeat-count');
+    let isSidebarCollapsed = false;
+    
+    function initLessonsList() {
+        lessonListDiv.innerHTML = '';
+        lessons.forEach(lesson => {
+            const btn = document.createElement('button');
+            btn.className = 'w-full text-left px-6 py-4 rounded-xl text-lg font-medium text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all mb-2';
+            btn.innerHTML = `<div class="flex justify-between"><span>${lesson.title}</span><span class="text-sm bg-gray-100 px-2 py-1 rounded">${lesson.words.length}词</span></div>`;
+            btn.onclick = (e) => startLesson(lesson, e.currentTarget);
+            lessonListDiv.appendChild(btn);
+        });
+    }
+    
+    function toggleSidebar() {
+        isSidebarCollapsed = !isSidebarCollapsed;
+        if(isSidebarCollapsed) { sidebar.classList.add('nav-collapsed'); toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />'; }
+        else { sidebar.classList.remove('nav-collapsed'); toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />'; }
+    }
+    
+    function playWordWithRepeat(wordData, callback) {
+        let repeatIdx = 0;
+        function playNext() {
+            if(repeatIdx >= REPEAT_COUNT) { if(callback) callback(); return; }
+            repeatIdx++;
+            if(repeatIndicator) { repeatIndicator.classList.remove('hidden'); repeatCountSpan.innerText = repeatIdx; }
+            const audio = new Audio(wordData.audioUrl);
+            audio.playbackRate = PLAYBACK_RATE;
+            audio.onended = () => setTimeout(() => playNext(), 200);
+            audio.onerror = () => playNext();
+            audio.play().catch(e=>console.warn);
+            if(currentAudio) currentAudio.pause();
+            currentAudio = audio;
+        }
+        playNext();
+    }
+    
+    function playCurrentWord() {
+        if(!currentLesson || currentWordIndex >= currentLesson.words.length) { finishLesson(); return; }
+        const word = currentLesson.words[currentWordIndex];
+        wordIndexSpan.innerText = currentWordIndex+1;
+        pinyinSpan.innerText = word.pinyin;
+        if(wordIntervalTimeout) clearTimeout(wordIntervalTimeout);
+        playWordWithRepeat(word, () => {
+            const gapStart = performance.now();
+            function updateGap() {
+                const elapsed = performance.now() - gapStart;
+                const percent = Math.min((elapsed / GAP_BETWEEN_WORDS) * 100, 100);
+                progressBar.style.width = `${percent}%`;
+                if(elapsed < GAP_BETWEEN_WORDS) { animationId = requestAnimationFrame(updateGap); }
+                else { progressBar.style.width = '100%'; currentWordIndex++; playCurrentWord(); }
+            }
+            animationId = requestAnimationFrame(updateGap);
+        });
+        anime({ targets: '#pinyin-display', opacity: [0,1], scale:[0.8,1], translateY:[20,0], duration:500, easing:'easeOutExpo' });
+        setTimeout(() => { if(repeatIndicator) repeatIndicator.classList.add('hidden'); }, 3500);
+    }
+    
+    function startLesson(lesson, btnElem) {
+        if(isPlaying && currentAudio) { currentAudio.pause(); cancelAnimationFrame(animationId); if(wordIntervalTimeout) clearTimeout(wordIntervalTimeout); }
+        currentLesson = lesson; currentWordIndex = 0; isPlaying = true; isWrongTestMode = false;
+        welcomeDiv.classList.add('hidden'); summaryDiv.classList.add('hidden'); allWordsDiv.classList.add('hidden');
+        displayDiv.classList.remove('hidden');
+        if(!isSidebarCollapsed) toggleSidebar();
+        document.querySelectorAll('#lesson-list button').forEach(b => b.classList.remove('nav-item-active'));
+        if(btnElem) btnElem.classList.add('nav-item-active');
+        playCurrentWord();
+    }
+    
+    function finishLesson() {
+        isPlaying = false; if(currentAudio) currentAudio.pause(); cancelAnimationFrame(animationId); if(wordIntervalTimeout) clearTimeout(wordIntervalTimeout);
+        displayDiv.classList.add('hidden'); summaryDiv.classList.remove('hidden');
+        if(isSidebarCollapsed) toggleSidebar();
+        summaryTitleSpan.innerText = `${currentLesson.title} - 词语回顾`;
+        renderSummary();
+    }
+    
+    function renderSummary() {
+        summaryGrid.innerHTML = '';
+        currentLesson.words.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'summary-card p-6 flex flex-col items-center text-center opacity-0';
+            card.innerHTML = `<div class="text-emerald-600 text-xl font-bold mb-2">${item.pinyin}</div><div class="text-red-600 text-5xl font-black mb-2">${item.word}</div><div class="text-red-500 text-2xl mb-3">${item.explanation||''}</div><button onclick="replayWordAudio('${item.audioUrl}')" class="mt-2 p-2 rounded-full bg-emerald-50 hover:bg-emerald-100">🔊</button>`;
+            summaryGrid.appendChild(card);
+        });
+        anime({ targets: '.summary-card', opacity: [0,1], translateY: [20,0], delay: anime.stagger(80), duration: 600 });
+    }
+    
+    window.replayWordAudio = (url) => { const aud = new Audio(url); aud.playbackRate = PLAYBACK_RATE; aud.play().catch(e=>console.log); };
+    function resetToWelcome() {
+        if(currentAudio) currentAudio.pause(); cancelAnimationFrame(animationId); if(wordIntervalTimeout) clearTimeout(wordIntervalTimeout);
+        isPlaying = false; summaryDiv.classList.add('hidden'); displayDiv.classList.add('hidden'); allWordsDiv.classList.add('hidden');
+        welcomeDiv.classList.remove('hidden'); document.querySelectorAll('#lesson-list button').forEach(b => b.classList.remove('nav-item-active'));
+        if(repeatIndicator) repeatIndicator.classList.add('hidden');
+    }
+    function toggleAllWords() { welcomeDiv.classList.add('hidden'); allWordsDiv.classList.remove('hidden'); renderAllWords(); }
+    function hideAllWords() { allWordsDiv.classList.add('hidden'); welcomeDiv.classList.remove('hidden'); }
+    function renderAllWords() {
+        allWordsGrid.innerHTML = '';
+        lessons.forEach(lesson => {
+            lesson.words.forEach((item, idx) => {
+                const wordId = `${lesson.id}-${idx}`;
+                const isWrong = wrongWordsSet.has(wordId);
+                const card = document.createElement('div');
+                card.className = `summary-card p-4 flex flex-col items-center text-center border relative cursor-pointer ${isWrong ? 'wrong-highlight' : 'border-emerald-100'}`;
+                card.innerHTML = `${isWrong ? '<div class="wrong-badge">高频错字</div>' : ''}<div class="text-emerald-600 text-sm font-bold">${item.pinyin}</div><div class="text-red-600 text-3xl font-black">${item.word}</div><div class="text-red-500 text-sm">${item.explanation||''}</div>`;
+                card.onclick = () => { toggleWrongWord(wordId); renderAllWords(); };
+                allWordsGrid.appendChild(card);
+            });
+        });
+        anime({ targets: '#all-words-grid .summary-card', opacity:[0,1], scale:[0.9,1], delay: anime.stagger(10), duration: 500 });
+    }
+    function toggleWrongWord(wid) {
+        if(wrongWordsSet.has(wid)) wrongWordsSet.delete(wid); else wrongWordsSet.add(wid);
+        saveWrongs(); updateWrongTestBtn();
+    }
+    function updateWrongTestBtn() {
+        const btn = document.getElementById('wrong-words-test-btn');
+        const span = document.getElementById('wrong-count');
+        if(wrongWordsSet.size > 0) { btn.classList.remove('hidden'); span.innerText = wrongWordsSet.size; }
+        else btn.classList.add('hidden');
+    }
+    function startWrongWordsTest() {
+        if(wrongWordsSet.size === 0) return;
+        const wrongList = [];
+        wrongWordsSet.forEach(id => {
+            const [lId, idx] = id.split('-').map(Number);
+            const lesson = lessons.find(l => l.id === lId);
+            if(lesson && lesson.words[idx]) wrongList.push(lesson.words[idx]);
+        });
+        currentLesson = { title: "错题专项听写", words: wrongList };
+        currentWordIndex = 0; isWrongTestMode = true;
+        welcomeDiv.classList.add('hidden'); allWordsDiv.classList.add('hidden'); displayDiv.classList.remove('hidden');
+        if(!isSidebarCollapsed) toggleSidebar();
+        playCurrentWord();
+    }
+    
+    initLessonsList();
+    updateWrongTestBtn();
+    window.toggleSidebar = toggleSidebar; window.startLesson = startLesson; window.resetToWelcome = resetToWelcome;
+    window.toggleAllWords = toggleAllWords; window.hideAllWords = hideAllWords; window.startWrongWordsTest = startWrongWordsTest;
+</script>
+</body>
+</html>
