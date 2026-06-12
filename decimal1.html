@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>数智赋能WEB听觉作业设计团队</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef5ff 0%, #e0eafc 100%);
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .master-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(2px);
+            border-radius: 56px;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.25);
+            padding: 1.5rem 2rem 2rem;
+            transition: all 0.2s;
+        }
+
+        .hero-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #cbdde6;
+            padding-bottom: 0.75rem;
+        }
+        .team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #02543B20;
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1.8rem;
+            border-radius: 60px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .team-badge svg {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+        .team-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #02543B, #2A7F6E);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        .sub {
+            font-size: 0.7rem;
+            color: #4b6a5f;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+
+        .content-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .card-stack {
+            flex: 0 0 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            justify-content: center;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 120px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s ease;
+            transform-style: preserve-3d;
+            border-radius: 24px;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 20px -10px rgba(0,0,0,0.2);
+        }
+        .flip-front {
+            background: white;
+            border: 2px dashed #b9d2e3;
+            color: #2c7a5e;
+        }
+        .flip-front span:first-child { font-size: 2.5rem; font-weight: bold; }
+        .flip-front span:last-child { font-size: 0.85rem; opacity: 0.7; margin-top: 6px; }
+        .flip-back {
+            background: linear-gradient(145deg, #2c7a5e, #02543B);
+            color: white;
+            transform: rotateY(180deg);
+            font-weight: bold;
+            gap: 6px;
+        }
+
+        .fraction-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+        .fraction-numerator {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .fraction-line {
+            width: 40px;
+            height: 2px;
+            background-color: white;
+            margin: 4px 0;
+        }
+        .fraction-denominator {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .fraction-unit {
+            font-size: 1rem;
+            margin-left: 8px;
+            opacity: 0.9;
+        }
+
+        .integer-large {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+        .decimal-large {
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .interactive-area {
+            flex: 3;
+            min-width: 280px;
+            background: #ffffffcc;
+            border-radius: 48px;
+            padding: 1.2rem 1.5rem 1.8rem;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .mode-btn {
+            background: #e9f0f3;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            color: #2c5a4a;
+        }
+        .mode-btn.active {
+            background: #02543B;
+            color: white;
+            box-shadow: 0 6px 12px -6px #02543B80;
+        }
+
+        .sub-control {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sub-buttons {
+            display: inline-flex;
+            background: #d9e4e8;
+            border-radius: 60px;
+            padding: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .sub-buttons button {
+            border: none;
+            background: transparent;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .sub-buttons button.active {
+            background: white;
+            color: #02543B;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .visual-box {
+            margin: 20px 0 20px;
+            min-height: 280px;
+        }
+        .meter-label {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            color: #1e3e32;
+        }
+        .ruler-container {
+            background: #fef9e6;
+            border-bottom: 4px solid #2b3b34;
+            display: flex;
+            height: 75px;
+            border-radius: 12px 12px 0 0;
+            overflow-x: auto;
+        }
+        .segment {
+            flex: 1;
+            border-right: 1px solid #cbd5d0;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff9ef;
+        }
+        .segment.selected-fill {
+            background: linear-gradient(180deg, #6ed4cf, #38b2ac);
+        }
+        .ruler-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 0 2px;
+            color: #2b5e4e;
+            font-weight: 500;
+        }
+        .coin-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .coin {
+            background: radial-gradient(circle at 30% 30%, #f9e45b, #e5b83c);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: 0.1s linear;
+            border: 2px solid #ffdd99;
+            color: #784e2e;
+            text-align: center;
+        }
+        .coin span:first-child { font-size: 1.1rem; }
+        .coin span:last-child { font-size: 0.7rem; opacity: 0.8; }
+        .coin.selected {
+            background: #2c9c8c;
+            color: white;
+            transform: scale(0.96);
+            border-color: #f9c35c;
+            box-shadow: inset 0 1px 4px #00000030, 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .reset-btn {
+            display: flex;
+            justify-content: center;
+            margin-top: 28px;
+        }
+        .reset-btn button {
+            background: #02543B;
+            border: none;
+            padding: 10px 36px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .reset-btn button:hover {
+            background: #1c6e53;
+            transform: translateY(-2px);
+        }
+        .info-note {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: #537a6b;
+        }
+
+        @media (max-width: 780px) {
+            .master-container { padding: 1rem; }
+            .coin { width: 50px; height: 50px; }
+            .coin span:first-child { font-size: 0.9rem; }
+            .flip-card { height: 100px; }
+            .fraction-numerator { font-size: 1.5rem; }
+            .fraction-denominator { font-size: 1.3rem; }
+            .fraction-line { width: 30px; }
+            .sub-buttons button { padding: 4px 12px; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="master-container">
+    <div class="hero-header">
+        <div class="team-badge">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#02543B" stroke-width="1.5" fill="#D9F0EC"/>
+                <path d="M2 17L12 22L22 17" stroke="#02543B" stroke-width="1.5" fill="none"/>
+                <path d="M2 12L12 17L22 12" stroke="#02543B" stroke-width="1.5" fill="none"/>
+                <circle cx="12" cy="12" r="2" fill="#02543B"/>
+            </svg>
+            <span class="team-text">数智赋能WEB听觉作业设计团队 <span class="sub">| 制作</span></span>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <!-- 左侧三卡片 -->
+        <div class="card-stack">
+            <div class="flip-card" id="intCard">
+                <div class="flip-card-inner">
+                    <div class="flip-front"><span>?</span><span>整数部分</span></div>
+                    <div class="flip-back">
+                        <div style="display:flex; align-items:baseline; gap:4px;">
+                            <span class="integer-large" id="intValue">0</span>
+                            <small id="intUnit" style="font-size:1rem;">分米</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flip-card" id="fracCard">
+                <div class="flip-card-inner">
+                    <div class="flip-front"><span>?</span><span>分数</span></div>
+                    <div class="flip-back">
+                        <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <div class="fraction-vertical">
+                                <span class="fraction-numerator" id="fracNum">0</span>
+                                <div class="fraction-line"></div>
+                                <span class="fraction-denominator" id="fracDen">10</span>
+                            </div>
+                            <span class="fraction-unit" id="fracUnit">米</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flip-card" id="decCard">
+                <div class="flip-card-inner">
+                    <div class="flip-front"><span>?</span><span>小数</span></div>
+                    <div class="flip-back">
+                        <div style="display:flex; align-items:baseline; gap:4px;">
+                            <span class="decimal-large" id="decValue">0.0</span>
+                            <small id="decUnit" style="font-size:1rem;">米</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧交互区 -->
+        <div class="interactive-area">
+            <div class="mode-switch">
+                <button class="mode-btn active" data-mode="ruler">📏 线段图 (长度)</button>
+                <button class="mode-btn" data-mode="coin">💰 人民币 (元角分)</button>
+            </div>
+            <div id="subModeControls" class="sub-control">
+                <!-- 线段图子控制 -->
+                <div class="sub-buttons" id="rulerSubControl">
+                    <button data-part="10" class="active">平均分成10份 (分米)</button>
+                    <button data-part="100">平均分成100份 (厘米)</button>
+                </div>
+                <!-- 人民币子控制 (新增分币模式) -->
+                <div class="sub-buttons" id="coinSubControl" style="display:none;">
+                    <button data-coin-type="jiao" class="active">💰 1元 = 10角 (十分位)</button>
+                    <button data-coin-type="fen">🪙 1角 = 10分 (百分位)</button>
+                    <button data-coin-type="yuan_fen">📊 1元 = 100分 (直接百分位)</button>
+                </div>
+            </div>
+
+            <div id="visualModule" class="visual-box">
+                <div id="rulerModule">
+                    <div class="meter-label">📏 1 米 长度模型</div>
+                    <div id="rulerContainer" class="ruler-container"></div>
+                    <div id="rulerLabels" class="ruler-labels"></div>
+                    <div class="info-note">✨ 核心概念：十分之一 → 0.1 (另一种名称) | 点击格子体验</div>
+                </div>
+                <div id="coinModule" style="display:none;">
+                    <div class="meter-label" id="coinModelLabel">💰 1 元 = 10角 (十进制模型)</div>
+                    <div id="coinContainer" class="coin-container"></div>
+                    <div class="info-note" id="coinInfoNote">✨ 1角 = 1/10元 = 0.1元 | 点击硬币体验</div>
+                </div>
+            </div>
+            <div class="reset-btn">
+                <button id="resetAllBtn">⟳ 重新开始</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 核心状态
+    let currentMode = "ruler";
+    let divisions = 10;           // 线段图份数
+    let coinType = "jiao";        // 人民币模式: jiao(角), fen(分-基于角), yuan_fen(元转分)
+    let selectedIndices = new Set();
+    let selectedCoins = new Set();
+
+    // 根据coinType获取总份数和单位
+    function getCoinConfig() {
+        if (coinType === "jiao") return { total: 10, unit: "角", baseUnit: "元", denominator: 10, label: "1元 = 10角 (十分位模型)", tip: "✨ 1角 = 1/10元 = 0.1元 | 点击硬币体验" };
+        if (coinType === "fen") return { total: 10, unit: "分", baseUnit: "角", denominator: 10, label: "1角 = 10分 (百分位模型)", tip: "✨ 1分 = 1/10角 = 0.1角，也是 1/100元 = 0.01元 | 点击硬币体验" };
+        return { total: 100, unit: "分", baseUnit: "元", denominator: 100, label: "1元 = 100分 (百分位模型)", tip: "✨ 1分 = 1/100元 = 0.01元 | 点击硬币体验" };
+    }
+
+    // DOM 元素
+    const rulerContainer = document.getElementById("rulerContainer");
+    const rulerLabels = document.getElementById("rulerLabels");
+    const coinContainer = document.getElementById("coinContainer");
+    const rulerModuleDiv = document.getElementById("rulerModule");
+    const coinModuleDiv = document.getElementById("coinModule");
+    const rulerSubControl = document.getElementById("rulerSubControl");
+    const coinSubControl = document.getElementById("coinSubControl");
+    const coinModelLabel = document.getElementById("coinModelLabel");
+    const coinInfoNote = document.getElementById("coinInfoNote");
+    
+    const intSpan = document.getElementById("intValue");
+    const fracNumSpan = document.getElementById("fracNum");
+    const fracDenSpan = document.getElementById("fracDen");
+    const decSpan = document.getElementById("decValue");
+    const intUnitSpan = document.getElementById("intUnit");
+    const fracUnitSpan = document.getElementById("fracUnit");
+    const decUnitSpan = document.getElementById("decUnit");
+
+    const intCard = document.getElementById("intCard");
+    const fracCard = document.getElementById("fracCard");
+    const decCard = document.getElementById("decCard");
+    let flipStates = { int: false, frac: false, dec: false };
+
+    function updateUnits() {
+        if (currentMode === "ruler") {
+            if (divisions === 10) {
+                intUnitSpan.innerText = "分米";
+                fracUnitSpan.innerText = "米";
+                decUnitSpan.innerText = "米";
+                fracDenSpan.innerText = "10";
+            } else {
+                intUnitSpan.innerText = "厘米";
+                fracUnitSpan.innerText = "米";
+                decUnitSpan.innerText = "米";
+                fracDenSpan.innerText = "100";
+            }
+        } else {
+            const cfg = getCoinConfig();
+            intUnitSpan.innerText = cfg.unit;
+            fracUnitSpan.innerText = cfg.baseUnit;
+            decUnitSpan.innerText = cfg.baseUnit;
+            fracDenSpan.innerText = cfg.denominator;
+        }
+    }
+
+    // 核心更新函数：count是选中个数，total是总份数
+    function updateCards(count, total) {
+        const decimalVal = count / total;
+        intSpan.innerText = count;
+        fracNumSpan.innerText = count;
+        
+        if (total === 10) {
+            decSpan.innerText = decimalVal.toFixed(1);
+        } else if (total === 100) {
+            decSpan.innerText = decimalVal.toFixed(2);
+        } else {
+            decSpan.innerText = decimalVal.toString();
+        }
+        
+        resetAllFlips();
+        playClickSound();
+    }
+
+    function resetAllFlips() {
+        if (intCard.classList.contains("flipped")) intCard.classList.remove("flipped");
+        if (fracCard.classList.contains("flipped")) fracCard.classList.remove("flipped");
+        if (decCard.classList.contains("flipped")) decCard.classList.remove("flipped");
+        flipStates = { int: false, frac: false, dec: false };
+    }
+
+    function bindCardFlip(card, type) {
+        card.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const total = (currentMode === "ruler") ? divisions : getCoinConfig().total;
+            const selectedCount = (currentMode === "ruler") ? selectedIndices.size : selectedCoins.size;
+            if (selectedCount === 0) {
+                card.style.transform = "translateX(4px)";
+                setTimeout(() => { card.style.transform = ""; }, 150);
+                return;
+            }
+            flipStates[type] = !flipStates[type];
+            if (flipStates[type]) card.classList.add("flipped");
+            else card.classList.remove("flipped");
+            playFlipSound();
+        });
+    }
+    bindCardFlip(intCard, "int");
+    bindCardFlip(fracCard, "frac");
+    bindCardFlip(decCard, "dec");
+
+    function resetAll() {
+        if (currentMode === "ruler") {
+            selectedIndices.clear();
+            renderRuler();
+            updateCards(0, divisions);
+        } else {
+            selectedCoins.clear();
+            renderCoins();
+            const cfg = getCoinConfig();
+            updateCards(0, cfg.total);
+        }
+        resetAllFlips();
+        playClickSound();
+    }
+
+    function renderRuler() {
+        rulerContainer.innerHTML = "";
+        const total = divisions;
+        for (let i = 0; i < total; i++) {
+            const seg = document.createElement("div");
+            seg.className = "segment";
+            if (selectedIndices.has(i)) seg.classList.add("selected-fill");
+            seg.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (selectedIndices.has(i)) selectedIndices.delete(i);
+                else selectedIndices.add(i);
+                renderRuler();
+                updateCards(selectedIndices.size, divisions);
+            });
+            rulerContainer.appendChild(seg);
+        }
+        rulerLabels.innerHTML = "";
+        const step = divisions === 10 ? 1 : 10;
+        for (let i = 0; i <= total; i += step) {
+            const labelSpan = document.createElement("span");
+            labelSpan.textContent = i;
+            rulerLabels.appendChild(labelSpan);
+        }
+    }
+
+    // 新版人民币渲染：支持角、分（1角=10分）、元→分
+    function renderCoins() {
+        coinContainer.innerHTML = "";
+        const cfg = getCoinConfig();
+        const total = cfg.total;
+        const unitName = cfg.unit;
+        
+        for (let i = 0; i < total; i++) {
+            const coinDiv = document.createElement("div");
+            coinDiv.className = "coin";
+            if (selectedCoins.has(i)) coinDiv.classList.add("selected");
+            
+            if (coinType === "jiao") {
+                coinDiv.innerHTML = `<span>1角</span><span>0.1元</span>`;
+            } else if (coinType === "fen") {
+                coinDiv.innerHTML = `<span>1分</span><span>0.1角</span>`;
+            } else {
+                coinDiv.innerHTML = `<span>1分</span><span>0.01元</span>`;
+            }
+            
+            coinDiv.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (selectedCoins.has(i)) selectedCoins.delete(i);
+                else selectedCoins.add(i);
+                renderCoins();
+                updateCards(selectedCoins.size, total);
+            });
+            coinContainer.appendChild(coinDiv);
+        }
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        selectedIndices.clear();
+        selectedCoins.clear();
+
+        if (mode === "ruler") {
+            rulerModuleDiv.style.display = "block";
+            coinModuleDiv.style.display = "none";
+            rulerSubControl.style.display = "inline-flex";
+            coinSubControl.style.display = "none";
+            renderRuler();
+            updateCards(0, divisions);
+        } else {
+            rulerModuleDiv.style.display = "none";
+            coinModuleDiv.style.display = "block";
+            rulerSubControl.style.display = "none";
+            coinSubControl.style.display = "inline-flex";
+            // 根据 coinType 渲染
+            const cfg = getCoinConfig();
+            coinModelLabel.innerText = cfg.label;
+            coinInfoNote.innerText = cfg.tip;
+            renderCoins();
+            updateCards(0, cfg.total);
+        }
+        updateUnits();
+        resetAllFlips();
+    }
+
+    function setDivisions(part) {
+        if (part === divisions) return;
+        divisions = part;
+        selectedIndices.clear();
+        renderRuler();
+        updateCards(0, divisions);
+        updateUnits();
+        resetAllFlips();
+        document.querySelectorAll("#rulerSubControl button").forEach(btn => {
+            const val = parseInt(btn.getAttribute("data-part"));
+            if (val === divisions) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+    }
+
+    function setCoinType(type) {
+        if (type === coinType) return;
+        coinType = type;
+        selectedCoins.clear();
+        const cfg = getCoinConfig();
+        coinModelLabel.innerText = cfg.label;
+        coinInfoNote.innerText = cfg.tip;
+        renderCoins();
+        updateCards(0, cfg.total);
+        updateUnits();
+        resetAllFlips();
+        
+        document.querySelectorAll("#coinSubControl button").forEach(btn => {
+            const val = btn.getAttribute("data-coin-type");
+            if (val === coinType) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+    }
+
+    // 音频
+    let audioCtx = null;
+    function playClickSound() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === "suspended") audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        } catch(e) {}
+    }
+    function playFlipSound() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === "suspended") audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(280, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(220, audioCtx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        } catch(e) {}
+    }
+
+    function enableAudioOnFirstTouch() {
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        else if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx.resume();
+        }
+        document.removeEventListener("click", enableAudioOnFirstTouch);
+        document.removeEventListener("touchstart", enableAudioOnFirstTouch);
+    }
+    document.addEventListener("click", enableAudioOnFirstTouch);
+    document.addEventListener("touchstart", enableAudioOnFirstTouch);
+
+    function initEvent() {
+        document.querySelectorAll(".mode-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const mode = btn.getAttribute("data-mode");
+                document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                switchMode(mode);
+            });
+        });
+        document.querySelectorAll("#rulerSubControl button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const part = parseInt(btn.getAttribute("data-part"));
+                setDivisions(part);
+            });
+        });
+        document.querySelectorAll("#coinSubControl button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const type = btn.getAttribute("data-coin-type");
+                setCoinType(type);
+            });
+        });
+        document.getElementById("resetAllBtn").addEventListener("click", resetAll);
+    }
+
+    function init() {
+        updateUnits();
+        renderRuler();
+        renderCoins();
+        coinModuleDiv.style.display = "none";
+        rulerModuleDiv.style.display = "block";
+        coinSubControl.style.display = "none";
+        initEvent();
+        updateCards(0, divisions);
+    }
+
+    init();
+</script>
+</body>
+</html>
