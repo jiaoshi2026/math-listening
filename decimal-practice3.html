@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>小数听算练习 - 三合一进阶版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f9ff 0%, #e6f0fa 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(2px);
+            border-radius: 56px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            padding: 28px 32px 42px;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            background: linear-gradient(135deg, #1E3C72, #2A5298);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .research-team {
+            font-size: 0.85rem;
+            color: #2c5a7a;
+            background: #eef4fa;
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            border: 1px solid #cde0f0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0 20px;
+            background: #eef2f8;
+            padding: 8px;
+            border-radius: 60px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #2c5a7a;
+            box-shadow: none;
+        }
+        .tab-btn.active {
+            background: #2a9d8f;
+            color: white;
+            box-shadow: 0 4px 12px rgba(42,157,143,0.3);
+        }
+        .tab-btn:not(.active):hover {
+            background: #dce6f0;
+            transform: none;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+
+        button {
+            background: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        button i {
+            font-style: normal;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .btn-primary {
+            background: #2a9d8f;
+            color: white;
+            box-shadow: 0 8px 18px rgba(42, 157, 143, 0.3);
+        }
+        .btn-primary:hover {
+            background: #21867a;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e9c46a;
+            color: #3b2e1e;
+        }
+        .btn-secondary:hover {
+            background: #e0b84d;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #e76f51;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #d15a3a;
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 22px;
+            margin: 28px 0 20px;
+        }
+
+        .question-item {
+            background: #fff;
+            border-radius: 32px;
+            padding: 20px 20px 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            border: 1px solid #eef2f5;
+        }
+
+        .q-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .q-num {
+            background: #2a9d8f20;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #2a9d8f;
+        }
+        .q-type {
+            font-size: 0.7rem;
+            background: #eef2fa;
+            padding: 3px 10px;
+            border-radius: 30px;
+            color: #4a627a;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 12px 0 10px;
+            color: #1e3c5c;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .fraction-bridge {
+            background: #fef9e6;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 0.85rem;
+            color: #b45f2a;
+            margin: 10px 0;
+            border-left: 4px solid #f4a261;
+        }
+
+        .answer-area {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px dashed #cbdbe2;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .answer-label {
+            font-size: 0.8rem;
+            color: #4f6f8f;
+        }
+        .answer-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e6f5c;
+            background: #e0f2e9;
+            padding: 4px 12px;
+            border-radius: 28px;
+            word-break: break-word;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            background: #eef2fa;
+            padding: 10px;
+            border-radius: 60px;
+            color: #2c5a7a;
+        }
+
+        footer {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 35px;
+            color: #6c8eae;
+        }
+
+        @media (max-width: 700px) {
+            .card { padding: 20px; }
+            .question-text { font-size: 1rem; }
+            .questions-grid { grid-template-columns: 1fr; }
+            button { padding: 8px 18px; font-size: 0.9rem; }
+            .tab-btn { padding: 6px 18px; font-size: 0.85rem; }
+        }
+        .speaking {
+            background: #f4e3b1;
+            transition: 0.1s;
+            box-shadow: 0 0 0 2px #f4a261;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1>🎧 小数听算练习 · 三合一进阶版</h1>
+        <div class="research-team">📖 数智赋能小学生WEB听觉作业设计研究团队</div>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="unit">📐 单位换算</button>
+        <button class="tab-btn" data-tab="compare">⚖️ 大小比较/排序</button>
+        <button class="tab-btn" data-tab="calc">➕ 小数加减法</button>
+    </div>
+
+    <div class="toolbar">
+        <button id="generateBtn" class="btn-secondary">✨ 随机生成新题</button>
+        <button id="playBtn" class="btn-primary">🔊 开始听算</button>
+        <button id="stopBtn" class="btn-danger">⏹️ 停止朗读</button>
+    </div>
+
+    <div id="questionsContainer" class="questions-grid"></div>
+    <div class="status" id="statusMsg">
+        ✅ 当前板块：单位换算 | 已生成6道题目，点击“开始听算”语音朗读，每道题重复3遍
+    </div>
+      
+</div>
+
+<script>
+    // ========== 全局变量 ==========
+    let currentTab = 'unit';
+    let currentQuestions = [];
+    let speechQueueActive = false;
+    let stopRequested = false;
+    
+    // ========== 朗读核心 ==========
+    function integerToChinese(num) {
+        if (num === undefined || num === null) return '';
+        const n = parseInt(num, 10);
+        if (isNaN(n)) return String(num);
+        if (n === 0) return '零';
+        const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+        if (n < 10) return digits[n];
+        if (n < 20) {
+            if (n === 10) return '十';
+            return '十' + digits[n % 10];
+        }
+        if (n < 100) {
+            let tens = Math.floor(n / 10);
+            let units = n % 10;
+            if (units === 0) return digits[tens] + '十';
+            return digits[tens] + '十' + digits[units];
+        }
+        if (n < 1000) {
+            let hundreds = Math.floor(n / 100);
+            let remainder = n % 100;
+            if (remainder === 0) return digits[hundreds] + '百';
+            if (remainder < 10) return digits[hundreds] + '百零' + integerToChinese(remainder);
+            return digits[hundreds] + '百' + integerToChinese(remainder);
+        }
+        return n.toString();
+    }
+    
+    function decimalPartToChinese(decimalStr) {
+        const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+        let result = '';
+        for (let ch of decimalStr) {
+            let digit = parseInt(ch, 10);
+            if (!isNaN(digit)) result += digits[digit];
+        }
+        return result;
+    }
+    
+    function decimalToChineseRead(decimalStr) {
+        if (!decimalStr.includes('.')) return integerToChinese(parseInt(decimalStr, 10));
+        let parts = decimalStr.split('.');
+        let intPart = parts[0];
+        let fracPart = parts[1];
+        let intRead = (intPart === '0') ? '零' : integerToChinese(parseInt(intPart, 10));
+        let fracRead = decimalPartToChinese(fracPart);
+        if (fracRead === '') return intRead;
+        return intRead + '点' + fracRead;
+    }
+    
+    function readNumber(num) {
+        let str = num.toString();
+        if (str.includes('.')) return decimalToChineseRead(str);
+        return integerToChinese(parseInt(str, 10));
+    }
+    
+    // 朗读带单位的单个数量
+    function readQuantifiedItem(displayStr) {
+        let processed = displayStr.replace(/(\d+)(厘米)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(分米)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(米)/g, (match, num, unit) => {
+                if (match.includes('.')) {
+                    let decimalMatch = match.match(/(\d+\.\d+)(米)/);
+                    if (decimalMatch) return decimalToChineseRead(decimalMatch[1]) + unit;
+                }
+                return integerToChinese(parseInt(num, 10)) + unit;
+            })
+            .replace(/(\d+)(角)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(分)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+\.\d+)(元)/g, (match, decimalNum, unit) => decimalToChineseRead(decimalNum) + unit);
+        
+        if (processed === '0米') return '零米';
+        if (processed === '0元') return '零元';
+        return processed;
+    }
+    
+    // 排序题专用朗读函数：分步骤朗读，每个量之间停顿2秒
+    async function speakSortQuestion(questionObj, onProgress) {
+        let orderText = questionObj.order === 'asc' ? '从小到大' : '从大到小';
+        let items = questionObj.items;
+        
+        // 第一步：朗读引导语
+        await speakTextPromise(`按${orderText}的顺序排列`, 0.6);
+        await delay(300);
+        
+        // 第二步：依次朗读每个数值，每个之间停顿2秒
+        for (let i = 0; i < items.length; i++) {
+            if (stopRequested) break;
+            let itemRead = readQuantifiedItem(items[i].display);
+            await speakTextPromise(itemRead, 0.6);
+            if (i < items.length - 1 && !stopRequested) {
+                await delay(2000); // 每个量之间停顿2秒
+            }
+        }
+    }
+    
+    function buildNaturalSpeech(questionObj) {
+        if (currentTab === 'compare') {
+            if (questionObj.compareType === 'pair') {
+                let a = questionObj.a;
+                let b = questionObj.b;
+                return `${readNumber(a)}和${readNumber(b)}比较大小`;
+            } else {
+                // 排序题返回特殊标记，实际朗读在playAllQuestions中特殊处理
+                return { isSort: true, questionObj: questionObj };
+            }
+        }
+        
+        if (currentTab === 'calc') {
+            let expr = questionObj.questionText;
+            let processed = expr.replace(/\+/g, '加').replace(/-/g, '减').replace(/\?/g, '等于多少');
+            processed = processed.replace(/(\d+\.?\d*)/g, (match) => readNumber(parseFloat(match)));
+            return processed;
+        }
+        
+        // 单位换算板块
+        let rawText = questionObj.questionText;
+        let processed = rawText.replace(/(\d+)(厘米)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(分米)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(角)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit)
+            .replace(/(\d+)(分)/g, (match, num, unit) => integerToChinese(parseInt(num, 10)) + unit);
+        processed = processed.replace(/(?<![\.\d])(\d+)(?=[米元])/g, (match) => integerToChinese(parseInt(match, 10)));
+        processed = processed.replace(/(\d+\.\d+)(米|元)?/g, (match, decimalNum, unit) => {
+            let chineseDecimal = decimalToChineseRead(decimalNum);
+            return chineseDecimal + (unit || '');
+        });
+        processed = processed.replace(/\?/g, '多少');
+        processed = processed.replace(/= 多少/g, '等于多少');
+        if (!processed.includes('等于') && processed.includes('多少')) {
+            processed = processed.replace('多少', '等于多少');
+        }
+        return processed;
+    }
+    
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    function getRandomDecimal(maxInt = 20, digits = 2, avoidDotZero = false) {
+        let intPart = getRandomInt(0, maxInt);
+        let decimalPart = 0;
+        if (digits === 1) decimalPart = getRandomInt(0, 9);
+        else decimalPart = getRandomInt(0, 99);
+        if (avoidDotZero && decimalPart === 0 && digits > 0) {
+            decimalPart = getRandomInt(1, 99);
+        }
+        let val = intPart + decimalPart / Math.pow(10, digits);
+        return parseFloat(val.toFixed(digits));
+    }
+    
+    function formatDecimal(num) {
+        let str = num.toString();
+        if (str.includes('.')) {
+            str = str.replace(/\.?0+$/, '');
+        }
+        return str;
+    }
+    
+    // ================= 板块一：单位换算 =================
+    function genLenM_CmToM() {
+        let meters = getRandomInt(0, 8);
+        let cm = getRandomInt(1, 99);
+        if (meters === 0 && cm === 0) cm = 25;
+        let decimalValue = meters + cm / 100;
+        let finalDecimal = decimalValue.toFixed(2);
+        let displayDecimal = parseFloat(finalDecimal).toString();
+        if (!displayDecimal.includes('.')) displayDecimal = displayDecimal + '.0';
+        else if (displayDecimal.split('.')[1].length === 1) displayDecimal = displayDecimal + '0';
+        let inputDisplay = (meters === 0) ? `${cm}厘米` : `${meters}米${cm}厘米`;
+        const questionText = `${inputDisplay} = ? 米`;
+        const answerText = `${displayDecimal} 米`;
+        const fractionBridge = `${meters}米${cm}厘米 = ${meters}米 + ${cm}厘米 = ${meters} + ${cm}/100 米 = ${(meters + cm/100).toFixed(2)} 米 = ${displayDecimal} 米`;
+        return { questionText, answerText, fractionBridge, type: 'length' };
+    }
+    function genLenM_DmToM() {
+        let meters = getRandomInt(0, 9);
+        let dm = getRandomInt(1, 9);
+        if (meters === 0 && dm === 0) dm = 5;
+        let decimalVal = meters + dm / 10;
+        let displayDecimal = decimalVal.toFixed(1).replace(/\.0$/, '');
+        if (!displayDecimal.includes('.')) displayDecimal += '.0';
+        let inputDisplay = (meters === 0) ? `${dm}分米` : `${meters}米${dm}分米`;
+        const questionText = `${inputDisplay} = ? 米`;
+        const answerText = `${displayDecimal} 米`;
+        const fractionBridge = `${meters}米${dm}分米 = ${meters}米 + ${dm}分米 = ${meters} + ${dm}/10 米 = ${decimalVal.toFixed(1)} 米`;
+        return { questionText, answerText, fractionBridge, type: 'length' };
+    }
+    function genLenM_ToM_Cm() {
+        let intPart = getRandomInt(0, 8);
+        let centPart = getRandomInt(1, 99);
+        let decimalValue = intPart + centPart / 100;
+        let decimalStr = decimalValue.toFixed(2);
+        let questionText, answerText, fractionBridge;
+        if (intPart === 0) {
+            questionText = `${decimalStr}米 = ? 厘米`;
+            answerText = `${centPart}厘米`;
+            fractionBridge = `${decimalStr}米 = ${centPart}/100米 = ${centPart}厘米`;
+        } else {
+            questionText = `${decimalStr}米 = ? 米 ? 厘米`;
+            answerText = `${intPart}米${centPart}厘米`;
+            fractionBridge = `${decimalStr}米 = ${intPart}米 + ${centPart}/100米 = ${intPart}米 + ${centPart}厘米 = ${intPart}米${centPart}厘米`;
+        }
+        return { questionText, answerText, fractionBridge, type: 'length' };
+    }
+    function genLenM_ToM_Dm() {
+        let intPart = getRandomInt(0, 9);
+        let dmPart = getRandomInt(1, 9);
+        let decimalVal = intPart + dmPart / 10;
+        let displayDecimal = decimalVal.toFixed(1);
+        let questionText, answerText, fractionBridge;
+        if (intPart === 0) {
+            questionText = `${displayDecimal}米 = ? 分米`;
+            answerText = `${dmPart}分米`;
+            fractionBridge = `${displayDecimal}米 = ${dmPart}/10米 = ${dmPart}分米`;
+        } else {
+            questionText = `${displayDecimal}米 = ? 米 ? 分米`;
+            answerText = `${intPart}米${dmPart}分米`;
+            fractionBridge = `${displayDecimal}米 = ${intPart}米 + ${dmPart}/10米 = ${intPart}米 + ${dmPart}分米 = ${intPart}米${dmPart}分米`;
+        }
+        return { questionText, answerText, fractionBridge, type: 'length' };
+    }
+    function genMoneyYuanJfToYuan() {
+        let yuan = getRandomInt(0, 15);
+        let jiao = getRandomInt(0, 9);
+        let fen = getRandomInt(0, 9);
+        if (yuan === 0 && jiao === 0 && fen === 0) { jiao = 3; fen = 5; }
+        let decimalValue = yuan + jiao / 10 + fen / 100;
+        let displayFixed = decimalValue.toFixed(2);
+        let displayDecimal = parseFloat(displayFixed).toString();
+        if (!displayDecimal.includes('.')) displayDecimal = displayDecimal + '.00';
+        else if (displayDecimal.split('.')[1].length === 1) displayDecimal = displayDecimal + '0';
+        let inputParts = [];
+        if (yuan !== 0) inputParts.push(`${yuan}元`);
+        if (jiao !== 0) inputParts.push(`${jiao}角`);
+        if (fen !== 0) inputParts.push(`${fen}分`);
+        let inputDisplay = inputParts.join('');
+        if (inputDisplay === '') inputDisplay = '0元';
+        let questionText, fractionBridge;
+        if (yuan === 0 && jiao === 0) { questionText = `${fen}分 = ? 元`; fractionBridge = `${fen}分 = ${fen}/100 元 = ${decimalValue.toFixed(2)} 元`; }
+        else if (yuan === 0 && fen === 0) { questionText = `${jiao}角 = ? 元`; fractionBridge = `${jiao}角 = ${jiao}/10 元 = ${decimalValue.toFixed(2)} 元`; }
+        else if (yuan === 0) { questionText = `${jiao}角${fen}分 = ? 元`; fractionBridge = `${jiao}角${fen}分 = ${jiao}/10 + ${fen}/100 元 = ${decimalValue.toFixed(2)} 元`; }
+        else if (jiao === 0 && fen === 0) { questionText = `${yuan}元 = ? 元`; fractionBridge = `${yuan}元 = ${yuan} 元`; }
+        else if (jiao === 0) { questionText = `${yuan}元${fen}分 = ? 元`; fractionBridge = `${yuan}元${fen}分 = ${yuan} + ${fen}/100 元 = ${decimalValue.toFixed(2)} 元`; }
+        else if (fen === 0) { questionText = `${yuan}元${jiao}角 = ? 元`; fractionBridge = `${yuan}元${jiao}角 = ${yuan} + ${jiao}/10 元 = ${decimalValue.toFixed(2)} 元`; }
+        else { questionText = `${yuan}元${jiao}角${fen}分 = ? 元`; fractionBridge = `${yuan}元${jiao}角${fen}分 = ${yuan} + ${jiao}/10 + ${fen}/100 元 = ${decimalValue.toFixed(2)} 元`; }
+        const answerText = `${parseFloat(decimalValue).toFixed(2).replace(/\.?0+$/, '')} 元`;
+        return { questionText, answerText, fractionBridge, type: 'money' };
+    }
+    function genMoneyYuanToYuanJf() {
+        let decimalType = getRandomInt(0, 1);
+        let yuanInt = 0, jiao = 0, fen = 0, decimalValue = 0;
+        let isPureDecimal = getRandomInt(0, 4) < 2;
+        if (isPureDecimal) {
+            yuanInt = 0;
+            if (decimalType === 0) { jiao = getRandomInt(1, 9); decimalValue = jiao / 10; }
+            else { jiao = getRandomInt(0, 9); fen = getRandomInt(1, 9); if (jiao === 0 && fen === 0) fen = 5; decimalValue = jiao / 10 + fen / 100; }
+        } else {
+            yuanInt = getRandomInt(1, 15);
+            if (decimalType === 0) { jiao = getRandomInt(1, 9); decimalValue = yuanInt + jiao / 10; }
+            else { jiao = getRandomInt(0, 9); fen = getRandomInt(1, 9); if (jiao === 0 && fen === 0) fen = 5; decimalValue = yuanInt + jiao / 10 + fen / 100; }
+        }
+        let decimalStr = decimalValue.toFixed(2).replace(/\.?0+$/, '');
+        if (!decimalStr.includes('.')) decimalStr = decimalStr + '.0';
+        let questionText, answerText, fractionBridge;
+        if (yuanInt === 0) {
+            if (jiao === 0) { questionText = `${decimalStr}元 = ? 分`; answerText = `${fen}分`; fractionBridge = `${decimalStr}元 = ${fen}/100元 = ${fen}分`; }
+            else if (fen === 0) { questionText = `${decimalStr}元 = ? 角`; answerText = `${jiao}角`; fractionBridge = `${decimalStr}元 = ${jiao}/10元 = ${jiao}角`; }
+            else { questionText = `${decimalStr}元 = ? 角 ? 分`; answerText = `${jiao}角${fen}分`; fractionBridge = `${decimalStr}元 = ${jiao}/10元 + ${fen}/100元 = ${jiao}角${fen}分`; }
+        } else {
+            if (jiao === 0 && fen === 0) { questionText = `${decimalStr}元 = ? 元`; answerText = `${yuanInt}元`; fractionBridge = `${decimalStr}元 = ${yuanInt}元`; }
+            else if (jiao === 0) { questionText = `${decimalStr}元 = ? 元 ? 分`; answerText = `${yuanInt}元${fen}分`; fractionBridge = `${decimalStr}元 = ${yuanInt}元 + ${fen}/100元 = ${yuanInt}元${fen}分`; }
+            else if (fen === 0) { questionText = `${decimalStr}元 = ? 元 ? 角`; answerText = `${yuanInt}元${jiao}角`; fractionBridge = `${decimalStr}元 = ${yuanInt}元 + ${jiao}/10元 = ${yuanInt}元${jiao}角`; }
+            else { questionText = `${decimalStr}元 = ? 元 ? 角 ? 分`; answerText = `${yuanInt}元${jiao}角${fen}分`; fractionBridge = `${decimalStr}元 = ${yuanInt}元 + ${jiao}/10元 + ${fen}/100元 = ${yuanInt}元${jiao}角${fen}分`; }
+        }
+        return { questionText, answerText, fractionBridge, type: 'money' };
+    }
+    function getRandomLengthQuestion() { const lenTypes = [genLenM_CmToM, genLenM_DmToM, genLenM_ToM_Cm, genLenM_ToM_Dm]; return lenTypes[getRandomInt(0, lenTypes.length-1)](); }
+    function getRandomMoneyQuestion() { const moneyTypes = [genMoneyYuanJfToYuan, genMoneyYuanToYuanJf]; return moneyTypes[getRandomInt(0, moneyTypes.length-1)](); }
+    function generateUnitQuestions() {
+        let qs = [];
+        for (let i=0;i<3;i++) qs.push(getRandomLengthQuestion());
+        for (let i=0;i<3;i++) qs.push(getRandomMoneyQuestion());
+        for(let i=qs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [qs[i], qs[j]] = [qs[j], qs[i]]; }
+        return qs;
+    }
+    
+    // ================= 板块二：大小比较（包含排序题）=================
+    function generateSortQuestion() {
+        let type = getRandomInt(0, 1);
+        let order = getRandomInt(0, 1) === 0 ? 'asc' : 'desc';
+        let orderText = order === 'asc' ? '从小到大' : '从大到小';
+        
+        let items = [];
+        if (type === 0) {
+            let values = [];
+            while (values.length < 4) {
+                let choice = getRandomInt(0, 4);
+                let val = 0;
+                let display = '';
+                if (choice === 0) {
+                    let m = getRandomInt(0, 3);
+                    val = m;
+                    display = (m === 0 ? '0米' : m + '米');
+                } else if (choice === 1) {
+                    let cm = getRandomInt(30, 250);
+                    val = cm / 100;
+                    display = cm + '厘米';
+                } else if (choice === 2) {
+                    let m = getRandomInt(0, 2);
+                    let cm = getRandomInt(10, 99);
+                    val = m + cm / 100;
+                    if (m === 0) display = cm + '厘米';
+                    else display = m + '米' + cm + '厘米';
+                } else if (choice === 3) {
+                    let m = getRandomInt(0, 2);
+                    let dm = getRandomInt(1, 9);
+                    val = m + dm / 10;
+                    if (m === 0) display = dm + '分米';
+                    else display = m + '米' + dm + '分米';
+                } else {
+                    let cm = getRandomInt(1, 99);
+                    val = cm / 100;
+                    display = cm + '厘米';
+                }
+                let exists = false;
+                for (let existing of values) {
+                    if (Math.abs(existing.value - val) < 0.001) { exists = true; break; }
+                }
+                if (!exists) {
+                    values.push({ value: val, display: display });
+                }
+            }
+            values.sort((a,b) => a.value - b.value);
+            if (order === 'desc') values.reverse();
+            items = values.map(v => ({ display: v.display, value: v.value }));
+        } else {
+            let values = [];
+            while (values.length < 4) {
+                let choice = getRandomInt(0, 4);
+                let val = 0;
+                let display = '';
+                if (choice === 0) {
+                    let y = getRandomInt(0, 8);
+                    val = y;
+                    display = (y === 0 ? '0元' : y + '元');
+                } else if (choice === 1) {
+                    let j = getRandomInt(1, 9);
+                    val = j / 10;
+                    display = j + '角';
+                } else if (choice === 2) {
+                    let f = getRandomInt(10, 99);
+                    val = f / 100;
+                    display = f + '分';
+                } else {
+                    let y = getRandomInt(0, 4);
+                    let j = getRandomInt(1, 9);
+                    let f = getRandomInt(1, 9);
+                    val = y + j/10 + f/100;
+                    if (y === 0) display = j + '角' + f + '分';
+                    else display = y + '元' + j + '角' + f + '分';
+                }
+                let exists = false;
+                for (let existing of values) {
+                    if (Math.abs(existing.value - val) < 0.001) { exists = true; break; }
+                }
+                if (!exists) {
+                    values.push({ value: val, display: display });
+                }
+            }
+            values.sort((a,b) => a.value - b.value);
+            if (order === 'desc') values.reverse();
+            items = values.map(v => ({ display: v.display, value: v.value }));
+        }
+        
+        let itemsDisplay = items.map(item => item.display);
+        let questionText = `按${orderText}的顺序排列：${itemsDisplay.join('、')}`;
+        let answerText = itemsDisplay.join(' < ');
+        if (order === 'desc') answerText = itemsDisplay.join(' > ');
+        let fractionBridge = `将所有数量换算成统一单位后比较：${items.map(item => item.value.toFixed(2)).join(order === 'asc' ? ' < ' : ' > ')}，因此顺序为${answerText}`;
+        
+        return {
+            questionText, answerText, fractionBridge, type: 'sort',
+            compareType: 'sort', order: order, items: items
+        };
+    }
+    
+    function generatePairCompare() {
+        let digits1 = getRandomInt(1, 2);
+        let digits2 = getRandomInt(1, 2);
+        let a = getRandomDecimal(15, digits1);
+        let b = getRandomDecimal(15, digits2);
+        while (Math.abs(a - b) < 0.001) {
+            b = getRandomDecimal(15, digits2);
+        }
+        let symbol = a < b ? '<' : '>';
+        let questionText = `${formatDecimal(a)} 和 ${formatDecimal(b)} 比较大小，? ${symbol} ?`;
+        let answerText = `${formatDecimal(a)} ${symbol} ${formatDecimal(b)}`;
+        let fractionBridge = `比较 ${formatDecimal(a)} 与 ${formatDecimal(b)}：因为 ${a} ${symbol} ${b}，所以 ${answerText}`;
+        return { questionText, answerText, fractionBridge, type: 'compare', compareType: 'pair', a: a, b: b };
+    }
+    
+    function generateCompareQuestions() {
+        let questions = [];
+        for (let i = 0; i < 3; i++) {
+            questions.push(generatePairCompare());
+        }
+        for (let i = 0; i < 3; i++) {
+            questions.push(generateSortQuestion());
+        }
+        for(let i=questions.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
+        return questions;
+    }
+    
+    // ================= 板块三：小数加减法 =================
+    function generateCalcQuestions() {
+        let questions = [];
+        const ops = ['+', '-'];
+        for (let i = 0; i < 6; i++) {
+            let op = ops[getRandomInt(0, 1)];
+            let digits1 = getRandomInt(0, 2);
+            let digits2 = getRandomInt(0, 2);
+            let a = getRandomDecimal(12, digits1, true);
+            let b = getRandomDecimal(12, digits2, true);
+            if (op === '-' && a < b) {
+                let t = a; a = b; b = t;
+            }
+            let result = op === '+' ? a + b : a - b;
+            let resultFormatted = parseFloat(result.toFixed(2)).toString();
+            if (Number.isInteger(result)) {
+                resultFormatted = result.toString();
+            } else {
+                resultFormatted = result.toFixed(2).replace(/\.?0+$/, '');
+                if (!resultFormatted.includes('.')) resultFormatted = resultFormatted;
+            }
+            let displayA = formatDecimal(a);
+            let displayB = formatDecimal(b);
+            let questionText = `${displayA} ${op} ${displayB} = ?`;
+            let answerText = `${resultFormatted}`;
+            let fractionBridge = `${displayA} ${op === '+' ? '加' : '减'} ${displayB} = ${resultFormatted}`;
+            questions.push({ questionText, answerText, fractionBridge, type: 'calc' });
+        }
+        for(let i=questions.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
+        return questions;
+    }
+    
+    function generateQuestionsByTab() {
+        if (currentTab === 'unit') return generateUnitQuestions();
+        if (currentTab === 'compare') return generateCompareQuestions();
+        return generateCalcQuestions();
+    }
+    
+    // ========== 渲染UI ==========
+    function renderQuestions(questions) {
+        const container = document.getElementById('questionsContainer');
+        container.innerHTML = '';
+        questions.forEach((q, idx) => {
+            let typeLabel = '';
+            if (q.type === 'length') typeLabel = '📏 长度换算';
+            else if (q.type === 'money') typeLabel = '💰 货币换算';
+            else if (q.type === 'compare' || q.type === 'sort') typeLabel = '⚖️ 大小比较/排序';
+            else typeLabel = '🧮 小数加减';
+            const card = document.createElement('div');
+            card.className = 'question-item';
+            card.setAttribute('data-idx', idx);
+            card.innerHTML = `
+                <div class="q-header">
+                    <span class="q-num">第 ${idx+1} 题</span>
+                    <span class="q-type">${typeLabel}</span>
+                </div>
+                <div class="question-text">${q.questionText}</div>
+                <div class="fraction-bridge">📐 分数桥：${q.fractionBridge}</div>
+                <div class="answer-area">
+                    <span class="answer-label">✓ 答案：</span>
+                    <span class="answer-value">${q.answerText}</span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+    
+    // ========== 语音播放 ==========
+    async function speakTextPromise(text, rate = 0.6) {
+        return new Promise((resolve, reject) => {
+            if (stopRequested) { reject(new Error('停止朗读')); return; }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = rate;
+            utterance.pitch = 1.0;
+            utterance.volume = 1;
+            utterance.onend = () => resolve();
+            utterance.onerror = (err) => reject(err);
+            window.speechSynthesis.speak(utterance);
+        });
+    }
+    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+    function clearHighlight() { document.querySelectorAll('.question-item').forEach(card => card.classList.remove('speaking')); }
+    function highlightQuestion(index) { clearHighlight(); const cards = document.querySelectorAll('.question-item'); if(cards[index]) cards[index].classList.add('speaking'); }
+    
+    async function playSingleQuestion(q, repeatCount) {
+        if (currentTab === 'compare' && q.compareType === 'sort') {
+            // 排序题使用特殊的朗读方式
+            for (let repeat = 1; repeat <= repeatCount; repeat++) {
+                if (stopRequested) break;
+                if (repeat > 1) await delay(420);
+                if (stopRequested) break;
+                await speakSortQuestion(q);
+            }
+        } else {
+            let speech = buildNaturalSpeech(q);
+            if (typeof speech === 'string') {
+                for (let repeat = 1; repeat <= repeatCount; repeat++) {
+                    if (stopRequested) break;
+                    if (repeat > 1) await delay(420);
+                    if (stopRequested) break;
+                    await speakTextPromise(speech, 0.6);
+                }
+            }
+        }
+    }
+    
+    async function playAllQuestions(questions) {
+        if (!questions.length) return;
+        stopRequested = false;
+        const statusDiv = document.getElementById('statusMsg');
+        for (let i = 0; i < questions.length; i++) {
+            if (stopRequested) break;
+            const q = questions[i];
+            highlightQuestion(i);
+            let tabName = currentTab === 'unit' ? '单位换算' : (currentTab === 'compare' ? '大小比较' : '加减法');
+            statusDiv.innerHTML = `🔊 正在朗读第 ${i+1}/${questions.length} 题（${tabName}），重复3遍...`;
+            await playSingleQuestion(q, 3);
+            if (stopRequested) break;
+            if (i !== questions.length - 1 && !stopRequested) {
+                await delay(2000);
+            }
+        }
+        if (!stopRequested) {
+            statusDiv.innerHTML = '🎉 听算练习完成！可重新生成题目或再次听算 🎉';
+            clearHighlight();
+        } else {
+            statusDiv.innerHTML = '⏹️ 朗读已停止。';
+            clearHighlight();
+        }
+        speechQueueActive = false;
+    }
+    
+    async function startListening() {
+        if (!currentQuestions.length) { document.getElementById('statusMsg').innerHTML = '⚠️ 请先生成题目，再开始听算。'; return; }
+        if (speechQueueActive) { stopSpeaking(); await delay(200); }
+        stopRequested = false;
+        speechQueueActive = true;
+        window.speechSynthesis.cancel();
+        await playAllQuestions(currentQuestions);
+        speechQueueActive = false;
+    }
+    
+    function stopSpeaking() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        stopRequested = true;
+        speechQueueActive = false;
+        clearHighlight();
+        document.getElementById('statusMsg').innerHTML = '⏹️ 朗读已手动停止，可重新开始听算或生成新题。';
+    }
+    
+    function regenerateAndRender() {
+        if (speechQueueActive) stopSpeaking();
+        currentQuestions = generateQuestionsByTab();
+        renderQuestions(currentQuestions);
+        let tabMsg = currentTab === 'unit' ? '单位换算' : (currentTab === 'compare' ? '小数大小比较/排序' : '小数加减法');
+        document.getElementById('statusMsg').innerHTML = `✨ 已生成6道${tabMsg}题目，点击“开始听算”语音朗读，每道题重复3遍，语速0.6，间隔2秒。`;
+        clearHighlight();
+    }
+    
+    function switchTab(tabId) {
+        currentTab = tabId;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.getAttribute('data-tab') === tabId) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        regenerateAndRender();
+    }
+    
+    function init() {
+        currentQuestions = generateUnitQuestions();
+        renderQuestions(currentQuestions);
+        document.getElementById('generateBtn').addEventListener('click', regenerateAndRender);
+        document.getElementById('playBtn').addEventListener('click', startListening);
+        document.getElementById('stopBtn').addEventListener('click', stopSpeaking);
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = btn.getAttribute('data-tab');
+                switchTab(tab);
+            });
+        });
+        window.addEventListener('beforeunload', () => { if(window.speechSynthesis) window.speechSynthesis.cancel(); });
+    }
+    init();
+</script>
+</body>
+</html>
